@@ -48,6 +48,81 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.json(games);
   }));
   
+  // --------------------------------
+  // ওয়ালেট এবং ট্রানজেকশন API এন্ডপয়েন্ট
+  // --------------------------------
+  
+  // ইউজারের ট্রানজেকশন লিস্ট
+  app.get("/api/transactions", asyncHandler(async (req, res) => {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ error: "অনুগ্রহ করে লগইন করুন" });
+    }
+    
+    const userId = req.user!.id;
+    const transactions = await storage.getUserTransactions(userId);
+    res.json(transactions);
+  }));
+  
+  // ডিপোজিট ট্রানজেকশন তৈরি
+  app.post("/api/transactions/deposit", asyncHandler(async (req, res) => {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ error: "অনুগ্রহ করে লগইন করুন" });
+    }
+    
+    const { amount, method } = req.body;
+    if (!amount || isNaN(amount) || amount <= 0) {
+      return res.status(400).json({ error: "সঠিক পরিমাণ দিন" });
+    }
+    
+    const transaction: InsertTransaction = {
+      type: "deposit",
+      amount: amount.toString(),
+      date: new Date(),
+      status: "pending",
+      userId: req.user!.id,
+      method: method || null,
+      details: "ডিপোজিট অনুরোধ গৃহীত হয়েছে।",
+    };
+    
+    const result = await storage.createTransaction(transaction);
+    res.status(201).json(result);
+  }));
+  
+  // উইথড্র ট্রানজেকশন তৈরি
+  app.post("/api/transactions/withdraw", asyncHandler(async (req, res) => {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ error: "অনুগ্রহ করে লগইন করুন" });
+    }
+    
+    const { amount, method, account } = req.body;
+    if (!amount || isNaN(amount) || amount <= 0) {
+      return res.status(400).json({ error: "সঠিক পরিমাণ দিন" });
+    }
+    
+    if (!account) {
+      return res.status(400).json({ error: "অ্যাকাউন্ট নম্বর দিন" });
+    }
+    
+    // চেক করা যে ইউজারের যথেষ্ট ব্যালেন্স আছে কিনা
+    const user = req.user!;
+    if (parseFloat(user.balance) < amount) {
+      return res.status(400).json({ error: "আপনার ব্যালেন্সে পর্যাপ্ত পরিমাণ নেই" });
+    }
+    
+    const transaction: InsertTransaction = {
+      type: "withdraw",
+      amount: amount.toString(),
+      date: new Date(),
+      status: "pending",
+      userId: user.id,
+      method: method || null,
+      details: account,
+    };
+    
+    const result = await storage.createTransaction(transaction);
+    res.status(201).json(result);
+  }));
+  
   // একটি নির্দিষ্ট স্লট গেম
   app.get("/api/slots/:id", asyncHandler(async (req, res) => {
     const id = parseInt(req.params.id);
@@ -168,35 +243,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.json(updatedMatch);
   }));
   
-  // --------------------------------
-  // ট্রানজেকশন API এন্ডপয়েন্ট
-  // --------------------------------
-  
-  // ইউজারের ট্রানজেকশন দেখার
-  app.get("/api/transactions", asyncHandler(async (req, res) => {
-    if (!req.isAuthenticated()) {
-      return res.status(401).json({ error: "অনুমতি নেই" });
-    }
-    
-    const userId = req.user!.id;
-    const transactions = await storage.getUserTransactions(userId);
-    res.json(transactions);
-  }));
-  
-  // নতুন ট্রানজেকশন করা (জমা/উত্তোলন)
-  app.post("/api/transactions", asyncHandler(async (req, res) => {
-    if (!req.isAuthenticated()) {
-      return res.status(401).json({ error: "অনুমতি নেই" });
-    }
-    
-    const userId = req.user!.id;
-    let transactionData = req.body;
-    transactionData.userId = userId;
-    
-    const data = validateBody<InsertTransaction>(insertTransactionSchema, transactionData);
-    const transaction = await storage.createTransaction(data);
-    res.status(201).json(transaction);
-  }));
+  // এই সেকশন বাদ দিতে হবে, কারণ আমরা /api/transactions/deposit এবং /api/transactions/withdraw এন্ডপয়েন্ট ইতিমধ্যে যোগ করেছি
   
   // --------------------------------
   // প্রোমোশন API এন্ডপয়েন্ট

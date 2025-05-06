@@ -229,35 +229,20 @@ export default function WalletPage() {
     }
 
     setIsSubmitting(true);
-    // অসল API কল এখানে হবে
-    setTimeout(() => {
-      const amount = parseFloat(withdrawAmount);
-      setBalance(prev => prev - amount);
-      
-      const newTransaction: Transaction = {
-        id: `TX${Math.floor(Math.random() * 1000000)}`,
-        type: "withdraw",
-        amount: amount,
-        date: new Date().toLocaleString(),
-        status: "pending",
-        method: withdrawMethod === "bkash" ? "বিকাশ" : 
-                withdrawMethod === "rocket" ? "রকেট" : 
-                withdrawMethod === "nagad" ? "নগদ" : "ব্যাংক",
-        details: withdrawAccount,
-      };
-      
-      setTransactions(prev => [newTransaction, ...prev]);
-      setFilteredTransactions(prev => [newTransaction, ...prev]);
-      
-      toast({
-        title: "অনুরোধ গৃহীত হয়েছে",
-        description: `${amount} টাকা উত্তোলনের অনুরোধ গৃহীত হয়েছে`,
-      });
-      
-      setWithdrawAmount("");
-      setWithdrawAccount("");
-      setIsSubmitting(false);
-    }, 1500);
+    // API কল করা
+    const amount = parseFloat(withdrawAmount);
+    withdrawMutation.mutate(
+      { 
+        amount, 
+        method: withdrawMethod,
+        account: withdrawAccount
+      }, 
+      {
+        onSettled: () => {
+          setIsSubmitting(false);
+        }
+      }
+    );
   };
 
   const handleCopyToClipboard = (text: string) => {
