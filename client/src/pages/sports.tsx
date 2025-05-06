@@ -5,6 +5,7 @@ import MobileMenu from "@/components/layout/mobile-menu";
 import MobileNav from "@/components/layout/mobile-nav";
 import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { 
   Timer, 
   Star, 
@@ -53,154 +54,69 @@ export default function SportsPage() {
   const [activeSport, setActiveSport] = useState("ফুটবল");
   const [activeTab, setActiveTab] = useState("upcoming");
 
+  // স্পোর্টস ম্যাচ ডেটা লোড করার জন্য TanStack Query ব্যবহার
+  const { data: apiMatches, isLoading } = useQuery({
+    queryKey: ['/api/sports'],
+    staleTime: 30 * 1000, // ৩০ সেকেন্ড
+  });
+
+  // ওয়েবসকেট কানেকশন সেটআপ
   useEffect(() => {
-    // এখানে অসল API কল করা হবে, এখন নমুনা ডাটা দেখাচ্ছি
-    setTimeout(() => {
-      setMatches([
-        {
-          id: 1,
-          homeTeam: "আর্সেনাল",
-          awayTeam: "লিভারপুল",
-          league: "প্রিমিয়ার লীগ",
-          time: "8:00 PM",
-          date: "আজ",
-          isLive: true,
-          odds: {
-            home: 2.5,
-            draw: 3.4,
-            away: 2.8,
-          },
-          statistics: {
-            possession: {
-              home: 55,
-              away: 45,
-            },
-            shots: {
-              home: 8,
-              away: 6,
-            },
-          },
-          score: {
-            home: 1,
-            away: 1,
-          },
-        },
-        {
-          id: 2,
-          homeTeam: "বার্সেলোনা",
-          awayTeam: "রিয়াল মাদ্রিদ",
-          league: "লা লিগা",
-          time: "9:30 PM",
-          date: "আজ",
-          isLive: true,
-          odds: {
-            home: 1.9,
-            draw: 3.2,
-            away: 3.8,
-          },
-          statistics: {
-            possession: {
-              home: 62,
-              away: 38,
-            },
-            shots: {
-              home: 10,
-              away: 4,
-            },
-          },
-          score: {
-            home: 2,
-            away: 0,
-          },
-        },
-        {
-          id: 3,
-          homeTeam: "বায়ার্ন মিউনিখ",
-          awayTeam: "ডর্টমুন্ড",
-          league: "বুন্দেসলিগা",
-          time: "7:30 PM",
-          date: "কাল",
-          isLive: false,
-          odds: {
-            home: 1.7,
-            draw: 3.6,
-            away: 4.5,
-          },
-        },
-        {
-          id: 4,
-          homeTeam: "ম্যানচেস্টার সিটি",
-          awayTeam: "চেলসি",
-          league: "প্রিমিয়ার লীগ",
-          time: "5:00 PM",
-          date: "কাল",
-          isLive: false,
-          odds: {
-            home: 1.8,
-            draw: 3.5,
-            away: 4.2,
-          },
-        },
-        {
-          id: 5,
-          homeTeam: "পিএসজি",
-          awayTeam: "মার্সেই",
-          league: "লিগ ১",
-          time: "10:00 PM",
-          date: "কাল",
-          isLive: false,
-          odds: {
-            home: 1.5,
-            draw: 4.0,
-            away: 5.5,
-          },
-        },
-        {
-          id: 6,
-          homeTeam: "এসি মিলান",
-          awayTeam: "ইন্টার মিলান",
-          league: "সেরি আ",
-          time: "8:45 PM",
-          date: "পরশু",
-          isLive: false,
-          odds: {
-            home: 2.7,
-            draw: 3.3,
-            away: 2.6,
-          },
-        },
-        {
-          id: 7,
-          homeTeam: "আয়াক্স",
-          awayTeam: "ফেয়েনূর্দ",
-          league: "এরেদিভিসি",
-          time: "4:30 PM",
-          date: "পরশু",
-          isLive: false,
-          odds: {
-            home: 2.0,
-            draw: 3.4,
-            away: 3.5,
-          },
-        },
-        {
-          id: 8,
-          homeTeam: "ম্যানচেস্টার ইউনাইটেড",
-          awayTeam: "টটেনহ্যাম",
-          league: "প্রিমিয়ার লীগ",
-          time: "6:30 PM",
-          date: "পরশু",
-          isLive: false,
-          odds: {
-            home: 2.2,
-            draw: 3.3,
-            away: 3.2,
-          },
-        },
-      ]);
-      setLoading(false);
-    }, 500);
-  }, []);
+    setLoading(isLoading);
+    if (apiMatches) {
+      setMatches(apiMatches);
+    }
+
+    // ওয়েবসকেট কানেকশন সেটআপ (লাইভ স্কোর আপডেটের জন্য)
+    const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
+    const wsUrl = `${protocol}//${window.location.host}/ws`;
+    const socket = new WebSocket(wsUrl);
+
+    socket.addEventListener('open', () => {
+      console.log('ওয়েবসকেট কানেকশন স্থাপিত হয়েছে');
+    });
+
+    socket.addEventListener('message', (event) => {
+      try {
+        const data = JSON.parse(event.data);
+        
+        // লাইভ স্কোর আপডেট প্রসেস করা
+        if (data.type === 'liveScore') {
+          setMatches(prevMatches => {
+            const updatedMatches = [...prevMatches];
+            
+            // প্রাপ্ত ম্যাচগুলির স্কোর আপডেট করা
+            data.matches.forEach(liveMatch => {
+              const index = updatedMatches.findIndex(m => m.id === liveMatch.id);
+              if (index !== -1) {
+                updatedMatches[index] = {
+                  ...updatedMatches[index],
+                  score: liveMatch.score,
+                  statistics: liveMatch.statistics,
+                  time: liveMatch.time
+                };
+              }
+            });
+            
+            return updatedMatches;
+          });
+        }
+      } catch (err) {
+        console.error('ওয়েবসকেট মেসেজ পার্স করতে সমস্যা:', err);
+      }
+    });
+
+    socket.addEventListener('close', () => {
+      console.log('ওয়েবসকেট কানেকশন বন্ধ হয়েছে');
+    });
+
+    // ক্লিনআপ ফাংশন
+    return () => {
+      if (socket.readyState === WebSocket.OPEN) {
+        socket.close();
+      }
+    };
+  }, [apiMatches, isLoading]);
 
   const handleLogout = () => {
     logoutMutation.mutate();

@@ -63,7 +63,7 @@ export default function LiveCasinoPage() {
   ];
 
   // গেমগুলি ফিল্টার করা (ক্যাটাগরি এবং সার্চ টার্ম অনুযায়ী)
-  const filteredGames = games
+  const filteredGames = Array.isArray(games) ? games
     .filter(game => {
       // সার্চ টার্ম দিয়ে ফিল্টার
       if (searchTerm && !game.name.toLowerCase().includes(searchTerm.toLowerCase())) {
@@ -82,7 +82,7 @@ export default function LiveCasinoPage() {
       } else {
         return game.category === activeCategory;
       }
-    });
+    }) : [];
 
   return (
     <div className="flex flex-col min-h-screen bg-background">
