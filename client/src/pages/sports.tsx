@@ -4,7 +4,7 @@ import Footer from "@/components/layout/footer";
 import MobileMenu from "@/components/layout/mobile-menu";
 import MobileNav from "@/components/layout/mobile-nav";
 import { Button } from "@/components/ui/button";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { 
   Timer, 
