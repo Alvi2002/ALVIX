@@ -37,6 +37,8 @@ import {
 import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { Badge } from "@/components/ui/badge";
+import { useQuery, useMutation } from "@tanstack/react-query";
+import { queryClient } from "@/lib/queryClient";
 import {
   Select,
   SelectContent,
@@ -69,74 +71,100 @@ export default function WalletPage() {
   const [filteredTransactions, setFilteredTransactions] = useState<Transaction[]>([]);
   const [filter, setFilter] = useState("all");
 
+  // ওয়ালেট ব্যালেন্স লোড করা
+  const { data: userData, isLoading: userDataLoading } = useQuery({
+    queryKey: ['/api/user'],
+    staleTime: 60 * 1000, // ১ মিনিট
+    enabled: !!user,
+  });
+  
+  // টাকার লেনদেনের তথ্য লোড করা
+  const { data: txData, isLoading: txLoading } = useQuery({
+    queryKey: ['/api/transactions'],
+    staleTime: 30 * 1000, // ৩০ সেকেন্ড
+    enabled: !!user,
+  });
+  
+  // টাকা জমা করার মিউটেশন
+  const depositMutation = useMutation({
+    mutationFn: async (data: { amount: number, method: string }) => {
+      const response = await fetch('/api/transactions/deposit', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      });
+      if (!response.ok) {
+        throw new Error('টাকা জমা করতে সমস্যা হয়েছে');
+      }
+      return await response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/transactions'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/user'] });
+      setDepositAmount("");
+      toast({
+        title: "অনুরোধ গৃহীত হয়েছে",
+        description: `${depositAmount} টাকা জমা করার অনুরোধ গৃহীত হয়েছে`,
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "দুঃখিত",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+  
+  // টাকা উত্তোলনের মিউটেশন
+  const withdrawMutation = useMutation({
+    mutationFn: async (data: { amount: number, method: string, account: string }) => {
+      const response = await fetch('/api/transactions/withdraw', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      });
+      if (!response.ok) {
+        throw new Error('টাকা উত্তোলন করতে সমস্যা হয়েছে');
+      }
+      return await response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/transactions'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/user'] });
+      setWithdrawAmount("");
+      setWithdrawAccount("");
+      toast({
+        title: "অনুরোধ গৃহীত হয়েছে",
+        description: `${withdrawAmount} টাকা উত্তোলনের অনুরোধ গৃহীত হয়েছে`,
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "দুঃখিত",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+  
+  // ইউজার ডেটা এবং ট্রানজেকশন ডেটা আপডেট
   useEffect(() => {
-    // এখানে অসল API কল হবে
-    const sampleTransactions: Transaction[] = [
-      {
-        id: "TX8765432",
-        type: "deposit",
-        amount: 1000,
-        date: "2023-10-25 15:30",
-        status: "success",
-        method: "বিকাশ",
-        details: "01712345678"
-      },
-      {
-        id: "TX8765431",
-        type: "win",
-        amount: 500,
-        date: "2023-10-23 11:45",
-        status: "success",
-        details: "ফুটবল বেট: আর্সেনাল বনাম লিভারপুল"
-      },
-      {
-        id: "TX8765430",
-        type: "lose",
-        amount: 200,
-        date: "2023-10-21 18:15",
-        status: "success",
-        details: "স্লট গেম: গোল্ডেন ড্রাগন"
-      },
-      {
-        id: "TX8765429",
-        type: "withdraw",
-        amount: 1500,
-        date: "2023-10-20 13:10",
-        status: "pending",
-        method: "বিকাশ",
-        details: "01712345678"
-      },
-      {
-        id: "TX8765428",
-        type: "deposit",
-        amount: 2000,
-        date: "2023-10-19 09:25",
-        status: "success",
-        method: "রকেট",
-        details: "01812345678"
-      },
-      {
-        id: "TX8765427",
-        type: "bonus",
-        amount: 200,
-        date: "2023-10-18 14:50",
-        status: "success",
-        details: "স্বাগতম বোনাস"
-      },
-      {
-        id: "TX8765426",
-        type: "withdraw",
-        amount: 1000,
-        date: "2023-10-15 16:40",
-        status: "failed",
-        method: "নগদ",
-        details: "01912345678"
-      },
-    ];
+    // ইউজার ডেটা থেকে ব্যালেন্স আপডেট
+    if (userData) {
+      setBalance(parseFloat(userData.balance));
+    }
     
-    setTransactions(sampleTransactions);
-    setFilteredTransactions(sampleTransactions);
-  }, []);
+    // ট্রানজেকশন ডেটা আপডেট
+    if (txData) {
+      setTransactions(txData);
+      setFilteredTransactions(txData);
+    }
+  }, [userData, txData]);
 
   useEffect(() => {
     if (filter === "all") {
@@ -157,34 +185,19 @@ export default function WalletPage() {
     }
 
     setIsSubmitting(true);
-    // অসল API কল এখানে হবে
-    setTimeout(() => {
-      const amount = parseFloat(depositAmount);
-      setBalance(prev => prev + amount);
-      
-      const newTransaction: Transaction = {
-        id: `TX${Math.floor(Math.random() * 1000000)}`,
-        type: "deposit",
-        amount: amount,
-        date: new Date().toLocaleString(),
-        status: "pending",
-        method: depositMethod === "bkash" ? "বিকাশ" : 
-                depositMethod === "rocket" ? "রকেট" : 
-                depositMethod === "nagad" ? "নগদ" : "ব্যাংক",
-        details: "প্রক্রিয়াধীন...",
-      };
-      
-      setTransactions(prev => [newTransaction, ...prev]);
-      setFilteredTransactions(prev => [newTransaction, ...prev]);
-      
-      toast({
-        title: "অনুরোধ গৃহীত হয়েছে",
-        description: `${amount} টাকা জমা করার অনুরোধ গৃহীত হয়েছে`,
-      });
-      
-      setDepositAmount("");
-      setIsSubmitting(false);
-    }, 1500);
+    // API কল করা
+    const amount = parseFloat(depositAmount);
+    depositMutation.mutate(
+      { 
+        amount, 
+        method: depositMethod 
+      }, 
+      {
+        onSettled: () => {
+          setIsSubmitting(false);
+        }
+      }
+    );
   };
 
   const handleWithdraw = () => {
