@@ -1,0 +1,124 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;500;600;700&family=Rajdhani:wght@400;500;600;700&family=Audiowide&display=swap');
+
+:root {
+  --background: 220 44% 8%;
+  --foreground: 0 0% 88%;
+  --muted: 240 4% 16%;
+  --muted-foreground: 240 5% 65%;
+  --popover: 240 10% 4%;
+  --popover-foreground: 0 0% 98%;
+  --card: 240 10% 4%;
+  --card-foreground: 0 0% 98%;
+  --border: 240 4% 16%;
+  --input: 240 4% 16%;
+  --primary: 45 89% 59%;
+  --primary-foreground: 0 0% 10%;
+  --secondary: 240 4% 16%;
+  --secondary-foreground: 0 0% 98%;
+  --accent: 45 89% 59%;
+  --accent-foreground: 0 0% 10%;
+  --destructive: 0 62.8% 30.6%;
+  --destructive-foreground: 0 0% 98%;
+  --ring: 45 89% 59%;
+  --radius: 0.5rem;
+  
+  --chart-1: 207 90% 54%;
+  --chart-2: 45 89% 59%;
+  --chart-3: 1 83% 60%;
+  --chart-4: 130 50% 60%;
+  --chart-5: 275 80% 60%;
+  
+  --sidebar-background: 240 10% 4%;
+  --sidebar-foreground: 0 0% 88%;
+  --sidebar-primary: 45 89% 59%;
+  --sidebar-primary-foreground: 0 0% 10%;
+  --sidebar-accent: 240 4% 16%;
+  --sidebar-accent-foreground: 0 0% 98%;
+  --sidebar-border: 240 4% 16%;
+  --sidebar-ring: 45 89% 59%;
+  
+  --highlight: 355 100% 64%;
+}
+
+.dark {
+  --background: 220 44% 8%;
+  --foreground: 0 0% 88%;
+  --muted: 240 4% 16%;
+  --muted-foreground: 240 5% 65%;
+  --popover: 240 10% 4%;
+  --popover-foreground: 0 0% 98%;
+  --card: 240 10% 4%;
+  --card-foreground: 0 0% 98%;
+  --border: 240 4% 16%;
+  --input: 240 4% 16%;
+  --primary: 45 89% 59%;
+  --primary-foreground: 0 0% 10%;
+  --secondary: 240 4% 16%;
+  --secondary-foreground: 0 0% 98%;
+  --accent: 45 89% 59%;
+  --accent-foreground: 0 0% 10%;
+  --destructive: 0 62.8% 30.6%;
+  --destructive-foreground: 0 0% 98%;
+  --ring: 45 89% 59%;
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply font-sans antialiased bg-background text-foreground;
+    font-family: 'Hind Siliguri', sans-serif;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Rajdhani', sans-serif;
+  }
+}
+
+@layer components {
+  .font-header {
+    font-family: 'Rajdhani', sans-serif;
+  }
+  
+  .font-body {
+    font-family: 'Hind Siliguri', sans-serif;
+  }
+  
+  .font-accent {
+    font-family: 'Audiowide', cursive;
+  }
+  
+  .game-card {
+    @apply transition-all duration-300;
+  }
+  
+  .game-card:hover {
+    @apply transform -translate-y-1 shadow-lg;
+  }
+  
+  .category-tab.active {
+    @apply text-accent border-b-2 border-accent;
+  }
+  
+  .slider-container {
+    @apply scroll-smooth;
+  }
+  
+  .custom-scrollbar::-webkit-scrollbar {
+    @apply h-1;
+  }
+  
+  .custom-scrollbar::-webkit-scrollbar-track {
+    @apply bg-card;
+  }
+  
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    @apply bg-accent rounded-sm;
+  }
+}
