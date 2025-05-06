@@ -4,108 +4,52 @@ import Footer from "@/components/layout/footer";
 import MobileMenu from "@/components/layout/mobile-menu";
 import MobileNav from "@/components/layout/mobile-nav";
 import { Button } from "@/components/ui/button";
-import { Play } from "lucide-react";
-import { useEffect, useState } from "react";
+import { Play, Search } from "lucide-react";
+import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { Input } from "@/components/ui/input";
 
 type LiveCasinoGame = {
   id: number;
   name: string;
   image: string;
-  players: string;
+  players: string | null;
   provider: string;
   category: string;
-  badge: { text: string; type: "highlight" | "accent" | "blue" } | null;
+  isPopular: boolean | null;
+  isFeatured: boolean | null;
+  badgeType: string | null;
+  badgeText: string | null;
 };
 
 export default function LiveCasinoPage() {
   const { user, logoutMutation } = useAuth();
-  const [games, setGames] = useState<LiveCasinoGame[]>([]);
-  const [loading, setLoading] = useState(true);
   const [activeCategory, setActiveCategory] = useState("সব");
-
-  useEffect(() => {
-    // এখানে অসল API কল করা হবে, এখন নমুনা ডাটা দেখাচ্ছি
-    setTimeout(() => {
-      setGames([
-        {
-          id: 1,
-          name: "লাইভ রুলেট",
-          image: "https://images.unsplash.com/photo-1606167668584-78701c57f13d?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=250",
-          players: "১০০+ প্লেয়ার",
-          provider: "এভোলুশন",
-          category: "রুলেট",
-          badge: { text: "জনপ্রিয়", type: "highlight" },
-        },
-        {
-          id: 2,
-          name: "ব্ল্যাকজ্যাক",
-          image: "https://pixabay.com/get/g7033623a2b3d2510f315f6ad7b55ce8c57f72231fe7a776c4bf29c38234ac393446b538684087e4e77955455737b8e35559d9a29527f9dd95e08d63713da9720_1280.jpg",
-          players: "৫০+ প্লেয়ার",
-          provider: "প্রাগমেটিক",
-          category: "কার্ড",
-          badge: { text: "হট", type: "highlight" },
-        },
-        {
-          id: 3,
-          name: "টেক্সাস হোল্ডেম",
-          image: "https://images.unsplash.com/photo-1505247964246-1f0a90443c36?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=250",
-          players: "২৫+ টেবিল",
-          provider: "এজিবিটি",
-          category: "পোকার",
-          badge: { text: "টুর্নামেন্ট", type: "accent" },
-        },
-        {
-          id: 4,
-          name: "বাকারাত",
-          image: "https://images.unsplash.com/photo-1606167668584-78701c57f13d?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=250",
-          players: "৩০+ প্লেয়ার",
-          provider: "এভোলুশন",
-          category: "কার্ড",
-          badge: null,
-        },
-        {
-          id: 5,
-          name: "ড্রাগন টাইগার",
-          image: "https://pixabay.com/get/gc19ec2ec17a6ef9cfe2ebd7bcc0267c2ffce3e865a2cd4bc8a4a17b8c7c7c2f42883df8683cf1ad5723398db0e2bfeeac932d3b752bc90aebbcc5cdf6c5d33d4_1280.jpg",
-          players: "৪০+ প্লেয়ার",
-          provider: "এভোলুশন",
-          category: "কার্ড",
-          badge: { text: "নতুন", type: "blue" },
-        },
-        {
-          id: 6,
-          name: "ক্ষতিপূরণ রুলেট",
-          image: "https://pixabay.com/get/g82f54f2aa4effa8d8b99ad3577f2d6da9e3d0d6bb84ba7b2e3ddc3ad3d9d00bae38e22e5b9dcae8b1f7a8b257c4c4ddab74de8a1e9c89ac9a5fbff8a04d5e46c_1280.jpg",
-          players: "৬০+ প্লেয়ার",
-          provider: "প্লেটেক",
-          category: "রুলেট",
-          badge: { text: "VIP", type: "accent" },
-        },
-        {
-          id: 7,
-          name: "ক্যারিবিয়ান স্টাড",
-          image: "https://pixabay.com/get/g8f9a37c1e953c1a923764e17292b3cc53a39347f79e80f16c57d414ceadfb1da93c8f80f7a20ca7dbe41ff4b5e4d61a64cd1bcb9c0dbe075ab98c2c5f7c6cb06_1280.jpg",
-          players: "২০+ টেবিল",
-          provider: "এভোলুশন",
-          category: "পোকার",
-          badge: null,
-        },
-        {
-          id: 8,
-          name: "ডিল অর নো ডিল",
-          image: "https://pixabay.com/get/g1bd071fe02e8c0b6e20e4d7d40ebb5e21a7fac9bd2213bc5cd3e4444ba5f71d4e661c02cab0b5dabc3a2aba7b1a7e09d417af8abf0a75ec34fb25b0ca35c21ce_1280.jpg",
-          players: "৪৫+ প্লেয়ার",
-          provider: "প্লেটেক",
-          category: "সেলিব্রিটি",
-          badge: { text: "শো", type: "blue" },
-        },
-      ]);
-      setLoading(false);
-    }, 500);
-  }, []);
+  const [searchTerm, setSearchTerm] = useState("");
+  
+  // লাইভ ক্যাসিনো গেম লোড করার জন্য API কল
+  const { 
+    data: games = [], 
+    isLoading: loading 
+  } = useQuery({ 
+    queryKey: ['/api/live-casino'],
+    staleTime: 60 * 1000, // ১ মিনিট
+  });
 
   const handleLogout = () => {
     logoutMutation.mutate();
+  };
+  
+  const handlePopularClick = () => {
+    setActiveCategory("জনপ্রিয়");
+  };
+
+  const handleNewClick = () => {
+    setActiveCategory("নতুন");
+  };
+
+  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchTerm(e.target.value);
   };
 
   const categories = [
@@ -118,10 +62,27 @@ export default function LiveCasinoPage() {
     "VIP",
   ];
 
-  const filteredGames = activeCategory === "সব"
-    ? games
-    : games.filter(game => game.category === activeCategory || 
-      (activeCategory === "VIP" && game.badge?.text === "VIP"));
+  // গেমগুলি ফিল্টার করা (ক্যাটাগরি এবং সার্চ টার্ম অনুযায়ী)
+  const filteredGames = games
+    .filter(game => {
+      // সার্চ টার্ম দিয়ে ফিল্টার
+      if (searchTerm && !game.name.toLowerCase().includes(searchTerm.toLowerCase())) {
+        return false;
+      }
+      
+      // ক্যাটাগরি দিয়ে ফিল্টার
+      if (activeCategory === "সব") {
+        return true;
+      } else if (activeCategory === "জনপ্রিয়") {
+        return game.isPopular === true;
+      } else if (activeCategory === "VIP") {
+        return game.badgeText === "VIP";
+      } else if (activeCategory === "নতুন") {
+        return game.badgeText === "নিউ" || game.badgeText === "নতুন";
+      } else {
+        return game.category === activeCategory;
+      }
+    });
 
   return (
     <div className="flex flex-col min-h-screen bg-background">
@@ -152,20 +113,41 @@ export default function LiveCasinoPage() {
         </div>
 
         <div className="container mx-auto px-4 py-8">
-          <div className="flex items-center justify-between mb-6">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
             <h2 className="text-2xl font-bold text-white font-header flex items-center">
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="text-accent mr-2 h-6 w-6">
                 <path d="M4.5 4.5a3 3 0 00-3 3v9a3 3 0 003 3h8.25a3 3 0 003-3v-9a3 3 0 00-3-3H4.5zM19.94 18.75l-2.69-2.69V7.94l2.69-2.69c.944-.945 2.56-.276 2.56 1.06v11.38c0 1.336-1.616 2.005-2.56 1.06z" />
               </svg>
               লাইভ ক্যাসিনো গেমস
             </h2>
-            <div className="flex space-x-2">
-              <Button variant="outline" size="sm" className="border-accent text-accent hover:bg-accent hover:text-background">
-                এখন জনপ্রিয়
-              </Button>
-              <Button variant="outline" size="sm" className="border-accent text-accent hover:bg-accent hover:text-background">
-                নতুন টেবিল
-              </Button>
+            <div className="w-full sm:w-auto flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-4">
+              <div className="relative">
+                <Input
+                  placeholder="টেবিল খুঁজুন..."
+                  className="pl-9 w-full sm:w-[200px] bg-card border-accent/50 rounded-full"
+                  value={searchTerm}
+                  onChange={handleSearch}
+                />
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              </div>
+              <div className="flex space-x-2">
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="border-accent text-accent hover:bg-accent hover:text-background"
+                  onClick={handlePopularClick}
+                >
+                  জনপ্রিয়
+                </Button>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="border-accent text-accent hover:bg-accent hover:text-background"
+                  onClick={handleNewClick}
+                >
+                  নতুন টেবিল
+                </Button>
+              </div>
             </div>
           </div>
 
@@ -211,19 +193,19 @@ export default function LiveCasinoPage() {
                         লাইভ খেলুন
                       </Button>
                     </div>
-                    {game.badge && (
+                    {game.badgeText && (
                       <div className={`absolute top-3 left-3 text-white text-xs px-2 py-1 rounded-full ${
-                        game.badge.type === "highlight" ? "bg-[#ff4757]" : 
-                        game.badge.type === "accent" ? "bg-accent text-secondary" :
+                        game.badgeType === "highlight" ? "bg-[#ff4757]" : 
+                        game.badgeType === "accent" ? "bg-accent text-secondary" :
                         "bg-blue-500"
                       }`}>
-                        {game.badge.text}
+                        {game.badgeText}
                       </div>
                     )}
                     <div className="absolute bottom-3 left-3 right-3">
                       <div className="flex justify-between items-center">
                         <span className="text-white font-accent text-sm bg-black bg-opacity-70 px-2 py-1 rounded">
-                          {game.players}
+                          {game.players || "লাইভ টেবিল"}
                         </span>
                         <span className="text-white bg-accent text-xs font-semibold px-2 py-1 rounded">
                           লাইভ
