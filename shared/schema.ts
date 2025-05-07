@@ -15,6 +15,7 @@ export const users = pgTable("users", {
   isVip: boolean("is_vip").default(false),
   avatarUrl: text("avatar_url"),
   isAdmin: boolean("is_admin").default(false),
+  isBanned: boolean("is_banned").default(false),
 });
 
 // স্লটস গেম টেবিল
@@ -81,6 +82,16 @@ export const promotions = pgTable("promotions", {
   isActive: boolean("is_active").default(true),
 });
 
+// ডিপোজিট ফোন নাম্বার টেবিল
+export const depositPhones = pgTable("deposit_phones", {
+  id: serial("id").primaryKey(),
+  number: text("number").notNull().unique(),
+  provider: text("provider").notNull(), // "bkash", "nagad", "rocket", "upay"
+  name: text("name").notNull(),
+  isActive: boolean("is_active").default(true),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
 // Insert Schemas
 export const insertUserSchema = createInsertSchema(users).pick({
   username: true,
@@ -96,6 +107,7 @@ export const insertLiveCasinoGameSchema = createInsertSchema(liveCasinoGames);
 export const insertSportMatchSchema = createInsertSchema(sportMatches);
 export const insertTransactionSchema = createInsertSchema(transactions);
 export const insertPromotionSchema = createInsertSchema(promotions);
+export const insertDepositPhoneSchema = createInsertSchema(depositPhones);
 
 // Types
 export type InsertUser = z.infer<typeof insertUserSchema>;
