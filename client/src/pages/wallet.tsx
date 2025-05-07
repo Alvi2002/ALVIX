@@ -62,6 +62,7 @@ export default function WalletPage() {
   const { toast } = useToast();
   const [balance, setBalance] = useState(5000);
   const [depositAmount, setDepositAmount] = useState("");
+  const [depositTransactionId, setDepositTransactionId] = useState("");
   const [withdrawAmount, setWithdrawAmount] = useState("");
   const [depositMethod, setDepositMethod] = useState("bkash");
   const [withdrawMethod, setWithdrawMethod] = useState("bkash");
@@ -87,7 +88,7 @@ export default function WalletPage() {
   
   // টাকা জমা করার মিউটেশন
   const depositMutation = useMutation({
-    mutationFn: async (data: { amount: number, method: string }) => {
+    mutationFn: async (data: { amount: number, method: string, transactionId: string }) => {
       const response = await fetch('/api/transactions/deposit', {
         method: 'POST',
         headers: {
@@ -104,6 +105,7 @@ export default function WalletPage() {
       queryClient.invalidateQueries({ queryKey: ['/api/transactions'] });
       queryClient.invalidateQueries({ queryKey: ['/api/user'] });
       setDepositAmount("");
+      setDepositTransactionId("");
       toast({
         title: "অনুরোধ গৃহীত হয়েছে",
         description: `${depositAmount} টাকা জমা করার অনুরোধ গৃহীত হয়েছে`,
@@ -184,13 +186,23 @@ export default function WalletPage() {
       return;
     }
 
+    if (!depositTransactionId) {
+      toast({
+        title: "দুঃখিত",
+        description: "ট্রানজেকশন আইডি দিন",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsSubmitting(true);
     // API কল করা
     const amount = parseFloat(depositAmount);
     depositMutation.mutate(
       { 
         amount, 
-        method: depositMethod 
+        method: depositMethod,
+        transactionId: depositTransactionId
       }, 
       {
         onSettled: () => {
