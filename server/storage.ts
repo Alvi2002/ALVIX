@@ -51,6 +51,14 @@ export interface IStorage {
   getPromotionById(id: number): Promise<Promotion | undefined>;
   createPromotion(promotion: InsertPromotion): Promise<Promotion>;
   
+  // ডিপোজিট ফোন নাম্বার মেথডস
+  getDepositPhones(): Promise<DepositPhone[]>;
+  getDepositPhoneById(id: number): Promise<DepositPhone | undefined>;
+  createDepositPhone(phone: InsertDepositPhone): Promise<DepositPhone>;
+  updateDepositPhone(id: number, phoneData: Partial<DepositPhone>): Promise<DepositPhone | undefined>;
+  deleteDepositPhone(id: number): Promise<boolean>;
+  toggleDepositPhoneStatus(id: number, isActive: boolean): Promise<DepositPhone | undefined>;
+  
   sessionStore: ExpressSessionStore;
 }
 
