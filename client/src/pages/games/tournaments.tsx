@@ -31,7 +31,12 @@ import {
   Info,
   Layers,
   ShieldCheck,
-  GiftIcon
+  GiftIcon,
+  Award,
+  Star,
+  Ticket,
+  Bell,
+  HelpCircle
 } from "lucide-react";
 import {
   Table,
@@ -313,7 +318,7 @@ export default function TournamentsPage() {
   ];
 
   // টুর্নামেন্ট টাইপ গুলো
-  const tournamentTypes = [...new Set(tournaments.map(t => t.type))];
+  const tournamentTypes = Array.from(new Set(tournaments.map(t => t.type)));
 
   // টুর্নামেন্ট ফিল্টারিং ফাংশন
   const filterTournaments = (tournaments: Tournament[], status: string) => {
@@ -401,7 +406,7 @@ export default function TournamentsPage() {
         
         {/* টুর্নামেন্ট ইনফো কার্ডস */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-10">
-          <Card className="bg-card border-accent/20">
+          <Card className="bg-card border-accent/20 hover:border-accent cursor-pointer transition-colors">
             <CardContent className="pt-6">
               <div className="flex items-center gap-4">
                 <div className="bg-accent/10 rounded-full p-3">
@@ -415,7 +420,7 @@ export default function TournamentsPage() {
             </CardContent>
           </Card>
           
-          <Card className="bg-card border-accent/20">
+          <Card className="bg-card border-accent/20 hover:border-accent cursor-pointer transition-colors">
             <CardContent className="pt-6">
               <div className="flex items-center gap-4">
                 <div className="bg-accent/10 rounded-full p-3">
@@ -429,7 +434,7 @@ export default function TournamentsPage() {
             </CardContent>
           </Card>
           
-          <Card className="bg-card border-accent/20">
+          <Card className="bg-card border-accent/20 hover:border-accent cursor-pointer transition-colors">
             <CardContent className="pt-6">
               <div className="flex items-center gap-4">
                 <div className="bg-accent/10 rounded-full p-3">
@@ -443,7 +448,7 @@ export default function TournamentsPage() {
             </CardContent>
           </Card>
           
-          <Card className="bg-card border-accent/20">
+          <Card className="bg-card border-accent/20 hover:border-accent cursor-pointer transition-colors">
             <CardContent className="pt-6">
               <div className="flex items-center gap-4">
                 <div className="bg-accent/10 rounded-full p-3">
@@ -456,6 +461,30 @@ export default function TournamentsPage() {
               </div>
             </CardContent>
           </Card>
+        </div>
+        
+        {/* কমিং সুন টুর্নামেন্ট বিজ্ঞাপন */}
+        <div className="mb-10 bg-gradient-to-r from-blue-900/50 to-purple-900/50 rounded-xl overflow-hidden border border-accent/20">
+          <div className="p-6 md:p-8 flex flex-col md:flex-row items-center justify-between">
+            <div className="mb-6 md:mb-0">
+              <Badge variant="outline" className="bg-accent/10 text-accent mb-2 border-accent/20">
+                <Bell className="h-3 w-3 mr-1" /> আসন্ন টুর্নামেন্ট
+              </Badge>
+              <h2 className="text-2xl font-bold mb-2">মেগা জ্যাকপট চ্যালেঞ্জ</h2>
+              <p className="text-muted-foreground mb-4">বিশাল ৫ কোটি টাকার জ্যাকপট পুরস্কার। শীঘ্রই আসছে!</p>
+              <Button variant="default" className="bg-accent hover:bg-accent/90 text-white" size="sm">
+                <Bell className="h-4 w-4 mr-2" /> নোটিফিকেশন চালু করুন
+              </Button>
+            </div>
+            <div className="flex items-center justify-center">
+              <div className="bg-accent/10 rounded-full p-4 relative">
+                <Award className="h-16 w-16 text-accent" />
+                <div className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-6 w-6 flex items-center justify-center animate-pulse">
+                  নতুন
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
         
         {/* ট্যাব সেকশন */}
@@ -546,7 +575,7 @@ export default function TournamentsPage() {
                 একমাসব্যাপী ফিফা ওয়ার্ল্ড কাপ প্রেডিকশন টুর্নামেন্ট। প্রতিটি ম্যাচের ফলাফল অনুমান করুন এবং ২০ লাখ টাকার প্রাইজ পুল থেকে পুরস্কার জিতুন।
               </p>
               <div className="flex flex-col xs:flex-row gap-3">
-                <Button className="bg-accent text-white hover:bg-accent/90">
+                <Button variant="default" className="bg-accent text-white hover:bg-accent/90">
                   রেজিস্ট্রেশন করুন
                 </Button>
                 <Button variant="outline" className="bg-white/10 border-white/20 text-white">
@@ -732,7 +761,7 @@ export default function TournamentsPage() {
                           <TableCell className="font-semibold">{tournament.prizePool}</TableCell>
                           <TableCell>{tournament.entryFee}</TableCell>
                           <TableCell className="text-right">
-                            <Button size="sm" variant="accent">
+                            <Button size="sm" variant="default" className="bg-accent hover:bg-accent/90 text-white">
                               রেজিস্টার
                             </Button>
                           </TableCell>
@@ -890,7 +919,8 @@ function TournamentCard({ tournament, isCompleted = false }: { tournament: Tourn
           </Button>
         ) : (
           <Button 
-            variant="accent" 
+            variant="default"
+            className="bg-accent hover:bg-accent/90 text-white"
             size="sm"
           >
             রেজিস্ট্রেশন করুন
