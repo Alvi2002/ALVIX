@@ -4,8 +4,9 @@ import Footer from "@/components/layout/footer";
 import MobileMenu from "@/components/layout/mobile-menu";
 import MobileNav from "@/components/layout/mobile-nav";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { useEffect, useState, useRef } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import { 
   Timer, 
   Star, 
@@ -13,10 +14,19 @@ import {
   ChevronRight,
   ArrowRightLeft,
   ArrowUp,
-  ChevronDown
+  ChevronDown,
+  X,
+  Trash2,
+  DollarSign,
+  Check,
+  AlertCircle
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
+import { useToast } from "@/hooks/use-toast";
+import { apiRequest, queryClient } from "@/lib/queryClient";
 
 type Match = {
   id: number;
@@ -45,6 +55,21 @@ type Match = {
     home: number;
     away: number;
   };
+};
+
+type BetSelection = {
+  id: string; // ইউনিক আইডি (ম্যাচআইডি + বেট টাইপ)
+  matchId: number;
+  match: string; // ম্যাচের নাম (HomeTeam vs AwayTeam)
+  betType: string; // "home" | "draw" | "away" | "other"
+  betName: string; // বাংলায় বেট এর নাম
+  odds: number;
+};
+
+type BetSlip = {
+  selections: BetSelection[];
+  stake: number;
+  potentialWin: number;
 };
 
 export default function SportsPage() {
