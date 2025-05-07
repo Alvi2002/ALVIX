@@ -124,12 +124,16 @@ export class MemStorage implements IStorage {
     const id = this.userIdCounter++;
     const now = new Date();
     const user: User = { 
-      ...insertUser, 
       id,
+      username: insertUser.username,
+      password: insertUser.password,
+      email: insertUser.email || null,
+      phone: insertUser.phone || null,
+      fullName: insertUser.fullName || null,
       balance: "0",
       createdAt: now,
       isVip: false,
-      isAdmin: false,
+      isAdmin: insertUser.isAdmin ?? false,
       isBanned: false,
       avatarUrl: null,
     };
@@ -167,7 +171,17 @@ export class MemStorage implements IStorage {
   
   async createSlotGame(game: InsertSlotGame): Promise<SlotGame> {
     const id = this.slotGameIdCounter++;
-    const slotGame: SlotGame = { ...game, id };
+    const slotGame: SlotGame = { 
+      id,
+      name: game.name,
+      provider: game.provider,
+      image: game.image,
+      rtp: game.rtp,
+      isPopular: game.isPopular ?? null,
+      isFeatured: game.isFeatured ?? null,
+      badgeType: game.badgeType ?? null,
+      badgeText: game.badgeText ?? null
+    };
     this.slotGames.set(id, slotGame);
     return slotGame;
   }
@@ -188,7 +202,18 @@ export class MemStorage implements IStorage {
   
   async createLiveCasinoGame(game: InsertLiveCasinoGame): Promise<LiveCasinoGame> {
     const id = this.liveCasinoGameIdCounter++;
-    const liveCasinoGame: LiveCasinoGame = { ...game, id };
+    const liveCasinoGame: LiveCasinoGame = { 
+      id,
+      name: game.name,
+      provider: game.provider,
+      image: game.image,
+      category: game.category,
+      players: game.players ?? null,
+      isPopular: game.isPopular ?? null,
+      isFeatured: game.isFeatured ?? null,
+      badgeType: game.badgeType ?? null,
+      badgeText: game.badgeText ?? null
+    };
     this.liveCasinoGames.set(id, liveCasinoGame);
     return liveCasinoGame;
   }
