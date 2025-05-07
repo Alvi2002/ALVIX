@@ -29,6 +29,7 @@ import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { BetSlip, BetConfirmDialog } from "@/components/bet-slip";
 import { BetButton, BetNowButton } from "@/components/bet-button";
+import { BetNowFooter } from "@/components/bet-now-footer";
 
 type Match = {
   id: number;
@@ -651,18 +652,21 @@ export default function SportsPage() {
                             </div>
                             
                             <div className="grid grid-cols-3 gap-3 mt-4">
-                              <Button variant="outline" className="flex-1 justify-center border-accent bg-secondary/30 hover:bg-accent hover:text-secondary">
-                                <span className="text-white">{match.homeTeam.split(' ')[0]}</span>
-                                <span className="text-accent ml-2">{match.odds.home}</span>
-                              </Button>
-                              <Button variant="outline" className="flex-1 justify-center border-accent bg-secondary/30 hover:bg-accent hover:text-secondary">
-                                <span className="text-white">ড্র</span>
-                                <span className="text-accent ml-2">{match.odds.draw}</span>
-                              </Button>
-                              <Button variant="outline" className="flex-1 justify-center border-accent bg-secondary/30 hover:bg-accent hover:text-secondary">
-                                <span className="text-white">{match.awayTeam.split(' ')[0]}</span>
-                                <span className="text-accent ml-2">{match.odds.away}</span>
-                              </Button>
+                              <BetButton
+                                match={match}
+                                betType="home"
+                                onBetSelect={addBetSelection}
+                              />
+                              <BetButton
+                                match={match}
+                                betType="draw"
+                                onBetSelect={addBetSelection}
+                              />
+                              <BetButton
+                                match={match}
+                                betType="away"
+                                onBetSelect={addBetSelection}
+                              />
                             </div>
                             
                             <div className="mt-4 pt-4 border-t border-secondary">
@@ -740,18 +744,21 @@ export default function SportsPage() {
                             </div>
                             
                             <div className="grid grid-cols-3 gap-3 mt-4">
-                              <Button variant="outline" className="flex-1 justify-center border-accent bg-secondary/30 hover:bg-accent hover:text-secondary">
-                                <span className="text-white">{match.homeTeam.split(' ')[0]}</span>
-                                <span className="text-accent ml-2">{match.odds.home}</span>
-                              </Button>
-                              <Button variant="outline" className="flex-1 justify-center border-accent bg-secondary/30 hover:bg-accent hover:text-secondary">
-                                <span className="text-white">ড্র</span>
-                                <span className="text-accent ml-2">{match.odds.draw}</span>
-                              </Button>
-                              <Button variant="outline" className="flex-1 justify-center border-accent bg-secondary/30 hover:bg-accent hover:text-secondary">
-                                <span className="text-white">{match.awayTeam.split(' ')[0]}</span>
-                                <span className="text-accent ml-2">{match.odds.away}</span>
-                              </Button>
+                              <BetButton
+                                match={match}
+                                betType="home"
+                                onBetSelect={addBetSelection}
+                              />
+                              <BetButton
+                                match={match}
+                                betType="draw"
+                                onBetSelect={addBetSelection}
+                              />
+                              <BetButton
+                                match={match}
+                                betType="away"
+                                onBetSelect={addBetSelection}
+                              />
                             </div>
                             
                             <div className="mt-4 flex justify-between items-center">
@@ -816,18 +823,21 @@ export default function SportsPage() {
                             </div>
                             
                             <div className="grid grid-cols-3 gap-3 mt-4">
-                              <Button variant="outline" className="flex-1 justify-center border-accent bg-secondary/30 hover:bg-accent hover:text-secondary">
-                                <span className="text-white">{match.homeTeam.split(' ')[0]}</span>
-                                <span className="text-accent ml-2">{match.odds.home}</span>
-                              </Button>
-                              <Button variant="outline" className="flex-1 justify-center border-accent bg-secondary/30 hover:bg-accent hover:text-secondary">
-                                <span className="text-white">ড্র</span>
-                                <span className="text-accent ml-2">{match.odds.draw}</span>
-                              </Button>
-                              <Button variant="outline" className="flex-1 justify-center border-accent bg-secondary/30 hover:bg-accent hover:text-secondary">
-                                <span className="text-white">{match.awayTeam.split(' ')[0]}</span>
-                                <span className="text-accent ml-2">{match.odds.away}</span>
-                              </Button>
+                              <BetButton
+                                match={match}
+                                betType="home"
+                                onBetSelect={addBetSelection}
+                              />
+                              <BetButton
+                                match={match}
+                                betType="draw"
+                                onBetSelect={addBetSelection}
+                              />
+                              <BetButton
+                                match={match}
+                                betType="away"
+                                onBetSelect={addBetSelection}
+                              />
                             </div>
                             
                             {match.isLive ? (
