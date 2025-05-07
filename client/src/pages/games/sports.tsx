@@ -53,7 +53,9 @@ export default function SportsPage() {
 
   // লীগগুলোর লিস্ট (ডুপ্লিকেট বাদ দিয়ে)
   const leagues = sportMatches 
-    ? Array.from(new Set(sportMatches.map((match: SportMatch) => match.league)))
+    ? sportMatches
+        .map((match: SportMatch) => match.league)
+        .filter((league: string, index: number, array: string[]) => array.indexOf(league) === index)
     : [];
 
   // ম্যাচ ফিল্টারিং ফাংশন
@@ -286,7 +288,10 @@ export default function SportsPage() {
               // আপকামিং ম্যাচ
               <div>
                 {/* তারিখ অনুসারে গ্রুপ করা */}
-                {Array.from(new Set(sortedUpcomingMatches().map(match => match.date))).map(date => (
+                {sortedUpcomingMatches()
+                  .map(match => match.date)
+                  .filter((date, index, array) => array.indexOf(date) === index)
+                  .map(date => (
                   <div key={date} className="mb-6">
                     <h3 className="text-lg font-semibold mb-3 flex items-center gap-2">
                       <Calendar className="h-5 w-5 text-accent" />
@@ -327,7 +332,7 @@ export default function SportsPage() {
               >
                 <CardContent className="p-6">
                   <div className="bg-accent/10 rounded-full w-12 h-12 flex items-center justify-center mx-auto mb-3">
-                    <FootballIcon className="h-6 w-6 text-accent" />
+                    <Activity className="h-6 w-6 text-accent" />
                   </div>
                   <h3 className="font-medium text-sm">{league}</h3>
                   <p className="text-xs text-muted-foreground mt-1">
@@ -531,7 +536,7 @@ function LiveMatchCard({ match }: { match: SportMatch }) {
                 <div className="font-semibold">{odds.away}</div>
               </div>
             </Button>
-            <Button variant="accent" size="sm">+</Button>
+            <Button variant="secondary" size="sm">+</Button>
           </div>
         </div>
       </CardContent>
@@ -587,7 +592,7 @@ function UpcomingMatchCard({ match }: { match: SportMatch }) {
                 <div className="font-semibold">{odds.away}</div>
               </div>
             </Button>
-            <Button variant="accent" size="sm">+</Button>
+            <Button variant="secondary" size="sm">+</Button>
           </div>
         </div>
       </CardContent>
