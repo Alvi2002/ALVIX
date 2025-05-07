@@ -79,12 +79,12 @@ export default function SportsPage() {
   // লাইভ ও আপকামিং ম্যাচ ফিল্টারিং
   const getLiveMatches = () => {
     if (!sportMatches) return [];
-    return filterMatches(sportMatches.filter(match => match.isLive));
+    return filterMatches(sportMatches.filter((match: SportMatch) => match.isLive));
   };
   
   const getUpcomingMatches = () => {
     if (!sportMatches) return [];
-    return filterMatches(sportMatches.filter(match => !match.isLive));
+    return filterMatches(sportMatches.filter((match: SportMatch) => !match.isLive));
   };
 
   // ম্যাচ সোর্টিং (সময় অনুযায়ী)
@@ -147,7 +147,7 @@ export default function SportsPage() {
                   >
                     সবগুলো
                   </Button>
-                  {leagues.map(league => (
+                  {leagues.map((league: string) => (
                     <Button
                       key={league}
                       variant={filterLeague === league ? "default" : "outline"}
@@ -324,7 +324,7 @@ export default function SportsPage() {
         <section className="mb-10">
           <h2 className="text-xl font-bold mb-4">টপ লীগ</h2>
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
-            {['প্রিমিয়ার লীগ', 'লা লিগা', 'সিরি আ', 'বুন্দেসলিগা', 'লিগ ১', 'চ্যাম্পিয়নস লীগ'].map(league => (
+            {['প্রিমিয়ার লীগ', 'লা লিগা', 'সিরি আ', 'বুন্দেসলিগা', 'লিগ ১', 'চ্যাম্পিয়নস লীগ'].map((league: string) => (
               <Card 
                 key={league} 
                 className="overflow-hidden text-center hover:border-accent/50 cursor-pointer transition-all"
