@@ -605,7 +605,7 @@ export default function AffiliatePage() {
                 </Card>
                 
                 <div className="text-center pt-6">
-                  <Button variant="accent" size="lg" className="px-8">
+                  <Button variant="default" size="lg" className="px-8 bg-accent text-white hover:bg-accent/90">
                     এখনই জয়েন করুন
                     <ArrowRight className="ml-2 h-4 w-4" />
                   </Button>

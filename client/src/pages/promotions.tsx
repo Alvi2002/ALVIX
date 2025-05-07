@@ -56,7 +56,7 @@ export default function PromotionsPage() {
   const [showCopiedMessage, setShowCopiedMessage] = useState(false);
 
   // প্রমোশন ডেটা লোড করা
-  const { data: promotions = [], isLoading } = useQuery({
+  const { data: promotions = [] as Promotion[], isLoading } = useQuery<Promotion[]>({
     queryKey: ['/api/promotions'],
     staleTime: 60 * 1000, // ১ মিনিট
   });
@@ -82,11 +82,11 @@ export default function PromotionsPage() {
   };
 
   // প্রমোশন ক্যাটাগরি অনুযায়ী ফিল্টার করা
-  const welcomePromotions = promotions.filter((promo: Promotion) => promo.category === 'welcome');
-  const depositPromotions = promotions.filter((promo: Promotion) => promo.category === 'deposit');
-  const casinoPromotions = promotions.filter((promo: Promotion) => promo.category === 'casino');
-  const sportsPromotions = promotions.filter((promo: Promotion) => promo.category === 'sports');
-  const specialPromotions = promotions.filter((promo: Promotion) => 
+  const welcomePromotions = promotions.filter((promo) => promo.category === 'welcome');
+  const depositPromotions = promotions.filter((promo) => promo.category === 'deposit');
+  const casinoPromotions = promotions.filter((promo) => promo.category === 'casino');
+  const sportsPromotions = promotions.filter((promo) => promo.category === 'sports');
+  const specialPromotions = promotions.filter((promo) => 
     !['welcome', 'deposit', 'casino', 'sports'].includes(promo.category));
 
   // প্রমোশন কার্ড রেন্ডার করার জন্য ফাংশন
@@ -218,7 +218,7 @@ export default function PromotionsPage() {
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {promotions.map((promo: Promotion) => renderPromotionCard(promo))}
+                {promotions.map((promo) => renderPromotionCard(promo))}
               </div>
             )}
           </TabsContent>
@@ -230,7 +230,7 @@ export default function PromotionsPage() {
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {welcomePromotions.map((promo: Promotion) => renderPromotionCard(promo))}
+                {welcomePromotions.map((promo) => renderPromotionCard(promo))}
               </div>
             )}
           </TabsContent>
