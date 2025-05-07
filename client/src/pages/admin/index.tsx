@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useAuth } from "@/hooks/use-auth";
 import { Link, useLocation } from "wouter";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -6,9 +6,10 @@ import { Separator } from "@/components/ui/separator";
 import { Loader2, LayoutDashboard, Users, CreditCard, GanttChart } from "lucide-react";
 
 import UsersPanel from "@/components/admin/users-panel";
-import TransactionsPanel from "@/components/admin/users-panel";
+import TransactionsPanel from "@/components/admin/transactions-panel";
 import PromotionsPanel from "@/components/admin/promotions-panel";
 import StatsPanel from "@/components/admin/stats-panel";
+import { Layout, LayoutContent, LayoutHeader } from "@/components/layout";
 
 export default function AdminPage() {
   const { user, isLoading } = useAuth();
@@ -23,13 +24,17 @@ export default function AdminPage() {
     );
   }
   
+  const [, navigate] = useLocation();
+  
   if (!user) {
-    return <Navigate to="/auth" />;
+    navigate("/auth");
+    return null;
   }
   
   // যদি ইউজার এডমিন না হয় তাহলে হোম পেইজে রিডিরেক্ট করব
   if (!user.isAdmin) {
-    return <Navigate to="/" />;
+    navigate("/");
+    return null;
   }
   
   return (

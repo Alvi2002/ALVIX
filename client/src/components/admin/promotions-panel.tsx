@@ -1,40 +1,18 @@
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { Textarea } from "@/components/ui/textarea";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useState } from "react";
-import { PlusCircle, Search, RefreshCcw, Eye, Pencil, Trash, Calendar } from "lucide-react";
+import { Search, RefreshCcw, Plus, Pencil, Trash, Calendar } from "lucide-react";
 import { queryClient } from "@/lib/queryClient";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { format } from "date-fns";
-
-// প্রমোশন টাইপ
-interface Promotion {
-  id: number;
-  title: string;
-  description: string;
-  image: string;
-  startDate: string;
-  endDate: string | null;
-  isActive: boolean | null;
-}
-
-// নতুন প্রমোশন অ্যাড করার ফর্ম টাইপ
-interface NewPromotion {
-  title: string;
-  description: string;
-  image: string;
-  startDate: Date;
-  endDate: Date | null;
-  isActive: boolean;
-}
+import { Promotion, InsertPromotion } from "@shared/schema";
 
 export default function PromotionsPanel() {
   const { toast } = useToast();
@@ -42,18 +20,16 @@ export default function PromotionsPanel() {
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-  
-  const [newPromotion, setNewPromotion] = useState<NewPromotion>({
-    title: "",
-    description: "",
-    image: "https://i.ibb.co/kMYRMH1/promotion-default.jpg", // ডিফল্ট ইমেজ
-    startDate: new Date(),
-    endDate: null,
-    isActive: true,
-  });
-  
   const [editingPromotion, setEditingPromotion] = useState<Promotion | null>(null);
   const [deletingPromotion, setDeletingPromotion] = useState<Promotion | null>(null);
+  const [newPromotion, setNewPromotion] = useState<Partial<InsertPromotion>>({
+    title: "",
+    description: "",
+    image: "",
+    startDate: new Date(),
+    endDate: null,
+    isActive: true
+  });
   
   // প্রমোশন লিস্ট লোড করা
   const { data: promotions = [], isLoading, refetch } = useQuery<Promotion[]>({
@@ -67,7 +43,7 @@ export default function PromotionsPanel() {
   
   // নতুন প্রমোশন যোগ করার মিউটেশন
   const addPromotionMutation = useMutation({
-    mutationFn: async (promotion: NewPromotion) => {
+    mutationFn: async (promotion: InsertPromotion) => {
       const res = await fetch("/api/admin/promotions", {
         method: "POST",
         headers: {
@@ -85,17 +61,15 @@ export default function PromotionsPanel() {
         description: "প্রমোশন সফলভাবে যোগ করা হয়েছে",
       });
       setIsAddDialogOpen(false);
-      queryClient.invalidateQueries({ queryKey: ["/api/admin/promotions"] });
-      
-      // ফর্ম রিসেট
       setNewPromotion({
         title: "",
         description: "",
-        image: "https://i.ibb.co/kMYRMH1/promotion-default.jpg",
+        image: "",
         startDate: new Date(),
         endDate: null,
-        isActive: true,
+        isActive: true
       });
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/promotions"] });
     },
     onError: (error: Error) => {
       toast({
@@ -106,7 +80,7 @@ export default function PromotionsPanel() {
     },
   });
   
-  // প্রমোশন এডিট করার মিউটেশন
+  // প্রমোশন আপডেট করার মিউটেশন
   const editPromotionMutation = useMutation({
     mutationFn: async (promotion: Promotion) => {
       const res = await fetch(`/api/admin/promotions/${promotion.id}`, {
@@ -170,20 +144,45 @@ export default function PromotionsPanel() {
     promo.description.toLowerCase().includes(searchTerm.toLowerCase())
   );
   
-  // অ্যাক্টিভ ও অ্যাক্টিভ নয় এমন প্রমোশন
-  const activePromotions = filteredPromotions.filter(promo => promo.isActive);
-  const inactivePromotions = filteredPromotions.filter(promo => !promo.isActive);
-  
-  // প্রমোশন অ্যাড করার হ্যান্ডলার
-  const handleAddPromotion = (e: React.FormEvent) => {
-    e.preventDefault();
-    addPromotionMutation.mutate(newPromotion);
+  // ফরম্যাট ডেট
+  const formatDate = (dateString: string | Date) => {
+    const date = new Date(dateString);
+    return new Intl.DateTimeFormat('bn-BD', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+    }).format(date);
   };
   
-  // প্রমোশন এডিট করার হ্যান্ডলার
+  // নতুন প্রমোশন যোগ করার হ্যান্ডলার
+  const handleAddPromotion = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newPromotion.title || !newPromotion.description || !newPromotion.image) {
+      toast({
+        title: "সমস্যা হয়েছে",
+        description: "সব ফিল্ড পূরণ করুন",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    addPromotionMutation.mutate(newPromotion as InsertPromotion);
+  };
+  
+  // প্রমোশন আপডেট করার হ্যান্ডলার
   const handleEditPromotion = (e: React.FormEvent) => {
     e.preventDefault();
     if (!editingPromotion) return;
+    
+    if (!editingPromotion.title || !editingPromotion.description || !editingPromotion.image) {
+      toast({
+        title: "সমস্যা হয়েছে",
+        description: "সব ফিল্ড পূরণ করুন",
+        variant: "destructive",
+      });
+      return;
+    }
+    
     editPromotionMutation.mutate(editingPromotion);
   };
   
@@ -193,26 +192,12 @@ export default function PromotionsPanel() {
     deletePromotionMutation.mutate(deletingPromotion.id);
   };
   
-  // তারিখ ফরম্যাট করার ফাংশন
-  const formatDate = (dateString: string) => {
-    try {
-      const date = new Date(dateString);
-      return new Intl.DateTimeFormat('bn-BD', {
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric',
-      }).format(date);
-    } catch (e) {
-      return "অবৈধ তারিখ";
-    }
-  };
-  
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div className="space-y-1">
           <h2 className="text-2xl font-semibold">প্রমোশন ম্যানেজমেন্ট</h2>
-          <p className="text-sm text-muted-foreground">সাইটের সমস্ত প্রমোশন ও অফার ম্যানেজ করুন</p>
+          <p className="text-sm text-muted-foreground">সাইটের সমস্ত প্রমোশন ম্যানেজ করুন</p>
         </div>
         <div className="flex items-center space-x-2">
           <div className="relative">
@@ -229,54 +214,27 @@ export default function PromotionsPanel() {
             <RefreshCcw className="h-4 w-4" />
           </Button>
           <Button onClick={() => setIsAddDialogOpen(true)}>
-            <PlusCircle className="h-4 w-4 mr-2" />
+            <Plus className="h-4 w-4 mr-2" />
             নতুন প্রমোশন
           </Button>
         </div>
       </div>
       
-      <Tabs defaultValue="all">
-        <TabsList>
-          <TabsTrigger value="all">সব প্রমোশন ({filteredPromotions.length})</TabsTrigger>
-          <TabsTrigger value="active">অ্যাক্টিভ ({activePromotions.length})</TabsTrigger>
-          <TabsTrigger value="inactive">ইনঅ্যাক্টিভ ({inactivePromotions.length})</TabsTrigger>
-        </TabsList>
-        
-        <TabsContent value="all" className="mt-6">
-          <PromotionTable 
-            promotions={filteredPromotions} 
-            onEdit={(promo) => { setEditingPromotion(promo); setIsEditDialogOpen(true); }}
-            onDelete={(promo) => { setDeletingPromotion(promo); setIsDeleteDialogOpen(true); }}
-            formatDate={formatDate}
-          />
-        </TabsContent>
-        
-        <TabsContent value="active" className="mt-6">
-          <PromotionTable 
-            promotions={activePromotions} 
-            onEdit={(promo) => { setEditingPromotion(promo); setIsEditDialogOpen(true); }}
-            onDelete={(promo) => { setDeletingPromotion(promo); setIsDeleteDialogOpen(true); }}
-            formatDate={formatDate}
-          />
-        </TabsContent>
-        
-        <TabsContent value="inactive" className="mt-6">
-          <PromotionTable 
-            promotions={inactivePromotions} 
-            onEdit={(promo) => { setEditingPromotion(promo); setIsEditDialogOpen(true); }}
-            onDelete={(promo) => { setDeletingPromotion(promo); setIsDeleteDialogOpen(true); }}
-            formatDate={formatDate}
-          />
-        </TabsContent>
-      </Tabs>
+      {/* প্রমোশন টেবিল */}
+      <PromotionTable 
+        promotions={filteredPromotions}
+        onEdit={(promotion) => { setEditingPromotion(promotion); setIsEditDialogOpen(true); }}
+        onDelete={(promotion) => { setDeletingPromotion(promotion); setIsDeleteDialogOpen(true); }}
+        formatDate={formatDate}
+      />
       
-      {/* প্রমোশন অ্যাড করার ডায়ালগ */}
+      {/* নতুন প্রমোশন যোগ করার ডায়ালগ */}
       <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
         <DialogContent className="sm:max-w-[550px]">
           <DialogHeader>
             <DialogTitle>নতুন প্রমোশন যোগ করুন</DialogTitle>
             <DialogDescription>
-              সাইটে নতুন অফার বা প্রমোশন যোগ করতে নিচের ফর্মটি পূরণ করুন
+              সাইটে নতুন প্রমোশন যোগ করতে নিচের ফর্মটি পূরণ করুন
             </DialogDescription>
           </DialogHeader>
           
@@ -288,7 +246,6 @@ export default function PromotionsPanel() {
                 </Label>
                 <Input
                   id="title"
-                  placeholder="প্রমোশনের শিরোনাম"
                   value={newPromotion.title}
                   onChange={(e) => setNewPromotion({...newPromotion, title: e.target.value})}
                   className="col-span-3"
@@ -302,7 +259,6 @@ export default function PromotionsPanel() {
                 </Label>
                 <Input
                   id="image"
-                  placeholder="ছবির URL"
                   value={newPromotion.image}
                   onChange={(e) => setNewPromotion({...newPromotion, image: e.target.value})}
                   className="col-span-3"
@@ -316,7 +272,6 @@ export default function PromotionsPanel() {
                 </Label>
                 <Textarea
                   id="description"
-                  placeholder="প্রমোশনের বিস্তারিত বিবরণ"
                   value={newPromotion.description}
                   onChange={(e) => setNewPromotion({...newPromotion, description: e.target.value})}
                   className="col-span-3"
