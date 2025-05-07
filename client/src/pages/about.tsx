@@ -43,7 +43,7 @@ export default function AboutPage() {
                   আমরা বিশ্বের সেরা গেমিং প্রোভাইডারদের সাথে অংশীদারিত্ব করে থাকি যাতে আমাদের ব্যবহারকারীরা সর্বোচ্চ মানের স্লট গেমস, লাইভ ক্যাসিনো, এবং স্পোর্টস বেটিং অপশনগুলি উপভোগ করতে পারেন। আমাদের দক্ষ কাস্টমার সাপোর্ট টিম সপ্তাহে ৭ দিন, দিনে ২৪ ঘন্টা আপনার সেবায় নিয়োজিত রয়েছে।
                 </p>
                 <p className="text-muted-foreground">
-                  TK999 এ, আমরা বিশ্বাস করি যে আমাদের ব্যবহারকারীরা সেরা সেবা পাওয়ার অধিকারী, এবং আমরা সেই লক্ষ্য পূরণের জন্য প্রতিদিন কঠোর পরিশ্রম করি।
+                  ALVIX এ, আমরা বিশ্বাস করি যে আমাদের ব্যবহারকারীরা সেরা সেবা পাওয়ার অধিকারী, এবং আমরা সেই লক্ষ্য পূরণের জন্য প্রতিদিন কঠোর পরিশ্রম করি।
                 </p>
               </div>
             </CardContent>
@@ -203,7 +203,7 @@ export default function AboutPage() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <h3 className="font-semibold mb-2">যোগাযোগের ঠিকানা</h3>
-                  <p className="text-sm text-muted-foreground mb-1">ইমেইল: support@tk999.com</p>
+                  <p className="text-sm text-muted-foreground mb-1">ইমেইল: support@alvix.com</p>
                   <p className="text-sm text-muted-foreground mb-1">হটলাইন: +৮৮০১৭০০০০০০০০</p>
                   <p className="text-sm text-muted-foreground">লাইভ চ্যাট: ২৪/৭ সাপোর্ট</p>
                 </div>
