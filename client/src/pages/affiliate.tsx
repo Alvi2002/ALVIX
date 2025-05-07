@@ -20,7 +20,15 @@ import {
   AlertCircle, 
   Check, 
   Copy,
-  ArrowRight
+  ArrowRight,
+  Share2,
+  ChevronRight,
+  Facebook,
+  Mail,
+  Smartphone,
+  FileText,
+  Shield,
+  Zap
 } from "lucide-react";
 import {
   Table,
@@ -37,6 +45,13 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
+import { Badge } from "@/components/ui/badge";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 
 export default function AffiliatePage() {
   const { user, logoutMutation } = useAuth();
@@ -213,7 +228,7 @@ export default function AffiliatePage() {
                       <Button variant="outline" onClick={() => copyToClipboard(affiliateData.referralLink)}>
                         লিংক কপি করুন
                       </Button>
-                      <Button variant="accent">
+                      <Button variant="default" className="bg-accent text-white hover:bg-accent/90">
                         শেয়ার করুন
                       </Button>
                     </div>
@@ -417,7 +432,7 @@ export default function AffiliatePage() {
                             <Input type="text" placeholder="০১৭xxxxxxxx" />
                           </div>
                           
-                          <Button type="submit" className="w-full" variant="accent">
+                          <Button type="submit" className="w-full bg-accent text-white hover:bg-accent/90">
                             উত্তোলন অনুরোধ
                           </Button>
                         </form>
@@ -700,6 +715,376 @@ export default function AffiliatePage() {
                 </Card>
               </div>
             </div>
+          </>
+        ) : (
+          // নন-লগইন অবস্থা - এফিলিয়েট সাইন-আপ পেজ
+          <>
+            {/* ইন্ট্রো হিরো সেকশন */}
+            <section className="mb-10 relative overflow-hidden rounded-xl border border-accent/20 bg-gradient-to-r from-black to-slate-900">
+              <div className="flex flex-col md:flex-row">
+                <div className="p-8 md:p-10 md:w-3/5 z-10">
+                  <Badge className="bg-accent mb-4">নতুন প্রোগ্রাম</Badge>
+                  <h2 className="text-3xl md:text-4xl font-bold mb-4">অর্থ উপার্জন করুন আমাদের এফিলিয়েট প্রোগ্রামে</h2>
+                  <p className="text-lg text-gray-300 mb-6">
+                    বন্ধুদের রেফার করুন এবং তাদের প্রতিটি বেট এবং ডিপোজিটের জন্য উচ্চ কমিশন পান। আমাদের এফিলিয়েট প্রোগ্রামে যোগ দিন এবং শুরু করুন আজই!
+                  </p>
+                  <div className="flex flex-col sm:flex-row gap-4">
+                    <Button size="lg" className="flex items-center gap-2">
+                      শুরু করুন <ChevronRight className="h-4 w-4" />
+                    </Button>
+                    <Button size="lg" variant="outline" className="text-white border-white/20 bg-white/5">
+                      আরও জানুন
+                    </Button>
+                  </div>
+                  <div className="mt-6 flex items-center gap-6">
+                    <div className="flex flex-col">
+                      <span className="text-2xl font-bold">৪৫%</span>
+                      <span className="text-xs text-gray-400">রেভিনিউ শেয়ার</span>
+                    </div>
+                    <div className="flex flex-col">
+                      <span className="text-2xl font-bold">১৫%</span>
+                      <span className="text-xs text-gray-400">ডিপোজিট বোনাস</span>
+                    </div>
+                    <div className="flex flex-col">
+                      <span className="text-2xl font-bold">৳১০,০০০+</span>
+                      <span className="text-xs text-gray-400">মাসিক আয়</span>
+                    </div>
+                  </div>
+                </div>
+                <div className="hidden md:block md:w-2/5 relative">
+                  <div className="absolute inset-0 bg-gradient-to-r from-black to-transparent z-10"></div>
+                  <div className="absolute right-0 top-0 bottom-0 w-full bg-accent/20"></div>
+                </div>
+              </div>
+            </section>
+            
+            {/* বৈশিষ্ট্য সেকশন */}
+            <section className="mb-12">
+              <h2 className="text-2xl font-bold mb-6 text-center">কেন আমাদের এফিলিয়েট প্রোগ্রাম বেছে নেবেন</h2>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <Card className="bg-card border-accent/20">
+                  <CardContent className="pt-6">
+                    <div className="flex flex-col items-center text-center mb-2">
+                      <div className="w-12 h-12 bg-accent/10 rounded-full flex items-center justify-center mb-4">
+                        <DollarSign className="h-6 w-6 text-accent" />
+                      </div>
+                      <h3 className="text-lg font-semibold mb-2">উচ্চ কমিশন রেট</h3>
+                      <p className="text-muted-foreground text-sm">
+                        শিল্পের মধ্যে সর্বোচ্চ ৪৫% রেভিনিউ শেয়ার এবং ১৫% ডিপোজিট বোনাস পান
+                      </p>
+                    </div>
+                  </CardContent>
+                </Card>
+                
+                <Card className="bg-card border-accent/20">
+                  <CardContent className="pt-6">
+                    <div className="flex flex-col items-center text-center mb-2">
+                      <div className="w-12 h-12 bg-accent/10 rounded-full flex items-center justify-center mb-4">
+                        <Zap className="h-6 w-6 text-accent" />
+                      </div>
+                      <h3 className="text-lg font-semibold mb-2">দ্রুত পেমেন্ট</h3>
+                      <p className="text-muted-foreground text-sm">
+                        নির্ভরযোগ্য এবং সময়মত পেমেন্ট - মাসিক বা অনুরোধ অনুযায়ী উত্তোলন করুন
+                      </p>
+                    </div>
+                  </CardContent>
+                </Card>
+                
+                <Card className="bg-card border-accent/20">
+                  <CardContent className="pt-6">
+                    <div className="flex flex-col items-center text-center mb-2">
+                      <div className="w-12 h-12 bg-accent/10 rounded-full flex items-center justify-center mb-4">
+                        <Shield className="h-6 w-6 text-accent" />
+                      </div>
+                      <h3 className="text-lg font-semibold mb-2">আজীবন কমিশন</h3>
+                      <p className="text-muted-foreground text-sm">
+                        আপনার রেফারেল ব্যবহারকারীদের আজীবন কার্যকলাপের উপর কমিশন পান
+                      </p>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            </section>
+            
+            {/* কাজের প্রক্রিয়া */}
+            <section className="mb-12">
+              <div className="text-center mb-8">
+                <h2 className="text-2xl font-bold mb-2">কিভাবে শুরু করবেন</h2>
+                <p className="text-muted-foreground max-w-2xl mx-auto">
+                  মাত্র তিনটি সহজ ধাপে আমাদের এফিলিয়েট প্রোগ্রামে যোগ দিন এবং আয় শুরু করুন
+                </p>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div className="relative">
+                  <div className="text-center">
+                    <div className="w-16 h-16 bg-accent/10 rounded-full flex items-center justify-center mx-auto mb-4 relative z-10">
+                      <span className="text-2xl font-bold text-accent">১</span>
+                    </div>
+                    <h3 className="text-lg font-semibold mb-2">সাইন আপ করুন</h3>
+                    <p className="text-muted-foreground text-sm">
+                      একটি ফ্রি অ্যাকাউন্ট তৈরি করুন এবং এফিলিয়েট প্রোগ্রামে যোগ দিন
+                    </p>
+                  </div>
+                  <div className="hidden md:block absolute top-8 left-[60%] w-[80%] h-[2px] bg-accent/20"></div>
+                </div>
+                
+                <div className="relative">
+                  <div className="text-center">
+                    <div className="w-16 h-16 bg-accent/10 rounded-full flex items-center justify-center mx-auto mb-4 relative z-10">
+                      <span className="text-2xl font-bold text-accent">২</span>
+                    </div>
+                    <h3 className="text-lg font-semibold mb-2">প্রমোট করুন</h3>
+                    <p className="text-muted-foreground text-sm">
+                      আপনার অনন্য রেফারেল লিংক ব্যবহার করে আমাদের সাইট প্রমোট করুন
+                    </p>
+                  </div>
+                  <div className="hidden md:block absolute top-8 left-[60%] w-[80%] h-[2px] bg-accent/20"></div>
+                </div>
+                
+                <div>
+                  <div className="text-center">
+                    <div className="w-16 h-16 bg-accent/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                      <span className="text-2xl font-bold text-accent">৩</span>
+                    </div>
+                    <h3 className="text-lg font-semibold mb-2">আয় করুন</h3>
+                    <p className="text-muted-foreground text-sm">
+                      আপনার রেফারেল ব্যবহারকারীদের কার্যকলাপের উপর কমিশন পান
+                    </p>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="flex justify-center mt-8">
+                <Button className="gap-2">
+                  <Users className="h-4 w-4" />
+                  রেজিষ্ট্রেশন করুন
+                </Button>
+              </div>
+            </section>
+            
+            {/* কমিশন স্ট্রাকচার */}
+            <section className="mb-12">
+              <h2 className="text-2xl font-bold mb-6">আমাদের কমিশন স্ট্রাকচার</h2>
+              <Card className="bg-card border-accent/20">
+                <CardContent className="p-0">
+                  <div className="overflow-x-auto">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>লেভেল</TableHead>
+                          <TableHead>প্রয়োজনীয়তা</TableHead>
+                          <TableHead>রেভিনিউ শেয়ার</TableHead>
+                          <TableHead>ডিপোজিট বোনাস</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {commissionRates.map((rate) => (
+                          <TableRow key={rate.level}>
+                            <TableCell className="font-medium">{rate.level}</TableCell>
+                            <TableCell>{rate.requirement}</TableCell>
+                            <TableCell className="font-semibold">{rate.revenueShare}</TableCell>
+                            <TableCell>{rate.depositBonus}</TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </div>
+                </CardContent>
+              </Card>
+            </section>
+            
+            {/* মার্কেটিং টুলস */}
+            <section className="mb-12">
+              <h2 className="text-2xl font-bold mb-6">এফিলিয়েট মার্কেটিং টুলস</h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <Card className="bg-card border-accent/20">
+                  <CardContent className="pt-6">
+                    <div className="flex flex-col items-center text-center">
+                      <div className="w-12 h-12 bg-accent/10 rounded-full flex items-center justify-center mb-4">
+                        <FileText className="h-6 w-6 text-accent" />
+                      </div>
+                      <h3 className="font-semibold mb-2">ব্যানার</h3>
+                      <p className="text-xs text-muted-foreground">
+                        আকর্ষণীয় ব্যানার এবং ক্রিয়েটিভ
+                      </p>
+                    </div>
+                  </CardContent>
+                </Card>
+                
+                <Card className="bg-card border-accent/20">
+                  <CardContent className="pt-6">
+                    <div className="flex flex-col items-center text-center">
+                      <div className="w-12 h-12 bg-accent/10 rounded-full flex items-center justify-center mb-4">
+                        <LineChart className="h-6 w-6 text-accent" />
+                      </div>
+                      <h3 className="font-semibold mb-2">ট্র্যাকিং</h3>
+                      <p className="text-xs text-muted-foreground">
+                        রিয়েল-টাইম পারফরম্যান্স ট্র্যাকিং
+                      </p>
+                    </div>
+                  </CardContent>
+                </Card>
+                
+                <Card className="bg-card border-accent/20">
+                  <CardContent className="pt-6">
+                    <div className="flex flex-col items-center text-center">
+                      <div className="w-12 h-12 bg-accent/10 rounded-full flex items-center justify-center mb-4">
+                        <Smartphone className="h-6 w-6 text-accent" />
+                      </div>
+                      <h3 className="font-semibold mb-2">মোবাইল অপ্টিমাইজড</h3>
+                      <p className="text-xs text-muted-foreground">
+                        মোবাইল-ফ্রেন্ডলি প্রমোশন টুলস
+                      </p>
+                    </div>
+                  </CardContent>
+                </Card>
+                
+                <Card className="bg-card border-accent/20">
+                  <CardContent className="pt-6">
+                    <div className="flex flex-col items-center text-center">
+                      <div className="w-12 h-12 bg-accent/10 rounded-full flex items-center justify-center mb-4">
+                        <Share2 className="h-6 w-6 text-accent" />
+                      </div>
+                      <h3 className="font-semibold mb-2">সোশ্যাল শেয়ারিং</h3>
+                      <p className="text-xs text-muted-foreground">
+                        সোশ্যাল মিডিয়া ইন্টিগ্রেশন টুলস
+                      </p>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            </section>
+            
+            {/* রেজিস্ট্রেশন সেকশন */}
+            <section className="mb-8">
+              <Card className="bg-card border-accent/20">
+                <CardHeader>
+                  <CardTitle>এফিলিয়েট প্রোগ্রামে যোগ দিন</CardTitle>
+                  <CardDescription>
+                    একটি অ্যাকাউন্ট তৈরি করুন এবং আজই আমাদের এফিলিয়েট প্রোগ্রামে যোগ দিন
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                      <form className="space-y-4">
+                        <div className="space-y-2">
+                          <label className="text-sm font-medium">আপনার নাম</label>
+                          <Input type="text" placeholder="নাম লিখুন" />
+                        </div>
+                        
+                        <div className="space-y-2">
+                          <label className="text-sm font-medium">ইমেইল</label>
+                          <Input type="email" placeholder="email@example.com" />
+                        </div>
+                        
+                        <div className="space-y-2">
+                          <label className="text-sm font-medium">ফোন নম্বর</label>
+                          <Input type="tel" placeholder="01xxxxxxxxx" />
+                        </div>
+                        
+                        <div className="space-y-2">
+                          <label className="text-sm font-medium">আপনি কিভাবে প্রমোট করবেন?</label>
+                          <Textarea placeholder="আপনার মার্কেটিং স্ট্র্যাটেজি সম্পর্কে সংক্ষেপে লিখুন" />
+                        </div>
+                        
+                        <Button type="submit" className="w-full">রেজিস্ট্রেশন করুন</Button>
+                      </form>
+                    </div>
+                    
+                    <div className="bg-muted/30 p-6 rounded-lg space-y-4">
+                      <h3 className="text-lg font-semibold mb-2">এফিলিয়েট সুবিধা</h3>
+                      <ul className="space-y-3">
+                        <li className="flex items-start gap-2">
+                          <span className="bg-accent/10 text-accent p-1 rounded mt-0.5">
+                            <Check className="h-3 w-3" />
+                          </span>
+                          <span className="text-sm">উচ্চ কমিশন রেট - ৪৫% পর্যন্ত রেভিনিউ শেয়ার</span>
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <span className="bg-accent/10 text-accent p-1 rounded mt-0.5">
+                            <Check className="h-3 w-3" />
+                          </span>
+                          <span className="text-sm">দ্রুত এবং নিয়মিত পেমেন্ট</span>
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <span className="bg-accent/10 text-accent p-1 rounded mt-0.5">
+                            <Check className="h-3 w-3" />
+                          </span>
+                          <span className="text-sm">ব্যক্তিগত এফিলিয়েট ম্যানেজার</span>
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <span className="bg-accent/10 text-accent p-1 rounded mt-0.5">
+                            <Check className="h-3 w-3" />
+                          </span>
+                          <span className="text-sm">আকর্ষণীয় মার্কেটিং উপকরণ</span>
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <span className="bg-accent/10 text-accent p-1 rounded mt-0.5">
+                            <Check className="h-3 w-3" />
+                          </span>
+                          <span className="text-sm">আজীবন রেফারেল ট্র্যাকিং</span>
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <span className="bg-accent/10 text-accent p-1 rounded mt-0.5">
+                            <Check className="h-3 w-3" />
+                          </span>
+                          <span className="text-sm">24/7 সাপোর্ট</span>
+                        </li>
+                      </ul>
+                      
+                      <div className="pt-4">
+                        <p className="text-sm text-muted-foreground">
+                          ইতিমধ্যে একটি অ্যাকাউন্ট আছে? <a href="/auth" className="text-accent hover:underline">লগইন করুন</a>
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </section>
+            
+            {/* FAQ সেকশন */}
+            <section>
+              <h2 className="text-2xl font-bold mb-6">সচরাচর জিজ্ঞাসিত প্রশ্ন</h2>
+              <Accordion type="single" collapsible className="mb-4">
+                <AccordionItem value="item-1">
+                  <AccordionTrigger>কিভাবে আমি এফিলিয়েট হিসেবে সাইন আপ করব?</AccordionTrigger>
+                  <AccordionContent>
+                    আপনি উপরের ফর্মটি পূরণ করে সহজেই সাইন আপ করতে পারেন। আমাদের টিম আপনার আবেদন পর্যালোচনা করবে এবং 24 ঘন্টার মধ্যে আপনাকে অবহিত করবে।
+                  </AccordionContent>
+                </AccordionItem>
+                
+                <AccordionItem value="item-2">
+                  <AccordionTrigger>আমি কিভাবে এফিলিয়েট কমিশন পাব?</AccordionTrigger>
+                  <AccordionContent>
+                    আপনি আপনার রেফারেল ব্যবহারকারীদের কার্যকলাপের উপর কমিশন পাবেন। আপনি তাদের নেট লসের উপর রেভিনিউ শেয়ার এবং তাদের প্রথম ডিপোজিটের উপর বোনাস পাবেন। কমিশন প্রতি মাসে ক্যালকুলেট করা হয় এবং আপনার এফিলিয়েট অ্যাকাউন্টে যোগ করা হয়।
+                  </AccordionContent>
+                </AccordionItem>
+                
+                <AccordionItem value="item-3">
+                  <AccordionTrigger>কি ধরনের মার্কেটিং উপকরণ আপনারা প্রদান করেন?</AccordionTrigger>
+                  <AccordionContent>
+                    আমরা বিভিন্ন আকারের ব্যানার, লোগো, ল্যান্ডিং পেজ, টেক্সট লিংক, এবং প্রমোশনাল কন্টেন্ট প্রদান করি। এছাড়াও, আপনার ক্যাম্পেইন সাফল্যের জন্য রিয়েল-টাইম ট্র্যাকিং এবং রিপোর্টিং টুলস রয়েছে।
+                  </AccordionContent>
+                </AccordionItem>
+                
+                <AccordionItem value="item-4">
+                  <AccordionTrigger>কিভাবে আমি আমার কমিশন উত্তোলন করব?</AccordionTrigger>
+                  <AccordionContent>
+                    আপনি আপনার পছন্দের পেমেন্ট পদ্ধতি ব্যবহার করে কমিশন উত্তোলন করতে পারেন, যেমন ব্যাংক ট্রান্সফার, বিকাশ, নগদ, বা রকেট। ন্যূনতম উত্তোলনের পরিমাণ হল ৳৫০০।
+                  </AccordionContent>
+                </AccordionItem>
+                
+                <AccordionItem value="item-5">
+                  <AccordionTrigger>কোন ধরনের ওয়েবসাইট বা সোশ্যাল মিডিয়া অ্যাকাউন্ট প্রমোশনের জন্য অনুমোদিত?</AccordionTrigger>
+                  <AccordionContent>
+                    আমরা বেশিরভাগ ওয়েবসাইট এবং সোশ্যাল মিডিয়া প্ল্যাটফর্ম অনুমোদন করি, তবে সেগুলি অবশ্যই আমাদের নীতিমালা অনুসরণ করতে হবে। স্প্যাম, অবৈধ কন্টেন্ট, বা অপ্রাপ্তবয়স্কদের লক্ষ্য করা ওয়েবসাইট/প্ল্যাটফর্ম অনুমোদিত নয়।
+                  </AccordionContent>
+                </AccordionItem>
+              </Accordion>
+            </section>
           </>
         )}
       </main>
