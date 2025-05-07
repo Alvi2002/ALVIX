@@ -10,8 +10,9 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { MenuIcon, Search, User } from "lucide-react";
+import { MenuIcon, Search, User, Shield } from "lucide-react";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
+import { useAuth } from "@/hooks/use-auth";
 import AuthPage from "@/pages/auth-page";
 
 interface HeaderProps {
@@ -25,6 +26,7 @@ export default function Header({ isLoggedIn, onLogout }: HeaderProps) {
   const [authDialogOpen, setAuthDialogOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [isSearching, setIsSearching] = useState(false);
+  const { user } = useAuth();
 
   // Close auth dialog if user is logged in or navigated to auth page
   if ((isLoggedIn || location === "/auth") && authDialogOpen) {
@@ -162,6 +164,14 @@ export default function Header({ isLoggedIn, onLogout }: HeaderProps) {
                   <DropdownMenuItem asChild>
                     <Link href="/transactions">লেনদেন</Link>
                   </DropdownMenuItem>
+                  {user?.isAdmin && (
+                    <DropdownMenuItem asChild>
+                      <Link href="/admin" className="flex items-center">
+                        <Shield className="mr-2 h-4 w-4" />
+                        এডমিন প্যানেল
+                      </Link>
+                    </DropdownMenuItem>
+                  )}
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={onLogout}>লগআউট</DropdownMenuItem>
                 </DropdownMenuContent>
