@@ -217,6 +217,7 @@ export default function SportsPage() {
                     <button 
                       key={index} 
                       className="w-full text-left p-2 text-sm text-white hover:bg-secondary rounded flex justify-between items-center"
+                      onClick={() => window.alert(`${league} লীগ সিলেক্ট করা হয়েছে`)}
                     >
                       {league}
                       <ChevronRight className="h-4 w-4 text-accent" />
@@ -378,6 +379,17 @@ export default function SportsPage() {
                                 </div>
                               </div>
                             </div>
+                            
+                            <div className="mt-4 flex justify-between items-center">
+                              <Button variant="ghost" size="sm" className="text-accent hover:text-accent/80">
+                                বিস্তারিত দেখুন
+                                <ChevronRight className="h-4 w-4 ml-1" />
+                              </Button>
+                              
+                              <Button variant="default" size="sm" className="bg-accent hover:bg-accent/90 text-white">
+                                বেট করুন
+                              </Button>
+                            </div>
                           </div>
                         </div>
                       ))
@@ -440,10 +452,14 @@ export default function SportsPage() {
                               </Button>
                             </div>
                             
-                            <div className="mt-4 text-center">
-                              <Button className="bg-accent text-secondary hover:bg-accent/90">
-                                <ArrowUp className="h-4 w-4 mr-2" />
-                                আরও বেট দেখুন
+                            <div className="mt-4 flex justify-between items-center">
+                              <Button variant="ghost" size="sm" className="text-accent hover:text-accent/80">
+                                বিস্তারিত দেখুন
+                                <ChevronRight className="h-4 w-4 ml-1" />
+                              </Button>
+                              
+                              <Button variant="default" size="sm" className="bg-accent hover:bg-accent/90 text-white">
+                                বেট করুন
                               </Button>
                             </div>
                           </div>
@@ -530,10 +546,14 @@ export default function SportsPage() {
                                 </div>
                               </div>
                             ) : (
-                              <div className="mt-4 text-center">
-                                <Button className="bg-accent text-secondary hover:bg-accent/90">
-                                  <ArrowUp className="h-4 w-4 mr-2" />
-                                  আরও বেট দেখুন
+                              <div className="mt-4 flex justify-between items-center">
+                                <Button variant="ghost" size="sm" className="text-accent hover:text-accent/80">
+                                  বিস্তারিত দেখুন
+                                  <ChevronRight className="h-4 w-4 ml-1" />
+                                </Button>
+                                
+                                <Button variant="default" size="sm" className="bg-accent hover:bg-accent/90 text-white">
+                                  বেট করুন
                                 </Button>
                               </div>
                             )}
