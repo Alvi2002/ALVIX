@@ -200,6 +200,15 @@ export default function SlotsPage() {
                         <span className="text-muted-foreground text-xs">{game.provider}</span>
                         <span className="text-accent text-xs font-semibold">RTP: {game.rtp}</span>
                       </div>
+                      <div className="mt-3 flex justify-between items-center">
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          className="text-accent hover:text-accent/80 p-0 h-auto text-xs"
+                        >
+                          বিস্তারিত দেখুন
+                        </Button>
+                      </div>
                     </div>
                   </div>
                 ))}

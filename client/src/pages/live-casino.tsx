@@ -219,6 +219,22 @@ export default function LiveCasinoPage() {
                       <span className="text-muted-foreground text-sm">{game.provider}</span>
                       <span className="text-accent text-sm font-semibold">{game.category}</span>
                     </div>
+                    <div className="mt-4 flex justify-between items-center">
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        className="text-accent hover:text-accent/80 p-0 h-auto"
+                      >
+                        বিস্তারিত দেখুন
+                      </Button>
+                      <Button 
+                        variant="default" 
+                        size="sm" 
+                        className="bg-accent hover:bg-accent/90 text-white"
+                      >
+                        খেলুন
+                      </Button>
+                    </div>
                   </div>
                 </div>
               ))}
