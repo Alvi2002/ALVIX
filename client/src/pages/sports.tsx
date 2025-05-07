@@ -93,7 +93,7 @@ export default function SportsPage() {
   });
 
   // স্পোর্টস ম্যাচ ডেটা লোড করার জন্য TanStack Query ব্যবহার
-  const { data: apiMatches, isLoading } = useQuery({
+  const { data: apiMatches, isLoading } = useQuery<Match[]>({
     queryKey: ['/api/sports'],
     staleTime: 30 * 1000, // ৩০ সেকেন্ড
   });
@@ -101,7 +101,7 @@ export default function SportsPage() {
   // ওয়েবসকেট কানেকশন সেটআপ
   useEffect(() => {
     setLoading(isLoading);
-    if (apiMatches) {
+    if (apiMatches && Array.isArray(apiMatches)) {
       setMatches(apiMatches);
     }
 
@@ -124,7 +124,15 @@ export default function SportsPage() {
             const updatedMatches = [...prevMatches];
             
             // প্রাপ্ত ম্যাচগুলির স্কোর আপডেট করা
-            data.matches.forEach(liveMatch => {
+            data.matches.forEach((liveMatch: {
+              id: number;
+              score?: { home: number; away: number };
+              statistics?: { 
+                possession: { home: number; away: number },
+                shots: { home: number; away: number }
+              };
+              time: string;
+            }) => {
               const index = updatedMatches.findIndex(m => m.id === liveMatch.id);
               if (index !== -1) {
                 updatedMatches[index] = {

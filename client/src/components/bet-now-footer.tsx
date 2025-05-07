@@ -2,7 +2,34 @@ import { Button } from "@/components/ui/button";
 import { ChevronRight } from "lucide-react";
 
 type BetNowFooterProps = {
-  match?: any; 
+  match: {
+    id: number;
+    homeTeam: string;
+    awayTeam: string;
+    league: string;
+    time: string;
+    date: string;
+    isLive: boolean;
+    odds: {
+      home: number;
+      draw: number;
+      away: number;
+    };
+    statistics?: {
+      possession: {
+        home: number;
+        away: number;
+      };
+      shots: {
+        home: number;
+        away: number;
+      };
+    };
+    score?: {
+      home: number;
+      away: number;
+    };
+  };
   onViewDetails?: () => void;
   onBetNow: () => void;
 };
