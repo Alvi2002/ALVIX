@@ -127,3 +127,6 @@ export type Transaction = typeof transactions.$inferSelect;
 
 export type InsertPromotion = z.infer<typeof insertPromotionSchema>;
 export type Promotion = typeof promotions.$inferSelect;
+
+export type InsertDepositPhone = z.infer<typeof insertDepositPhoneSchema>;
+export type DepositPhone = typeof depositPhones.$inferSelect;

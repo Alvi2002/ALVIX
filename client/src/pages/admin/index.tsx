@@ -2,12 +2,13 @@ import { useState } from "react";
 import { useAuth } from "@/hooks/use-auth";
 import { Link, useLocation } from "wouter";
 import { Separator } from "@/components/ui/separator";
-import { Loader2, LayoutDashboard, Users, CreditCard, GanttChart } from "lucide-react";
+import { Loader2, LayoutDashboard, Users, CreditCard, GanttChart, Phone } from "lucide-react";
 
 import UsersPanel from "@/components/admin/users-panel";
 import TransactionsPanel from "@/components/admin/transactions-panel";
 import PromotionsPanel from "@/components/admin/promotions-panel";
 import StatsPanel from "@/components/admin/stats-panel";
+import DepositPhonesPanel from "@/components/admin/deposit-phones-panel";
 import { Layout, LayoutContent, LayoutHeader } from "@/components/layout";
 
 export default function AdminPage() {
@@ -76,6 +77,13 @@ export default function AdminPage() {
             <GanttChart className="h-4 w-4 mr-2" />
             প্রমোশন ম্যানেজমেন্ট
           </button>
+          <button 
+            onClick={() => setActiveTab('deposit-phones')} 
+            className={`pb-2 px-2 flex items-center ${activeTab === 'deposit-phones' ? 'border-b-2 border-primary text-primary font-medium' : 'text-muted-foreground'}`}
+          >
+            <Phone className="h-4 w-4 mr-2" />
+            ডিপোজিট নাম্বার
+          </button>
         </div>
       </LayoutHeader>
       
@@ -84,6 +92,7 @@ export default function AdminPage() {
         {activeTab === 'users' && <UsersPanel />}
         {activeTab === 'transactions' && <TransactionsPanel />}
         {activeTab === 'promotions' && <PromotionsPanel />}
+        {activeTab === 'deposit-phones' && <DepositPhonesPanel />}
       </LayoutContent>
     </Layout>
   );
