@@ -85,9 +85,11 @@ export const promotions = pgTable("promotions", {
 // ডিপোজিট ফোন নাম্বার টেবিল
 export const depositPhones = pgTable("deposit_phones", {
   id: serial("id").primaryKey(),
-  number: text("number").notNull().unique(),
-  provider: text("provider").notNull(), // "bkash", "nagad", "rocket", "upay"
-  name: text("name").notNull(),
+  phoneNumber: text("phone_number").notNull().unique(),
+  operator: text("operator").notNull(), // "bkash", "nagad", "rocket", "upay"
+  accountName: text("account_name").notNull(),
+  accountType: text("account_type").notNull(), // "personal", "agent", "merchant"
+  notes: text("notes"),
   isActive: boolean("is_active").default(true),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
