@@ -131,7 +131,7 @@ export default function SportsPage() {
     {
       id: "cricket",
       name: "ক্রিকেট",
-      icon: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22v-7l-4 4-4-4"/><path d="M20 2 E 7a4 4 0 0 0-4 4v6"/><path d="M20 6 12 14"/></svg>,
+      icon: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22v-7l-4 4-4-4"/><path d="M16 2c-2.1 5.7-7.5 8.9-13.3 7.1 1.6 4.3 5.7 7.2 10.3 7.2 2.5 0 4.9-.8 6.8-2.2"/><path d="M20 2 12 10"/></svg>,
     },
     {
       id: "tennis",

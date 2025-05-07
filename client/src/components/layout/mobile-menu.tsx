@@ -69,6 +69,13 @@ export default function MobileMenu() {
             হোম
           </Link>
           <Link
+            href="/games"
+            className="text-white hover:text-accent py-2 border-b border-gray-800 text-lg font-medium font-body"
+            onClick={closeMobileMenu}
+          >
+            গেমস
+          </Link>
+          <Link
             href="/slots"
             className="text-white hover:text-accent py-2 border-b border-gray-800 text-lg font-medium font-body"
             onClick={closeMobileMenu}

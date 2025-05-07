@@ -367,19 +367,13 @@ export default function AffiliatePage() {
                           <span className="bg-accent/10 text-accent p-1 rounded mt-0.5">
                             <Check className="h-3 w-3" />
                           </span>
-                          <span>ডিপোজিট বোনাস: আপনার রেফারেল প্লেয়ারের প্রথম ডিপোজিটের উপর আপনি এই শতাংশ বোনাস পাবেন।</span>
+                          <span>ডিপোজিট বোনাস: আপনার রেফারেল প্লেয়ারের প্রথম ডিপোজিটের উপর আপনি আপনার লেভেল অনুযায়ী শতাংশ বোনাস পাবেন।</span>
                         </li>
                         <li className="flex items-start gap-2">
                           <span className="bg-accent/10 text-accent p-1 rounded mt-0.5">
                             <Check className="h-3 w-3" />
                           </span>
-                          <span>সক্রিয় রেফারেল: যারা গত ৩০ দিনে কমপক্ষে ১টি ডিপোজিট করেছেন।</span>
-                        </li>
-                        <li className="flex items-start gap-2">
-                          <span className="bg-accent/10 text-accent p-1 rounded mt-0.5">
-                            <Check className="h-3 w-3" />
-                          </span>
-                          <span>কমিশন প্রতি মাসের ১ তারিখে ক্যালকুলেট করা হয় এবং ৫ তারিখের মধ্যে পেমেন্ট করা হয়।</span>
+                          <span>পেমেন্ট: কমিশন পেমেন্ট প্রতি সপ্তাহের শেষে করা হয়। নূন্যতম পেমেন্ট অ্যামাউন্ট ৫০০ টাকা।</span>
                         </li>
                       </ul>
                     </div>
@@ -393,55 +387,99 @@ export default function AffiliatePage() {
                   <CardHeader>
                     <CardTitle>কমিশন উত্তোলন</CardTitle>
                     <CardDescription>
-                      আপনার অর্জিত কমিশন উত্তোলন করুন
+                      আপনার উপার্জিত কমিশন উত্তোলন করুন
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div className="mb-6 bg-accent/10 p-4 rounded-lg">
+                      <h3 className="text-lg font-medium mb-2">ব্যালেন্স</h3>
+                      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                        <div>
+                          <p className="text-3xl font-bold">{affiliateData.balance}</p>
+                          <p className="text-sm text-muted-foreground">
+                            নূন্যতম উত্তোলন: ৫০০ টাকা
+                          </p>
+                        </div>
+                        <Button className="bg-accent text-white hover:bg-accent/90">
+                          উত্তোলন করুন
+                        </Button>
+                      </div>
+                    </div>
+                    
+                    <div className="space-y-6">
                       <div>
-                        <div className="bg-muted/30 p-4 rounded-lg mb-6">
-                          <div className="flex justify-between items-center mb-2">
-                            <span className="text-sm">বর্তমান ব্যালেন্স:</span>
-                            <span className="font-bold text-lg">{affiliateData.balance}</span>
+                        <h3 className="text-lg font-medium mb-3">উত্তোলন পদ্ধতি নির্বাচন করুন</h3>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                          <div className="border rounded-lg p-4 hover:border-accent cursor-pointer">
+                            <div className="flex items-center gap-3">
+                              <div className="p-2 bg-accent/10 rounded-full">
+                                <Smartphone className="h-5 w-5 text-accent" />
+                              </div>
+                              <div>
+                                <p className="font-medium">মোবাইল ব্যাংকিং</p>
+                                <p className="text-xs text-muted-foreground">
+                                  বিকাশ, নগদ, রকেট
+                                </p>
+                              </div>
+                            </div>
                           </div>
-                          <div className="flex justify-between items-center">
-                            <span className="text-sm">ন্যূনতম উত্তোলন:</span>
-                            <span className="text-sm">৳৫০০</span>
+                          
+                          <div className="border rounded-lg p-4 hover:border-accent cursor-pointer">
+                            <div className="flex items-center gap-3">
+                              <div className="p-2 bg-accent/10 rounded-full">
+                                <DollarSign className="h-5 w-5 text-accent" />
+                              </div>
+                              <div>
+                                <p className="font-medium">ব্যাংক ট্রান্সফার</p>
+                                <p className="text-xs text-muted-foreground">
+                                  সকল ব্যাংক অ্যাকাউন্ট
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+                          
+                          <div className="border rounded-lg p-4 hover:border-accent cursor-pointer">
+                            <div className="flex items-center gap-3">
+                              <div className="p-2 bg-accent/10 rounded-full">
+                                <Gift className="h-5 w-5 text-accent" />
+                              </div>
+                              <div>
+                                <p className="font-medium">সাইট ক্রেডিট</p>
+                                <p className="text-xs text-muted-foreground">
+                                  আপনার প্লেয়ার অ্যাকাউন্টে
+                                </p>
+                              </div>
+                            </div>
                           </div>
                         </div>
-                        
-                        <form className="space-y-4">
-                          <div className="space-y-2">
-                            <label className="text-sm font-medium">উত্তোলন পরিমাণ</label>
-                            <Input type="number" placeholder="৳১০০০" />
-                            <p className="text-xs text-muted-foreground">ন্যূনতম ৳৫০০ উত্তোলন করতে হবে</p>
-                          </div>
-                          
-                          <div className="space-y-2">
-                            <label className="text-sm font-medium">পেমেন্ট পদ্ধতি</label>
-                            <select className="w-full px-3 py-2 bg-card border border-border rounded-md focus:outline-none focus:ring-1 focus:ring-accent">
-                              <option value="bkash">বিকাশ</option>
-                              <option value="nagad">নগদ</option>
-                              <option value="rocket">রকেট</option>
-                              <option value="bank">ব্যাংক ট্রান্সফার</option>
-                            </select>
-                          </div>
-                          
-                          <div className="space-y-2">
-                            <label className="text-sm font-medium">একাউন্ট নম্বর/বিবরণ</label>
-                            <Input type="text" placeholder="০১৭xxxxxxxx" />
-                          </div>
-                          
-                          <Button type="submit" className="w-full bg-accent text-white hover:bg-accent/90">
-                            উত্তোলন অনুরোধ
-                          </Button>
-                        </form>
                       </div>
                       
-                      <div>
-                        <h3 className="text-lg font-semibold mb-4">উত্তোলন হিস্টোরি</h3>
-                        <div className="bg-muted/30 p-4 rounded-lg text-center py-8">
-                          <p className="text-muted-foreground">কোন উত্তোলন হিস্টোরি নেই</p>
+                      <div className="pt-4">
+                        <h3 className="text-lg font-medium mb-3">উত্তোলন ফর্ম</h3>
+                        <div className="space-y-4">
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                              <label className="text-sm font-medium" htmlFor="amount">
+                                উত্তোলনের পরিমাণ
+                              </label>
+                              <Input id="amount" placeholder="পরিমাণ লিখুন" />
+                            </div>
+                            <div className="space-y-2">
+                              <label className="text-sm font-medium" htmlFor="method">
+                                পেমেন্ট মেথড
+                              </label>
+                              <Input id="method" placeholder="যেমন: বিকাশ, ব্যাংক ট্রান্সফার" />
+                            </div>
+                          </div>
+                          <div className="space-y-2">
+                            <label className="text-sm font-medium" htmlFor="details">
+                              পেমেন্ট ডিটেইলস
+                            </label>
+                            <Textarea id="details" placeholder="আপনার মোবাইল নাম্বার/অ্যাকাউন্ট নাম্বার লিখুন" className="min-h-[100px]" />
+                          </div>
+                          <Button className="w-full bg-accent text-white hover:bg-accent/90">
+                            উত্তোলন অনুরোধ জমা দিন
+                          </Button>
                         </div>
                       </div>
                     </div>
@@ -449,638 +487,157 @@ export default function AffiliatePage() {
                 </Card>
               </TabsContent>
             </Tabs>
-            
-            {/* মার্কেটিং রিসোর্সেস */}
-            <section>
-              <h2 className="text-2xl font-bold mb-6">মার্কেটিং রিসোর্সেস</h2>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <Card className="bg-card border-accent/20">
-                  <CardHeader>
-                    <CardTitle>ব্যানার</CardTitle>
-                    <CardDescription>
-                      আকর্ষণীয় ব্যানার ব্যবহার করুন আপনার ওয়েবসাইটে
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent className="flex justify-center p-4">
-                    <div className="w-full h-32 bg-muted/50 rounded flex items-center justify-center border border-dashed border-muted-foreground/20">
-                      <p className="text-sm text-muted-foreground">ব্যানার প্রিভিউ</p>
-                    </div>
-                  </CardContent>
-                  <CardFooter>
-                    <Button variant="outline" className="w-full">
-                      ব্যানার ডাউনলোড করুন
-                    </Button>
-                  </CardFooter>
-                </Card>
-                
-                <Card className="bg-card border-accent/20">
-                  <CardHeader>
-                    <CardTitle>প্রমোশনাল টেক্সট</CardTitle>
-                    <CardDescription>
-                      আপনার সোশ্যাল মিডিয়াতে শেয়ার করার জন্য
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <Textarea 
-                      readOnly 
-                      value="TK999-এ জয়েন করুন, বাংলাদেশের সবচেয়ে বিশ্বস্ত অনলাইন গেমিং প্ল্যাটফর্ম! ৫০০ টাকার স্বাগতম বোনাস পান এখনই! [আপনার রেফারেল লিংক]"
-                      className="min-h-24"
-                    />
-                  </CardContent>
-                  <CardFooter>
-                    <Button variant="outline" className="w-full">
-                      কপি করুন
-                    </Button>
-                  </CardFooter>
-                </Card>
-                
-                <Card className="bg-card border-accent/20">
-                  <CardHeader>
-                    <CardTitle>স্পেশাল অফার</CardTitle>
-                    <CardDescription>
-                      আপনার রেফারেলদের জন্য বিশেষ অফার
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="border border-dashed border-accent p-3 rounded-lg">
-                      <h4 className="font-semibold text-sm mb-1">এক্সক্লুসিভ কোড: TKSPECIAL</h4>
-                      <p className="text-xs text-muted-foreground">
-                        আপনার রেফারেলরা এই কোড ব্যবহার করে অতিরিক্ত ১০% বোনাস পাবে
-                      </p>
-                    </div>
-                  </CardContent>
-                  <CardFooter>
-                    <Button variant="outline" className="w-full">
-                      বিস্তারিত দেখুন
-                    </Button>
-                  </CardFooter>
-                </Card>
-              </div>
-            </section>
           </>
         ) : (
-          // লগড আউট অবস্থা - এফিলিয়েট সাইনআপ
+          // লগইন করা নেই - এফিলিয়েট প্রোগ্রামের বিবরণ
           <>
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 mb-10">
-              <div className="space-y-6">
-                <h2 className="text-2xl font-bold">আমাদের এফিলিয়েট প্রোগ্রামে যোগ দিন</h2>
-                <p className="text-muted-foreground">
-                  TK999 এফিলিয়েট প্রোগ্রাম আপনাকে আপনার ওয়েবসাইট, সোশ্যাল মিডিয়া, বা অন্যান্য মার্কেটিং চ্যানেলের মাধ্যমে আয় করার সুযোগ দেয়। আমাদের প্ল্যাটফর্মে নতুন প্লেয়ার নিয়ে আসুন এবং আকর্ষণীয় কমিশন পান।
-                </p>
-                
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <Card className="bg-card/50 border-accent/20">
-                    <CardContent className="pt-6">
-                      <div className="mb-3 p-2 bg-accent/10 w-10 h-10 rounded-full flex items-center justify-center">
+            <section className="mb-10">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+                <div>
+                  <h2 className="text-2xl font-bold mb-4">এফিলিয়েট হিসেবে আয় করুন</h2>
+                  <p className="text-muted-foreground mb-6">
+                    আমাদের এফিলিয়েট প্রোগ্রাম আপনাকে আপনার বন্ধুদের, পরিবারের সদস্যদের এবং অনলাইন অনুসরণকারীদের রেফার করে অর্থ উপার্জন করতে দেয়। আপনি আপনার বন্ধুদের রেফারেল লিংক শেয়ার করে এবং আপনার রেফারালগুলি জুয়া খেলায় অংশ নেওয়ার মাধ্যমে সহজেই উপার্জন করতে পারেন।
+                  </p>
+                  <div className="space-y-4">
+                    <div className="flex items-start gap-3">
+                      <div className="p-2 bg-accent/10 rounded-full mt-1">
                         <DollarSign className="h-5 w-5 text-accent" />
                       </div>
-                      <h3 className="font-bold mb-2">উচ্চ কমিশন রেট</h3>
-                      <p className="text-sm text-muted-foreground">
-                        ৪৫% পর্যন্ত রেভিনিউ শেয়ার এবং আকর্ষণীয় বোনাস প্রোগ্রাম
-                      </p>
-                    </CardContent>
-                  </Card>
-                  
-                  <Card className="bg-card/50 border-accent/20">
-                    <CardContent className="pt-6">
-                      <div className="mb-3 p-2 bg-accent/10 w-10 h-10 rounded-full flex items-center justify-center">
-                        <LineChart className="h-5 w-5 text-accent" />
+                      <div>
+                        <p className="font-medium">৪৫% পর্যন্ত রেভেনিউ শেয়ার</p>
+                        <p className="text-sm text-muted-foreground">
+                          আপনার রেফারেলের নেট লস থেকে আপনি ৪৫% পর্যন্ত কমিশন পাবেন।
+                        </p>
                       </div>
-                      <h3 className="font-bold mb-2">দ্রুত পেমেন্ট</h3>
-                      <p className="text-sm text-muted-foreground">
-                        প্রতি মাসের ৫ তারিখের মধ্যে নিয়মিত পেমেন্ট, ন্যূনতম ৫০০ টাকা
-                      </p>
-                    </CardContent>
-                  </Card>
-                  
-                  <Card className="bg-card/50 border-accent/20">
-                    <CardContent className="pt-6">
-                      <div className="mb-3 p-2 bg-accent/10 w-10 h-10 rounded-full flex items-center justify-center">
-                        <Users className="h-5 w-5 text-accent" />
-                      </div>
-                      <h3 className="font-bold mb-2">আজীবন কমিশন</h3>
-                      <p className="text-sm text-muted-foreground">
-                        আপনার রেফারের আজীবন কার্যকলাপের উপর কমিশন পান
-                      </p>
-                    </CardContent>
-                  </Card>
-                  
-                  <Card className="bg-card/50 border-accent/20">
-                    <CardContent className="pt-6">
-                      <div className="mb-3 p-2 bg-accent/10 w-10 h-10 rounded-full flex items-center justify-center">
+                    </div>
+                    <div className="flex items-start gap-3">
+                      <div className="p-2 bg-accent/10 rounded-full mt-1">
                         <Gift className="h-5 w-5 text-accent" />
                       </div>
-                      <h3 className="font-bold mb-2">বিশেষ বোনাস</h3>
-                      <p className="text-sm text-muted-foreground">
-                        নিয়মিত প্রমোশন এবং উৎস্বের সময় স্পেশাল বোনাস
-                      </p>
-                    </CardContent>
-                  </Card>
-                </div>
-                
-                <Card className="bg-muted/30 border-accent/20">
-                  <CardContent className="pt-6">
-                    <h3 className="font-bold mb-3 flex items-center gap-2">
-                      <AlertCircle className="h-5 w-5 text-accent" />
-                      <span>কিভাবে শুরু করবেন</span>
-                    </h3>
-                    <ol className="space-y-3 pl-6 list-decimal">
-                      <li className="text-sm text-muted-foreground">
-                        TK999 এ রেজিস্ট্রেশন করুন বা লগইন করুন
-                      </li>
-                      <li className="text-sm text-muted-foreground">
-                        আপনার অ্যাকাউন্টে "এফিলিয়েট" সেকশনে যান
-                      </li>
-                      <li className="text-sm text-muted-foreground">
-                        এফিলিয়েট এগ্রিমেন্ট পড়ুন এবং সাইন আপ করুন
-                      </li>
-                      <li className="text-sm text-muted-foreground">
-                        আপনার ইউনিক রেফারেল লিংক পান এবং শেয়ার করা শুরু করুন
-                      </li>
-                      <li className="text-sm text-muted-foreground">
-                        যত বেশি প্লেয়ার আপনি রেফার করবেন, তত বেশি কমিশন পাবেন!
-                      </li>
-                    </ol>
-                  </CardContent>
-                </Card>
-                
-                <div className="text-center pt-6">
-                  <Button variant="default" size="lg" className="px-8 bg-accent text-white hover:bg-accent/90">
-                    এখনই জয়েন করুন
-                    <ArrowRight className="ml-2 h-4 w-4" />
+                      <div>
+                        <p className="font-medium">১৫% পর্যন্ত ডিপোজিট বোনাস</p>
+                        <p className="text-sm text-muted-foreground">
+                          আপনার রেফারালের প্রথম ডিপোজিটে আপনি ১৫% পর্যন্ত বোনাস পাবেন।
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-3">
+                      <div className="p-2 bg-accent/10 rounded-full mt-1">
+                        <Shield className="h-5 w-5 text-accent" />
+                      </div>
+                      <div>
+                        <p className="font-medium">লাইফটাইম কমিশন</p>
+                        <p className="text-sm text-muted-foreground">
+                          রেফারেল যতদিন আমাদের সাইটে থাকবে, আপনি ততদিন কমিশন পাবেন।
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                  <Button className="mt-6 bg-accent text-white hover:bg-accent/90">
+                    এখনই রেজিস্ট্রেশন করুন
                   </Button>
                 </div>
-              </div>
-              
-              <div className="space-y-6">
-                <div className="bg-muted/30 rounded-lg p-6 space-y-6">
-                  <h3 className="text-xl font-bold">আয় উদাহরণ</h3>
-                  <p className="text-muted-foreground text-sm">
-                    আমাদের এফিলিয়েট প্রোগ্রাম কিভাবে আপনাকে আয় করতে সাহায্য করবে:
+                
+                <div className="bg-card border-accent/20 rounded-lg p-6">
+                  <h3 className="text-xl font-bold mb-4">আপনার কমিশন ক্যালকুলেট করুন</h3>
+                  <p className="text-muted-foreground mb-6">
+                    আমাদের এফিলিয়েট প্রোগ্রামে যোগ দেওয়ার পরে আপনি কত আয় করতে পারেন তা দেখুন।
                   </p>
                   
                   <div className="space-y-4">
-                    <div className="bg-card rounded-lg p-4 border border-border">
-                      <h4 className="font-semibold mb-2">উদাহরণ ১: মাসিক ৫ জন রেফারেল</h4>
-                      <div className="space-y-2 text-sm">
-                        <div className="flex justify-between">
-                          <span className="text-muted-foreground">মাসিক রেফারেল:</span>
-                          <span>৫ জন</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-muted-foreground">গড় ডিপোজিট:</span>
-                          <span>৳২,০০০ প্রতি ব্যক্তি</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-muted-foreground">প্লেয়ার নেট লস:</span>
-                          <span>১০-২০% (ডিপোজিটের)</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-muted-foreground">কমিশন রেট:</span>
-                          <span>৩০% (সিলভার লেভেল)</span>
-                        </div>
-                        <Separator className="my-2" />
-                        <div className="flex justify-between font-semibold">
-                          <span>মাসিক আয়:</span>
-                          <span className="text-accent">৳৩,০০০-৬,০০০</span>
-                        </div>
-                        <div className="flex justify-between font-semibold">
-                          <span>বার্ষিক আয়:</span>
-                          <span className="text-accent">৳৩৬,০০০-৭২,০০০</span>
-                        </div>
-                      </div>
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium">
+                        আপনি কতজন প্লেয়ার আনতে পারবেন?
+                      </label>
+                      <Input type="number" placeholder="25" min="1" defaultValue="10" />
                     </div>
-                    
-                    <div className="bg-card rounded-lg p-4 border border-border">
-                      <h4 className="font-semibold mb-2">উদাহরণ ২: মাসিক ২০ জন রেফারেল</h4>
-                      <div className="space-y-2 text-sm">
-                        <div className="flex justify-between">
-                          <span className="text-muted-foreground">মাসিক রেফারেল:</span>
-                          <span>২০ জন</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-muted-foreground">গড় ডিপোজিট:</span>
-                          <span>৳২,০০০ প্রতি ব্যক্তি</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-muted-foreground">প্লেয়ার নেট লস:</span>
-                          <span>১০-২০% (ডিপোজিটের)</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-muted-foreground">কমিশন রেট:</span>
-                          <span>৩৫% (গোল্ড লেভেল)</span>
-                        </div>
-                        <Separator className="my-2" />
-                        <div className="flex justify-between font-semibold">
-                          <span>মাসিক আয়:</span>
-                          <span className="text-accent">৳১৪,০০০-২৮,০০০</span>
-                        </div>
-                        <div className="flex justify-between font-semibold">
-                          <span>বার্ষিক আয়:</span>
-                          <span className="text-accent">৳১৬৮,০০০-৩৩৬,০০০</span>
-                        </div>
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium">
+                        গড় নেট লস প্রতি প্লেয়ার (মাসিক)
+                      </label>
+                      <Input type="number" placeholder="10000" min="1" defaultValue="5000" />
+                    </div>
+                    <div className="p-4 bg-accent/10 rounded-lg">
+                      <div className="flex justify-between items-center">
+                        <p className="text-sm font-medium">আপনার সম্ভাব্য মাসিক আয়:</p>
+                        <p className="text-2xl font-bold">৳১৫,০০০</p>
+                      </div>
+                      <div className="flex justify-between items-center mt-2">
+                        <p className="text-sm font-medium">আপনার সম্ভাব্য বার্ষিক আয়:</p>
+                        <p className="text-xl font-bold">৳১,৮০,০০০</p>
                       </div>
                     </div>
                   </div>
-                  
-                  <p className="text-xs text-muted-foreground italic">
-                    * উপরের হিসাবগুলো একটি প্রাথমিক অনুমান। প্রকৃত আয় রেফারেল প্লেয়ারদের কার্যকলাপের উপর নির্ভর করে।
+                </div>
+              </div>
+            </section>
+            
+            <section className="mb-10">
+              <h2 className="text-2xl font-bold mb-6 text-center">কিভাবে শুরু করবেন</h2>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="bg-card border-accent/20 rounded-lg p-6 text-center">
+                  <div className="w-12 h-12 bg-accent/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <p className="text-xl font-bold text-accent">১</p>
+                  </div>
+                  <h3 className="text-lg font-bold mb-2">অ্যাকাউন্ট খুলুন</h3>
+                  <p className="text-sm text-muted-foreground">
+                    আমাদের ওয়েবসাইটে একটি অ্যাকাউন্ট খুলুন এবং এফিলিয়েট প্রোগ্রামে যোগ দিন।
                   </p>
                 </div>
                 
-                <Card className="border-accent/20">
-                  <CardHeader>
-                    <CardTitle>টেস্টিমোনিয়াল</CardTitle>
-                    <CardDescription>আমাদের সফল এফিলিয়েটদের অভিজ্ঞতা জানুন</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-4">
-                      <div className="p-4 bg-muted/30 rounded-lg">
-                        <p className="text-sm italic mb-3">
-                          "আমি গত ১ বছর ধরে TK999 এর এফিলিয়েট হিসেবে কাজ করছি। প্রথম মাসে আমি মাত্র ৳৩,০০০ আয় করেছিলাম, কিন্তু এখন প্রতি মাসে ৳২০,০০০+ আয় করি। দ্রুত পেমেন্ট এবং ভাল সাপোর্ট পাওয়া যায়।"
-                        </p>
-                        <div className="flex justify-between items-center">
-                          <span className="font-semibold">- রাহুল (এফিলিয়েট সিনিয়র)</span>
-                          <div className="flex">
-                            {[1, 2, 3, 4, 5].map(star => (
-                              <svg key={star} className="h-4 w-4 fill-accent" viewBox="0 0 20 20">
-                                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                              </svg>
-                            ))}
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
-            </div>
-          </>
-        ) : (
-          // নন-লগইন অবস্থা - এফিলিয়েট সাইন-আপ পেজ
-          <>
-            {/* ইন্ট্রো হিরো সেকশন */}
-            <section className="mb-10 relative overflow-hidden rounded-xl border border-accent/20 bg-gradient-to-r from-black to-slate-900">
-              <div className="flex flex-col md:flex-row">
-                <div className="p-8 md:p-10 md:w-3/5 z-10">
-                  <Badge className="bg-accent mb-4">নতুন প্রোগ্রাম</Badge>
-                  <h2 className="text-3xl md:text-4xl font-bold mb-4">অর্থ উপার্জন করুন আমাদের এফিলিয়েট প্রোগ্রামে</h2>
-                  <p className="text-lg text-gray-300 mb-6">
-                    বন্ধুদের রেফার করুন এবং তাদের প্রতিটি বেট এবং ডিপোজিটের জন্য উচ্চ কমিশন পান। আমাদের এফিলিয়েট প্রোগ্রামে যোগ দিন এবং শুরু করুন আজই!
+                <div className="bg-card border-accent/20 rounded-lg p-6 text-center">
+                  <div className="w-12 h-12 bg-accent/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <p className="text-xl font-bold text-accent">২</p>
+                  </div>
+                  <h3 className="text-lg font-bold mb-2">লিংক শেয়ার করুন</h3>
+                  <p className="text-sm text-muted-foreground">
+                    আপনার রেফারেল লিংক শেয়ার করুন সোশ্যাল মিডিয়া, ইমেইল বা ব্লগের মাধ্যমে।
                   </p>
-                  <div className="flex flex-col sm:flex-row gap-4">
-                    <Button size="lg" className="flex items-center gap-2">
-                      শুরু করুন <ChevronRight className="h-4 w-4" />
-                    </Button>
-                    <Button size="lg" variant="outline" className="text-white border-white/20 bg-white/5">
-                      আরও জানুন
-                    </Button>
-                  </div>
-                  <div className="mt-6 flex items-center gap-6">
-                    <div className="flex flex-col">
-                      <span className="text-2xl font-bold">৪৫%</span>
-                      <span className="text-xs text-gray-400">রেভিনিউ শেয়ার</span>
-                    </div>
-                    <div className="flex flex-col">
-                      <span className="text-2xl font-bold">১৫%</span>
-                      <span className="text-xs text-gray-400">ডিপোজিট বোনাস</span>
-                    </div>
-                    <div className="flex flex-col">
-                      <span className="text-2xl font-bold">৳১০,০০০+</span>
-                      <span className="text-xs text-gray-400">মাসিক আয়</span>
-                    </div>
-                  </div>
                 </div>
-                <div className="hidden md:block md:w-2/5 relative">
-                  <div className="absolute inset-0 bg-gradient-to-r from-black to-transparent z-10"></div>
-                  <div className="absolute right-0 top-0 bottom-0 w-full bg-accent/20"></div>
+                
+                <div className="bg-card border-accent/20 rounded-lg p-6 text-center">
+                  <div className="w-12 h-12 bg-accent/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <p className="text-xl font-bold text-accent">৩</p>
+                  </div>
+                  <h3 className="text-lg font-bold mb-2">কমিশন পান</h3>
+                  <p className="text-sm text-muted-foreground">
+                    আপনার রেফারালগুলি সাইনআপ করলে এবং গেম খেললে আপনি কমিশন পাবেন।
+                  </p>
                 </div>
               </div>
             </section>
             
-            {/* বৈশিষ্ট্য সেকশন */}
-            <section className="mb-12">
-              <h2 className="text-2xl font-bold mb-6 text-center">কেন আমাদের এফিলিয়েট প্রোগ্রাম বেছে নেবেন</h2>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                <Card className="bg-card border-accent/20">
-                  <CardContent className="pt-6">
-                    <div className="flex flex-col items-center text-center mb-2">
-                      <div className="w-12 h-12 bg-accent/10 rounded-full flex items-center justify-center mb-4">
-                        <DollarSign className="h-6 w-6 text-accent" />
-                      </div>
-                      <h3 className="text-lg font-semibold mb-2">উচ্চ কমিশন রেট</h3>
-                      <p className="text-muted-foreground text-sm">
-                        শিল্পের মধ্যে সর্বোচ্চ ৪৫% রেভিনিউ শেয়ার এবং ১৫% ডিপোজিট বোনাস পান
-                      </p>
-                    </div>
-                  </CardContent>
-                </Card>
-                
-                <Card className="bg-card border-accent/20">
-                  <CardContent className="pt-6">
-                    <div className="flex flex-col items-center text-center mb-2">
-                      <div className="w-12 h-12 bg-accent/10 rounded-full flex items-center justify-center mb-4">
-                        <Zap className="h-6 w-6 text-accent" />
-                      </div>
-                      <h3 className="text-lg font-semibold mb-2">দ্রুত পেমেন্ট</h3>
-                      <p className="text-muted-foreground text-sm">
-                        নির্ভরযোগ্য এবং সময়মত পেমেন্ট - মাসিক বা অনুরোধ অনুযায়ী উত্তোলন করুন
-                      </p>
-                    </div>
-                  </CardContent>
-                </Card>
-                
-                <Card className="bg-card border-accent/20">
-                  <CardContent className="pt-6">
-                    <div className="flex flex-col items-center text-center mb-2">
-                      <div className="w-12 h-12 bg-accent/10 rounded-full flex items-center justify-center mb-4">
-                        <Shield className="h-6 w-6 text-accent" />
-                      </div>
-                      <h3 className="text-lg font-semibold mb-2">আজীবন কমিশন</h3>
-                      <p className="text-muted-foreground text-sm">
-                        আপনার রেফারেল ব্যবহারকারীদের আজীবন কার্যকলাপের উপর কমিশন পান
-                      </p>
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
-            </section>
-            
-            {/* কাজের প্রক্রিয়া */}
-            <section className="mb-12">
-              <div className="text-center mb-8">
-                <h2 className="text-2xl font-bold mb-2">কিভাবে শুরু করবেন</h2>
-                <p className="text-muted-foreground max-w-2xl mx-auto">
-                  মাত্র তিনটি সহজ ধাপে আমাদের এফিলিয়েট প্রোগ্রামে যোগ দিন এবং আয় শুরু করুন
-                </p>
-              </div>
-              
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                <div className="relative">
-                  <div className="text-center">
-                    <div className="w-16 h-16 bg-accent/10 rounded-full flex items-center justify-center mx-auto mb-4 relative z-10">
-                      <span className="text-2xl font-bold text-accent">১</span>
-                    </div>
-                    <h3 className="text-lg font-semibold mb-2">সাইন আপ করুন</h3>
-                    <p className="text-muted-foreground text-sm">
-                      একটি ফ্রি অ্যাকাউন্ট তৈরি করুন এবং এফিলিয়েট প্রোগ্রামে যোগ দিন
-                    </p>
-                  </div>
-                  <div className="hidden md:block absolute top-8 left-[60%] w-[80%] h-[2px] bg-accent/20"></div>
-                </div>
-                
-                <div className="relative">
-                  <div className="text-center">
-                    <div className="w-16 h-16 bg-accent/10 rounded-full flex items-center justify-center mx-auto mb-4 relative z-10">
-                      <span className="text-2xl font-bold text-accent">২</span>
-                    </div>
-                    <h3 className="text-lg font-semibold mb-2">প্রমোট করুন</h3>
-                    <p className="text-muted-foreground text-sm">
-                      আপনার অনন্য রেফারেল লিংক ব্যবহার করে আমাদের সাইট প্রমোট করুন
-                    </p>
-                  </div>
-                  <div className="hidden md:block absolute top-8 left-[60%] w-[80%] h-[2px] bg-accent/20"></div>
-                </div>
-                
-                <div>
-                  <div className="text-center">
-                    <div className="w-16 h-16 bg-accent/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                      <span className="text-2xl font-bold text-accent">৩</span>
-                    </div>
-                    <h3 className="text-lg font-semibold mb-2">আয় করুন</h3>
-                    <p className="text-muted-foreground text-sm">
-                      আপনার রেফারেল ব্যবহারকারীদের কার্যকলাপের উপর কমিশন পান
-                    </p>
-                  </div>
-                </div>
-              </div>
-              
-              <div className="flex justify-center mt-8">
-                <Button className="gap-2">
-                  <Users className="h-4 w-4" />
-                  রেজিষ্ট্রেশন করুন
-                </Button>
-              </div>
-            </section>
-            
-            {/* কমিশন স্ট্রাকচার */}
-            <section className="mb-12">
-              <h2 className="text-2xl font-bold mb-6">আমাদের কমিশন স্ট্রাকচার</h2>
-              <Card className="bg-card border-accent/20">
-                <CardContent className="p-0">
-                  <div className="overflow-x-auto">
-                    <Table>
-                      <TableHeader>
-                        <TableRow>
-                          <TableHead>লেভেল</TableHead>
-                          <TableHead>প্রয়োজনীয়তা</TableHead>
-                          <TableHead>রেভিনিউ শেয়ার</TableHead>
-                          <TableHead>ডিপোজিট বোনাস</TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {commissionRates.map((rate) => (
-                          <TableRow key={rate.level}>
-                            <TableCell className="font-medium">{rate.level}</TableCell>
-                            <TableCell>{rate.requirement}</TableCell>
-                            <TableCell className="font-semibold">{rate.revenueShare}</TableCell>
-                            <TableCell>{rate.depositBonus}</TableCell>
-                          </TableRow>
-                        ))}
-                      </TableBody>
-                    </Table>
-                  </div>
-                </CardContent>
-              </Card>
-            </section>
-            
-            {/* মার্কেটিং টুলস */}
-            <section className="mb-12">
-              <h2 className="text-2xl font-bold mb-6">এফিলিয়েট মার্কেটিং টুলস</h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                <Card className="bg-card border-accent/20">
-                  <CardContent className="pt-6">
-                    <div className="flex flex-col items-center text-center">
-                      <div className="w-12 h-12 bg-accent/10 rounded-full flex items-center justify-center mb-4">
-                        <FileText className="h-6 w-6 text-accent" />
-                      </div>
-                      <h3 className="font-semibold mb-2">ব্যানার</h3>
-                      <p className="text-xs text-muted-foreground">
-                        আকর্ষণীয় ব্যানার এবং ক্রিয়েটিভ
-                      </p>
-                    </div>
-                  </CardContent>
-                </Card>
-                
-                <Card className="bg-card border-accent/20">
-                  <CardContent className="pt-6">
-                    <div className="flex flex-col items-center text-center">
-                      <div className="w-12 h-12 bg-accent/10 rounded-full flex items-center justify-center mb-4">
-                        <LineChart className="h-6 w-6 text-accent" />
-                      </div>
-                      <h3 className="font-semibold mb-2">ট্র্যাকিং</h3>
-                      <p className="text-xs text-muted-foreground">
-                        রিয়েল-টাইম পারফরম্যান্স ট্র্যাকিং
-                      </p>
-                    </div>
-                  </CardContent>
-                </Card>
-                
-                <Card className="bg-card border-accent/20">
-                  <CardContent className="pt-6">
-                    <div className="flex flex-col items-center text-center">
-                      <div className="w-12 h-12 bg-accent/10 rounded-full flex items-center justify-center mb-4">
-                        <Smartphone className="h-6 w-6 text-accent" />
-                      </div>
-                      <h3 className="font-semibold mb-2">মোবাইল অপ্টিমাইজড</h3>
-                      <p className="text-xs text-muted-foreground">
-                        মোবাইল-ফ্রেন্ডলি প্রমোশন টুলস
-                      </p>
-                    </div>
-                  </CardContent>
-                </Card>
-                
-                <Card className="bg-card border-accent/20">
-                  <CardContent className="pt-6">
-                    <div className="flex flex-col items-center text-center">
-                      <div className="w-12 h-12 bg-accent/10 rounded-full flex items-center justify-center mb-4">
-                        <Share2 className="h-6 w-6 text-accent" />
-                      </div>
-                      <h3 className="font-semibold mb-2">সোশ্যাল শেয়ারিং</h3>
-                      <p className="text-xs text-muted-foreground">
-                        সোশ্যাল মিডিয়া ইন্টিগ্রেশন টুলস
-                      </p>
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
-            </section>
-            
-            {/* রেজিস্ট্রেশন সেকশন */}
-            <section className="mb-8">
-              <Card className="bg-card border-accent/20">
-                <CardHeader>
-                  <CardTitle>এফিলিয়েট প্রোগ্রামে যোগ দিন</CardTitle>
-                  <CardDescription>
-                    একটি অ্যাকাউন্ট তৈরি করুন এবং আজই আমাদের এফিলিয়েট প্রোগ্রামে যোগ দিন
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                      <form className="space-y-4">
-                        <div className="space-y-2">
-                          <label className="text-sm font-medium">আপনার নাম</label>
-                          <Input type="text" placeholder="নাম লিখুন" />
-                        </div>
-                        
-                        <div className="space-y-2">
-                          <label className="text-sm font-medium">ইমেইল</label>
-                          <Input type="email" placeholder="email@example.com" />
-                        </div>
-                        
-                        <div className="space-y-2">
-                          <label className="text-sm font-medium">ফোন নম্বর</label>
-                          <Input type="tel" placeholder="01xxxxxxxxx" />
-                        </div>
-                        
-                        <div className="space-y-2">
-                          <label className="text-sm font-medium">আপনি কিভাবে প্রমোট করবেন?</label>
-                          <Textarea placeholder="আপনার মার্কেটিং স্ট্র্যাটেজি সম্পর্কে সংক্ষেপে লিখুন" />
-                        </div>
-                        
-                        <Button type="submit" className="w-full">রেজিস্ট্রেশন করুন</Button>
-                      </form>
-                    </div>
-                    
-                    <div className="bg-muted/30 p-6 rounded-lg space-y-4">
-                      <h3 className="text-lg font-semibold mb-2">এফিলিয়েট সুবিধা</h3>
-                      <ul className="space-y-3">
-                        <li className="flex items-start gap-2">
-                          <span className="bg-accent/10 text-accent p-1 rounded mt-0.5">
-                            <Check className="h-3 w-3" />
-                          </span>
-                          <span className="text-sm">উচ্চ কমিশন রেট - ৪৫% পর্যন্ত রেভিনিউ শেয়ার</span>
-                        </li>
-                        <li className="flex items-start gap-2">
-                          <span className="bg-accent/10 text-accent p-1 rounded mt-0.5">
-                            <Check className="h-3 w-3" />
-                          </span>
-                          <span className="text-sm">দ্রুত এবং নিয়মিত পেমেন্ট</span>
-                        </li>
-                        <li className="flex items-start gap-2">
-                          <span className="bg-accent/10 text-accent p-1 rounded mt-0.5">
-                            <Check className="h-3 w-3" />
-                          </span>
-                          <span className="text-sm">ব্যক্তিগত এফিলিয়েট ম্যানেজার</span>
-                        </li>
-                        <li className="flex items-start gap-2">
-                          <span className="bg-accent/10 text-accent p-1 rounded mt-0.5">
-                            <Check className="h-3 w-3" />
-                          </span>
-                          <span className="text-sm">আকর্ষণীয় মার্কেটিং উপকরণ</span>
-                        </li>
-                        <li className="flex items-start gap-2">
-                          <span className="bg-accent/10 text-accent p-1 rounded mt-0.5">
-                            <Check className="h-3 w-3" />
-                          </span>
-                          <span className="text-sm">আজীবন রেফারেল ট্র্যাকিং</span>
-                        </li>
-                        <li className="flex items-start gap-2">
-                          <span className="bg-accent/10 text-accent p-1 rounded mt-0.5">
-                            <Check className="h-3 w-3" />
-                          </span>
-                          <span className="text-sm">24/7 সাপোর্ট</span>
-                        </li>
-                      </ul>
-                      
-                      <div className="pt-4">
-                        <p className="text-sm text-muted-foreground">
-                          ইতিমধ্যে একটি অ্যাকাউন্ট আছে? <a href="/auth" className="text-accent hover:underline">লগইন করুন</a>
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </section>
-            
-            {/* FAQ সেকশন */}
-            <section>
-              <h2 className="text-2xl font-bold mb-6">সচরাচর জিজ্ঞাসিত প্রশ্ন</h2>
-              <Accordion type="single" collapsible className="mb-4">
+            <section className="mb-10">
+              <h2 className="text-2xl font-bold mb-6">সাধারণ প্রশ্নাবলী</h2>
+              <Accordion type="single" collapsible className="w-full">
                 <AccordionItem value="item-1">
-                  <AccordionTrigger>কিভাবে আমি এফিলিয়েট হিসেবে সাইন আপ করব?</AccordionTrigger>
+                  <AccordionTrigger>এফিলিয়েট প্রোগ্রামে যোগ দেওয়ার জন্য কোন ফি আছে কি?</AccordionTrigger>
                   <AccordionContent>
-                    আপনি উপরের ফর্মটি পূরণ করে সহজেই সাইন আপ করতে পারেন। আমাদের টিম আপনার আবেদন পর্যালোচনা করবে এবং 24 ঘন্টার মধ্যে আপনাকে অবহিত করবে।
+                    না, আমাদের এফিলিয়েট প্রোগ্রামে যোগ দেওয়ার জন্য কোন ফি নেই। এটি সম্পূর্ণ বিনামূল্যে এবং আপনি শুধুমাত্র আমাদের সাইটে একটি অ্যাকাউন্ট খুলে এফিলিয়েট প্রোগ্রামে যোগ দিতে পারেন।
                   </AccordionContent>
                 </AccordionItem>
-                
                 <AccordionItem value="item-2">
-                  <AccordionTrigger>আমি কিভাবে এফিলিয়েট কমিশন পাব?</AccordionTrigger>
+                  <AccordionTrigger>আমি কীভাবে কমিশন পাব?</AccordionTrigger>
                   <AccordionContent>
-                    আপনি আপনার রেফারেল ব্যবহারকারীদের কার্যকলাপের উপর কমিশন পাবেন। আপনি তাদের নেট লসের উপর রেভিনিউ শেয়ার এবং তাদের প্রথম ডিপোজিটের উপর বোনাস পাবেন। কমিশন প্রতি মাসে ক্যালকুলেট করা হয় এবং আপনার এফিলিয়েট অ্যাকাউন্টে যোগ করা হয়।
+                    আপনি আপনার রেফারেলের নেট লস থেকে কমিশন পাবেন। এছাড়াও, আপনার রেফারালের প্রথম ডিপোজিটে আপনি ডিপোজিট বোনাস পাবেন। কমিশন রেট আপনার এফিলিয়েট লেভেলের উপর নির্ভর করে ভিন্ন হবে।
                   </AccordionContent>
                 </AccordionItem>
-                
                 <AccordionItem value="item-3">
-                  <AccordionTrigger>কি ধরনের মার্কেটিং উপকরণ আপনারা প্রদান করেন?</AccordionTrigger>
+                  <AccordionTrigger>কীভাবে কমিশন পেমেন্ট করা হয়?</AccordionTrigger>
                   <AccordionContent>
-                    আমরা বিভিন্ন আকারের ব্যানার, লোগো, ল্যান্ডিং পেজ, টেক্সট লিংক, এবং প্রমোশনাল কন্টেন্ট প্রদান করি। এছাড়াও, আপনার ক্যাম্পেইন সাফল্যের জন্য রিয়েল-টাইম ট্র্যাকিং এবং রিপোর্টিং টুলস রয়েছে।
+                    কমিশন পেমেন্ট প্রতি সপ্তাহে করা হয়। আপনি বিকাশ, নগদ, রকেট, ব্যাংক ট্রান্সফার বা সাইট ক্রেডিটের মাধ্যমে আপনার কমিশন পেতে পারেন। নূন্যতম পেমেন্ট অ্যামাউন্ট ৫০০ টাকা।
                   </AccordionContent>
                 </AccordionItem>
-                
                 <AccordionItem value="item-4">
-                  <AccordionTrigger>কিভাবে আমি আমার কমিশন উত্তোলন করব?</AccordionTrigger>
+                  <AccordionTrigger>আমি কি আমার নিজের অ্যাকাউন্টের জন্য রেফারেল বোনাস পাব?</AccordionTrigger>
                   <AccordionContent>
-                    আপনি আপনার পছন্দের পেমেন্ট পদ্ধতি ব্যবহার করে কমিশন উত্তোলন করতে পারেন, যেমন ব্যাংক ট্রান্সফার, বিকাশ, নগদ, বা রকেট। ন্যূনতম উত্তোলনের পরিমাণ হল ৳৫০০।
+                    না, আপনি আপনার নিজের অ্যাকাউন্টের জন্য রেফারেল বোনাস পাবেন না। এফিলিয়েট রেফারেল প্রোগ্রাম শুধুমাত্র নতুন প্লেয়ারদের জন্য যারা আপনার রেফারেল লিংকের মাধ্যমে সাইন আপ করেছে।
                   </AccordionContent>
                 </AccordionItem>
-                
                 <AccordionItem value="item-5">
-                  <AccordionTrigger>কোন ধরনের ওয়েবসাইট বা সোশ্যাল মিডিয়া অ্যাকাউন্ট প্রমোশনের জন্য অনুমোদিত?</AccordionTrigger>
+                  <AccordionTrigger>আমি কি একাধিক রেফারেল লিংক পেতে পারি?</AccordionTrigger>
                   <AccordionContent>
-                    আমরা বেশিরভাগ ওয়েবসাইট এবং সোশ্যাল মিডিয়া প্ল্যাটফর্ম অনুমোদন করি, তবে সেগুলি অবশ্যই আমাদের নীতিমালা অনুসরণ করতে হবে। স্প্যাম, অবৈধ কন্টেন্ট, বা অপ্রাপ্তবয়স্কদের লক্ষ্য করা ওয়েবসাইট/প্ল্যাটফর্ম অনুমোদিত নয়।
+                    না, প্রতিটি এফিলিয়েট অ্যাকাউন্টের জন্য একটি অনন্য রেফারেল লিংক বরাদ্দ করা হয়। তবে, আপনি আপনার রেফারেল লিংক বিভিন্ন চ্যানেলে শেয়ার করতে পারেন, যেমন সোশ্যাল মিডিয়া, ইমেল, ব্লগ ইত্যাদি।
                   </AccordionContent>
                 </AccordionItem>
               </Accordion>
