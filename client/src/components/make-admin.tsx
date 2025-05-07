@@ -1,62 +1,97 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { useAuth } from "@/hooks/use-auth";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { ShieldCheck } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+import { useMutation } from "@tanstack/react-query";
 import { queryClient } from "@/lib/queryClient";
-import { toast } from "@/hooks/use-toast";
 
 export function MakeAdmin() {
-  const { user } = useAuth();
-  const [isLoading, setIsLoading] = useState(false);
-
-  const makeAdmin = async () => {
-    if (!user) return;
-    
-    setIsLoading(true);
-    try {
-      // ডিরেক্টলি স্টোরেজে এক্সেস করে যেহেতু আমরা মেমরি স্টোরেজ ব্যবহার করছি
-      const response = await fetch("/api/make-admin", {
+  const [secretKey, setSecretKey] = useState("");
+  const { toast } = useToast();
+  
+  const makeAdminMutation = useMutation({
+    mutationFn: async (key: string) => {
+      const res = await fetch("/api/make-admin", {
         method: "POST",
         headers: {
-          "Content-Type": "application/json",
+          "Content-Type": "application/json"
         },
-        body: JSON.stringify({ userId: user.id }),
+        body: JSON.stringify({ secretKey: key })
       });
       
-      if (!response.ok) throw new Error("অ্যাডমিন বানাতে সমস্যা হয়েছে");
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.message || "অ্যাডমিন বানাতে সমস্যা হয়েছে");
+      }
       
-      await queryClient.invalidateQueries({ queryKey: ["/api/user"] });
-      
+      return res.json();
+    },
+    onSuccess: () => {
       toast({
-        title: "সফল!",
-        description: "আপনি এখন অ্যাডমিন হয়েছেন। পেজ রিফ্রেশ করুন।",
+        title: "অভিনন্দন!",
+        description: "আপনি সফলভাবে অ্যাডমিন হিসেবে যোগ হয়েছেন। পেইজটি রিফ্রেশ করুন।",
       });
-      
-      // 2 সেকেন্ড পর পেজ রিফ্রেশ
-      setTimeout(() => {
-        window.location.reload();
-      }, 2000);
-      
-    } catch (error) {
-      console.error(error);
+      setSecretKey("");
+      queryClient.invalidateQueries({ queryKey: ["/api/user"] });
+    },
+    onError: (error: Error) => {
       toast({
         title: "সমস্যা হয়েছে",
-        description: "অ্যাডমিন বানাতে সমস্যা হয়েছে। আবার চেষ্টা করুন।",
+        description: error.message,
         variant: "destructive",
       });
-    } finally {
-      setIsLoading(false);
+    },
+  });
+  
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!secretKey.trim()) {
+      toast({
+        title: "সমস্যা হয়েছে",
+        description: "গোপন কোড দিতে হবে",
+        variant: "destructive",
+      });
+      return;
     }
+    
+    makeAdminMutation.mutate(secretKey);
   };
-
+  
   return (
-    <div className="p-4 bg-muted/30 border rounded-md mt-6">
-      <h2 className="text-lg font-medium mb-2">অ্যাডমিন অ্যাক্সেস</h2>
-      <p className="text-sm text-muted-foreground mb-4">
-        আপনি বর্তমানে অ্যাডমিন নন। অ্যাডমিন প্যানেল দেখার জন্য প্রথমে আপনাকে অ্যাডমিন হতে হবে।
-      </p>
-      <Button onClick={makeAdmin} disabled={isLoading}>
-        {isLoading ? "প্রসেসিং..." : "অ্যাডমিন হন"}
-      </Button>
-    </div>
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center">
+          <ShieldCheck className="h-5 w-5 mr-2 text-primary" />
+          অ্যাডমিন অ্যাক্সেস
+        </CardTitle>
+        <CardDescription>অ্যাডমিন প্যানেল অ্যাক্সেস করতে গোপন কোড দিন</CardDescription>
+      </CardHeader>
+      <form onSubmit={handleSubmit}>
+        <CardContent>
+          <div className="grid w-full items-center gap-4">
+            <div className="flex flex-col space-y-1.5">
+              <Label htmlFor="secretKey">গোপন কোড</Label>
+              <Input 
+                id="secretKey" 
+                placeholder="গোপন কোড দিন" 
+                value={secretKey}
+                onChange={(e) => setSecretKey(e.target.value)}
+              />
+            </div>
+          </div>
+        </CardContent>
+        <CardFooter className="flex justify-end">
+          <Button 
+            type="submit" 
+            disabled={makeAdminMutation.isPending}
+          >
+            {makeAdminMutation.isPending ? "প্রসেসিং..." : "অ্যাডমিন হোন"}
+          </Button>
+        </CardFooter>
+      </form>
+    </Card>
   );
 }
