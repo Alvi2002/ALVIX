@@ -1,8 +1,8 @@
-import type { Express, Request, Response } from "express";
+import type { Express, Request, Response, NextFunction } from "express";
 import { createServer, type Server } from "http";
 import { setupAuth } from "./auth";
 import { storage } from "./storage";
-import { InsertSlotGame, InsertLiveCasinoGame, InsertSportMatch, InsertTransaction, InsertPromotion, insertSlotGameSchema, insertLiveCasinoGameSchema, insertSportMatchSchema, insertTransactionSchema, insertPromotionSchema } from "@shared/schema";
+import { InsertSlotGame, InsertLiveCasinoGame, InsertSportMatch, InsertTransaction, InsertPromotion, User, insertSlotGameSchema, insertLiveCasinoGameSchema, insertSportMatchSchema, insertTransactionSchema, insertPromotionSchema } from "@shared/schema";
 import { ZodError } from "zod";
 import { createId } from "@paralleldrive/cuid2";
 import { WebSocketServer, WebSocket } from "ws";
