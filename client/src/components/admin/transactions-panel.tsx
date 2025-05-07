@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent } from "@/components/ui/card";
@@ -5,20 +6,21 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { useState } from "react";
-import { Search, RefreshCcw, Check, X } from "lucide-react";
+import { Search, RefreshCcw, Eye, Check, X } from "lucide-react";
 import { queryClient } from "@/lib/queryClient";
 import { Transaction } from "@shared/schema";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export default function TransactionsPanel() {
   const { toast } = useToast();
   const [searchTerm, setSearchTerm] = useState("");
-  const [isUpdateDialogOpen, setIsUpdateDialogOpen] = useState(false);
   const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>(null);
+  const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
+  const [isApproveDialogOpen, setIsApproveDialogOpen] = useState(false);
+  const [isRejectDialogOpen, setIsRejectDialogOpen] = useState(false);
   
-  // ট্রানজেকশন লিস্ট লোড করা
+  // ট্রানজেকশন লিস্ট ফেচ করা
   const { data: transactions = [], isLoading, refetch } = useQuery<Transaction[]>({
     queryKey: ["/api/admin/transactions"],
     queryFn: async () => {
@@ -28,26 +30,49 @@ export default function TransactionsPanel() {
     }
   });
   
-  // ট্রানজেকশন স্ট্যাটাস আপডেট করার মিউটেশন
-  const updateTransactionMutation = useMutation({
-    mutationFn: async ({ id, status }: { id: number; status: string }) => {
-      const res = await fetch(`/api/admin/transactions/${id}/status`, {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ status })
+  // ট্রানজেকশন অ্যাপ্রুভ করার মিউটেশন
+  const approveTransactionMutation = useMutation({
+    mutationFn: async (id: number) => {
+      const res = await fetch(`/api/admin/transactions/${id}/approve`, {
+        method: "POST"
       });
       
-      if (!res.ok) throw new Error("ট্রানজেকশন আপডেট করতে সমস্যা হয়েছে");
+      if (!res.ok) throw new Error("ট্রানজেকশন অ্যাপ্রুভ করতে সমস্যা হয়েছে");
       return res.json();
     },
     onSuccess: () => {
       toast({
         title: "সফল",
-        description: "ট্রানজেকশন সফলভাবে আপডেট করা হয়েছে",
+        description: "ট্রানজেকশন সফলভাবে অ্যাপ্রুভ করা হয়েছে",
       });
-      setIsUpdateDialogOpen(false);
+      setIsApproveDialogOpen(false);
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/transactions"] });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "সমস্যা হয়েছে",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+  
+  // ট্রানজেকশন রিজেক্ট করার মিউটেশন
+  const rejectTransactionMutation = useMutation({
+    mutationFn: async (id: number) => {
+      const res = await fetch(`/api/admin/transactions/${id}/reject`, {
+        method: "POST"
+      });
+      
+      if (!res.ok) throw new Error("ট্রানজেকশন রিজেক্ট করতে সমস্যা হয়েছে");
+      return res.json();
+    },
+    onSuccess: () => {
+      toast({
+        title: "সফল",
+        description: "ট্রানজেকশন সফলভাবে রিজেক্ট করা হয়েছে",
+      });
+      setIsRejectDialogOpen(false);
       queryClient.invalidateQueries({ queryKey: ["/api/admin/transactions"] });
     },
     onError: (error: Error) => {
@@ -60,51 +85,59 @@ export default function TransactionsPanel() {
   });
   
   // সার্চ করা ট্রানজেকশন লিস্ট
-  const filteredTransactions = transactions.filter(tx => 
-    tx.id.toString().includes(searchTerm.toLowerCase()) ||
-    tx.type.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    tx.status.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredTransactions = transactions.filter(transaction => 
+    transaction.id.toString().includes(searchTerm) ||
+    transaction.userId.toString().includes(searchTerm) ||
+    transaction.status.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    transaction.type.toLowerCase().includes(searchTerm.toLowerCase())
   );
   
-  // ট্রানজেকশন টাইপ অনুযায়ী ফিল্টার
-  const depositTransactions = filteredTransactions.filter(tx => tx.type === "deposit");
-  const withdrawTransactions = filteredTransactions.filter(tx => tx.type === "withdraw");
-  
-  // ট্রানজেকশন স্ট্যাটাস আপডেট করার হ্যান্ডলার
-  const handleApproveTransaction = () => {
-    if (!selectedTransaction) return;
-    updateTransactionMutation.mutate({ id: selectedTransaction.id, status: "completed" });
-  };
-  
-  const handleRejectTransaction = () => {
-    if (!selectedTransaction) return;
-    updateTransactionMutation.mutate({ id: selectedTransaction.id, status: "rejected" });
-  };
-  
-  // ফরম্যাট ডেট
+  // তারিখ ফরম্যাট করা
   const formatDate = (dateString: string | Date) => {
     const date = new Date(dateString);
     return new Intl.DateTimeFormat('bn-BD', {
       year: 'numeric',
       month: 'short',
       day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
+      hour: 'numeric',
+      minute: 'numeric',
     }).format(date);
+  };
+  
+  // টাকা ফরম্যাট করা
+  const formatCurrency = (amount: string) => {
+    return new Intl.NumberFormat('bn-BD', {
+      style: 'currency',
+      currency: 'BDT',
+      minimumFractionDigits: 0
+    }).format(Number(amount));
   };
   
   // স্ট্যাটাস ব্যাজ রেন্ডার করা
   const renderStatusBadge = (status: string) => {
-    switch (status.toLowerCase()) {
-      case "completed":
+    switch (status) {
+      case 'completed':
         return <Badge className="bg-emerald-500 hover:bg-emerald-600">সম্পন্ন</Badge>;
-      case "pending":
-        return <Badge variant="outline">অপেক্ষমান</Badge>;
-      case "rejected":
+      case 'pending':
+        return <Badge className="bg-amber-500 hover:bg-amber-600">অপেক্ষমান</Badge>;
+      case 'failed':
+      case 'rejected':
         return <Badge variant="destructive">বাতিল</Badge>;
       default:
-        return <Badge variant="secondary">{status}</Badge>;
+        return <Badge variant="outline">{status}</Badge>;
     }
+  };
+  
+  // ট্রানজেকশন অ্যাপ্রুভ করার হ্যান্ডলার
+  const handleApproveTransaction = () => {
+    if (!selectedTransaction) return;
+    approveTransactionMutation.mutate(selectedTransaction.id);
+  };
+  
+  // ট্রানজেকশন রিজেক্ট করার হ্যান্ডলার
+  const handleRejectTransaction = () => {
+    if (!selectedTransaction) return;
+    rejectTransactionMutation.mutate(selectedTransaction.id);
   };
   
   return (
@@ -131,115 +164,214 @@ export default function TransactionsPanel() {
         </div>
       </div>
       
-      <Tabs defaultValue="all">
-        <TabsList>
-          <TabsTrigger value="all">সব ট্রানজেকশন ({filteredTransactions.length})</TabsTrigger>
-          <TabsTrigger value="deposit">ডিপোজিট ({depositTransactions.length})</TabsTrigger>
-          <TabsTrigger value="withdraw">উইথড্র ({withdrawTransactions.length})</TabsTrigger>
-        </TabsList>
-        
-        <TabsContent value="all" className="mt-6">
-          <TransactionTable 
-            transactions={filteredTransactions}
-            onViewTransaction={(tx) => { setSelectedTransaction(tx); setIsUpdateDialogOpen(true); }}
-            formatDate={formatDate}
-            renderStatusBadge={renderStatusBadge}
-          />
-        </TabsContent>
-        
-        <TabsContent value="deposit" className="mt-6">
-          <TransactionTable 
-            transactions={depositTransactions}
-            onViewTransaction={(tx) => { setSelectedTransaction(tx); setIsUpdateDialogOpen(true); }}
-            formatDate={formatDate}
-            renderStatusBadge={renderStatusBadge}
-          />
-        </TabsContent>
-        
-        <TabsContent value="withdraw" className="mt-6">
-          <TransactionTable 
-            transactions={withdrawTransactions}
-            onViewTransaction={(tx) => { setSelectedTransaction(tx); setIsUpdateDialogOpen(true); }}
-            formatDate={formatDate}
-            renderStatusBadge={renderStatusBadge}
-          />
-        </TabsContent>
-      </Tabs>
+      {/* ট্রানজেকশন টেবিল */}
+      <TransactionTable 
+        transactions={filteredTransactions}
+        onViewTransaction={(tx) => { setSelectedTransaction(tx); setIsViewDialogOpen(true); }}
+        formatDate={formatDate}
+        renderStatusBadge={renderStatusBadge}
+      />
       
-      {/* ট্রানজেকশন আপডেট ডায়ালগ */}
-      <Dialog open={isUpdateDialogOpen} onOpenChange={setIsUpdateDialogOpen}>
-        <DialogContent className="sm:max-w-[425px]">
+      {/* ট্রানজেকশন ভিউ ডায়ালগ */}
+      <Dialog open={isViewDialogOpen} onOpenChange={setIsViewDialogOpen}>
+        <DialogContent className="sm:max-w-[475px]">
           <DialogHeader>
-            <DialogTitle>ট্রানজেকশন আপডেট করুন</DialogTitle>
+            <DialogTitle>ট্রানজেকশন বিবরণ</DialogTitle>
             <DialogDescription>
-              {selectedTransaction?.type === "deposit" ? "ডিপোজিট" : "উইথড্র"} রিকোয়েস্ট {selectedTransaction?.status === "pending" ? "অনুমোদন বা বাতিল করুন" : "দেখুন"}
+              ট্রানজেকশনের সম্পূর্ণ বিবরণ দেখুন
             </DialogDescription>
           </DialogHeader>
           
           {selectedTransaction && (
             <div className="py-4">
-              <div className="grid grid-cols-2 gap-4">
+              <div className="flex justify-between items-center mb-4">
                 <div>
-                  <div className="text-sm font-medium">ট্রানজেকশন আইডি</div>
-                  <div className="text-sm">{selectedTransaction.id}</div>
+                  <h3 className="text-lg font-medium">
+                    {selectedTransaction.type === 'deposit' ? 'ডিপোজিট' : 'উইথড্র'}
+                  </h3>
+                  <p className="text-sm text-muted-foreground">
+                    আইডি: {selectedTransaction.id}
+                  </p>
+                </div>
+                {renderStatusBadge(selectedTransaction.status)}
+              </div>
+              
+              <div className="grid grid-cols-2 gap-y-4 text-sm">
+                <div>
+                  <p className="text-muted-foreground">ইউজার আইডি</p>
+                  <p className="font-medium">{selectedTransaction.userId}</p>
                 </div>
                 <div>
-                  <div className="text-sm font-medium">টাইপ</div>
-                  <div className="text-sm capitalize">{selectedTransaction.type}</div>
+                  <p className="text-muted-foreground">পরিমাণ</p>
+                  <p className="font-medium">{formatCurrency(selectedTransaction.amount)}</p>
                 </div>
                 <div>
-                  <div className="text-sm font-medium">পরিমাণ</div>
-                  <div className="text-sm">৳{parseFloat(selectedTransaction.amount).toLocaleString()}</div>
+                  <p className="text-muted-foreground">তারিখ</p>
+                  <p className="font-medium">{formatDate(selectedTransaction.date)}</p>
                 </div>
                 <div>
-                  <div className="text-sm font-medium">মেথড</div>
-                  <div className="text-sm">{selectedTransaction.method || "N/A"}</div>
-                </div>
-                <div>
-                  <div className="text-sm font-medium">তারিখ</div>
-                  <div className="text-sm">{formatDate(selectedTransaction.date)}</div>
-                </div>
-                <div>
-                  <div className="text-sm font-medium">ইউজার আইডি</div>
-                  <div className="text-sm">{selectedTransaction.userId}</div>
+                  <p className="text-muted-foreground">পেমেন্ট মেথড</p>
+                  <p className="font-medium">{selectedTransaction.method || '-'}</p>
                 </div>
                 <div className="col-span-2">
-                  <div className="text-sm font-medium">বিবরণ</div>
-                  <div className="text-sm">{selectedTransaction.details || "কোন বিবরণ নেই"}</div>
+                  <p className="text-muted-foreground">বিবরণ</p>
+                  <p className="font-medium">{selectedTransaction.details || '-'}</p>
                 </div>
-                <div className="col-span-2">
-                  <div className="text-sm font-medium">স্ট্যাটাস</div>
-                  <div className="text-sm mt-1">{renderStatusBadge(selectedTransaction.status)}</div>
+              </div>
+              
+              {selectedTransaction.status === 'pending' && (
+                <div className="flex gap-2 mt-6 justify-end">
+                  <Button 
+                    variant="destructive"
+                    onClick={() => {
+                      setIsViewDialogOpen(false);
+                      setIsRejectDialogOpen(true);
+                    }}
+                  >
+                    <X className="h-4 w-4 mr-2" />
+                    রিজেক্ট
+                  </Button>
+                  <Button 
+                    onClick={() => {
+                      setIsViewDialogOpen(false);
+                      setIsApproveDialogOpen(true);
+                    }}
+                  >
+                    <Check className="h-4 w-4 mr-2" />
+                    অ্যাপ্রুভ
+                  </Button>
+                </div>
+              )}
+            </div>
+          )}
+          
+          <DialogFooter>
+            <Button onClick={() => setIsViewDialogOpen(false)}>
+              বন্ধ করুন
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      
+      {/* ট্রানজেকশন অ্যাপ্রুভ ডায়ালগ */}
+      <Dialog open={isApproveDialogOpen} onOpenChange={setIsApproveDialogOpen}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>ট্রানজেকশন অ্যাপ্রুভ করুন</DialogTitle>
+            <DialogDescription>
+              আপনি কি নিশ্চিত যে আপনি এই ট্রানজেকশনটি অ্যাপ্রুভ করতে চান?
+            </DialogDescription>
+          </DialogHeader>
+          
+          {selectedTransaction && (
+            <div className="py-4">
+              <div className="grid grid-cols-2 gap-y-4 text-sm">
+                <div>
+                  <p className="text-muted-foreground">টাইপ</p>
+                  <p className="font-medium capitalize">
+                    {selectedTransaction.type === 'deposit' ? 'ডিপোজিট' : 'উইথড্র'}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-muted-foreground">ইউজার আইডি</p>
+                  <p className="font-medium">{selectedTransaction.userId}</p>
+                </div>
+                <div>
+                  <p className="text-muted-foreground">পরিমাণ</p>
+                  <p className="font-medium">{formatCurrency(selectedTransaction.amount)}</p>
+                </div>
+                <div>
+                  <p className="text-muted-foreground">তারিখ</p>
+                  <p className="font-medium">{formatDate(selectedTransaction.date)}</p>
+                </div>
+              </div>
+              
+              <div className="rounded-md bg-emerald-500/10 p-3 mt-4">
+                <div className="flex items-start">
+                  <Check className="h-5 w-5 text-emerald-500 mr-2 mt-0.5" />
+                  <p className="text-sm text-emerald-600 dark:text-emerald-400">
+                    এই ট্রানজেকশনকে অ্যাপ্রুভ করলে ইউজারের ব্যালেন্স আপডেট হবে এবং ট্রানজেকশন সম্পন্ন হিসেবে চিহ্নিত হবে।
+                  </p>
                 </div>
               </div>
             </div>
           )}
           
           <DialogFooter>
-            {selectedTransaction?.status === "pending" && (
-              <>
-                <Button 
-                  variant="outline" 
-                  onClick={handleRejectTransaction}
-                  disabled={updateTransactionMutation.isPending}
-                  className="flex items-center"
-                >
-                  <X className="h-4 w-4 mr-1" />
-                  বাতিল
-                </Button>
-                <Button 
-                  onClick={handleApproveTransaction}
-                  disabled={updateTransactionMutation.isPending}
-                  className="flex items-center"
-                >
-                  <Check className="h-4 w-4 mr-1" />
-                  অনুমোদন
-                </Button>
-              </>
-            )}
-            {selectedTransaction?.status !== "pending" && (
-              <Button onClick={() => setIsUpdateDialogOpen(false)}>ঠিক আছে</Button>
-            )}
+            <Button 
+              variant="outline" 
+              onClick={() => setIsApproveDialogOpen(false)}
+            >
+              বাতিল
+            </Button>
+            <Button 
+              onClick={handleApproveTransaction}
+              disabled={approveTransactionMutation.isPending}
+            >
+              {approveTransactionMutation.isPending ? "প্রসেসিং..." : "অ্যাপ্রুভ করুন"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      
+      {/* ট্রানজেকশন রিজেক্ট ডায়ালগ */}
+      <Dialog open={isRejectDialogOpen} onOpenChange={setIsRejectDialogOpen}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>ট্রানজেকশন রিজেক্ট করুন</DialogTitle>
+            <DialogDescription>
+              আপনি কি নিশ্চিত যে আপনি এই ট্রানজেকশনটি রিজেক্ট করতে চান?
+            </DialogDescription>
+          </DialogHeader>
+          
+          {selectedTransaction && (
+            <div className="py-4">
+              <div className="grid grid-cols-2 gap-y-4 text-sm">
+                <div>
+                  <p className="text-muted-foreground">টাইপ</p>
+                  <p className="font-medium capitalize">
+                    {selectedTransaction.type === 'deposit' ? 'ডিপোজিট' : 'উইথড্র'}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-muted-foreground">ইউজার আইডি</p>
+                  <p className="font-medium">{selectedTransaction.userId}</p>
+                </div>
+                <div>
+                  <p className="text-muted-foreground">পরিমাণ</p>
+                  <p className="font-medium">{formatCurrency(selectedTransaction.amount)}</p>
+                </div>
+                <div>
+                  <p className="text-muted-foreground">তারিখ</p>
+                  <p className="font-medium">{formatDate(selectedTransaction.date)}</p>
+                </div>
+              </div>
+              
+              <div className="rounded-md bg-destructive/10 p-3 mt-4">
+                <div className="flex items-start">
+                  <X className="h-5 w-5 text-destructive mr-2 mt-0.5" />
+                  <p className="text-sm text-destructive">
+                    এই ট্রানজেকশনকে রিজেক্ট করলে এটি বাতিল হিসেবে চিহ্নিত হবে এবং ইউজারের ব্যালেন্স আপডেট হবে না।
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+          
+          <DialogFooter>
+            <Button 
+              variant="outline" 
+              onClick={() => setIsRejectDialogOpen(false)}
+            >
+              বাতিল
+            </Button>
+            <Button 
+              variant="destructive"
+              onClick={handleRejectTransaction}
+              disabled={rejectTransactionMutation.isPending}
+            >
+              {rejectTransactionMutation.isPending ? "প্রসেসিং..." : "রিজেক্ট করুন"}
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -256,6 +388,14 @@ interface TransactionTableProps {
 }
 
 function TransactionTable({ transactions, onViewTransaction, formatDate, renderStatusBadge }: TransactionTableProps) {
+  const formatCurrency = (amount: string) => {
+    return new Intl.NumberFormat('bn-BD', {
+      style: 'currency',
+      currency: 'BDT',
+      minimumFractionDigits: 0
+    }).format(Number(amount));
+  };
+  
   return (
     <Card>
       <CardContent className="p-0">
@@ -263,13 +403,13 @@ function TransactionTable({ transactions, onViewTransaction, formatDate, renderS
           <TableHeader>
             <TableRow>
               <TableHead>আইডি</TableHead>
+              <TableHead>ইউজার</TableHead>
               <TableHead>টাইপ</TableHead>
               <TableHead>পরিমাণ</TableHead>
-              <TableHead>ইউজার</TableHead>
-              <TableHead>বিবরণ</TableHead>
-              <TableHead>তারিখ</TableHead>
               <TableHead>স্ট্যাটাস</TableHead>
-              <TableHead>অ্যাকশন</TableHead>
+              <TableHead>পেমেন্ট</TableHead>
+              <TableHead>তারিখ</TableHead>
+              <TableHead className="text-right">অ্যাকশন</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -280,22 +420,32 @@ function TransactionTable({ transactions, onViewTransaction, formatDate, renderS
                 </TableCell>
               </TableRow>
             ) : (
-              transactions.map((tx) => (
-                <TableRow key={tx.id}>
-                  <TableCell className="font-medium">{tx.id}</TableCell>
-                  <TableCell className="capitalize">{tx.type}</TableCell>
-                  <TableCell>৳{parseFloat(tx.amount).toLocaleString()}</TableCell>
-                  <TableCell>{tx.userId}</TableCell>
-                  <TableCell className="max-w-[200px] truncate">{tx.details || "N/A"}</TableCell>
-                  <TableCell>{formatDate(tx.date)}</TableCell>
-                  <TableCell>{renderStatusBadge(tx.status)}</TableCell>
+              transactions.map((transaction) => (
+                <TableRow key={transaction.id}>
+                  <TableCell className="font-medium">{transaction.id}</TableCell>
+                  <TableCell>{transaction.userId}</TableCell>
                   <TableCell>
+                    {transaction.type === 'deposit' ? 'ডিপোজিট' : 'উইথড্র'}
+                  </TableCell>
+                  <TableCell>
+                    {formatCurrency(transaction.amount)}
+                  </TableCell>
+                  <TableCell>
+                    {renderStatusBadge(transaction.status)}
+                  </TableCell>
+                  <TableCell>
+                    {transaction.method || '-'}
+                  </TableCell>
+                  <TableCell>
+                    {formatDate(transaction.date)}
+                  </TableCell>
+                  <TableCell className="text-right">
                     <Button 
                       variant="ghost" 
-                      size="sm"
-                      onClick={() => onViewTransaction(tx)}
+                      size="icon"
+                      onClick={() => onViewTransaction(transaction)}
                     >
-                      দেখুন
+                      <Eye className="h-4 w-4" />
                     </Button>
                   </TableCell>
                 </TableRow>

@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent } from "@/components/ui/card";
@@ -5,22 +6,20 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { useState } from "react";
-import { Search, RefreshCcw, ShieldAlert, Shield, Ban, Wallet, Check, X } from "lucide-react";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Search, RefreshCcw, Eye, Ban, ShieldCheck, ShieldAlert } from "lucide-react";
 import { queryClient } from "@/lib/queryClient";
 import { User } from "@shared/schema";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Switch } from "@/components/ui/switch";
-import { Label } from "@/components/ui/label";
 
 export default function UsersPanel() {
   const { toast } = useToast();
   const [searchTerm, setSearchTerm] = useState("");
-  const [isUpdateDialogOpen, setIsUpdateDialogOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
+  const [isBanDialogOpen, setIsBanDialogOpen] = useState(false);
+  const [isAdminDialogOpen, setIsAdminDialogOpen] = useState(false);
   
-  // ইউজার লিস্ট লোড করা
+  // ইউজার লিস্ট ফেচ করা
   const { data: users = [], isLoading, refetch } = useQuery<User[]>({
     queryKey: ["/api/admin/users"],
     queryFn: async () => {
@@ -30,27 +29,49 @@ export default function UsersPanel() {
     }
   });
   
-  // ইউজার আপডেট করার মিউটেশন
-  const updateUserMutation = useMutation({
-    mutationFn: async (userData: Partial<User> & { id: number }) => {
-      const { id, ...rest } = userData;
-      const res = await fetch(`/api/admin/users/${id}`, {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify(rest)
+  // ইউজার ব্যান করার মিউটেশন
+  const banUserMutation = useMutation({
+    mutationFn: async (userId: number) => {
+      const res = await fetch(`/api/admin/users/${userId}/ban`, {
+        method: "POST"
       });
       
-      if (!res.ok) throw new Error("ইউজার আপডেট করতে সমস্যা হয়েছে");
+      if (!res.ok) throw new Error("ইউজার ব্যান করতে সমস্যা হয়েছে");
       return res.json();
     },
     onSuccess: () => {
       toast({
         title: "সফল",
-        description: "ইউজার সফলভাবে আপডেট করা হয়েছে",
+        description: "ইউজার সফলভাবে ব্যান করা হয়েছে",
       });
-      setIsUpdateDialogOpen(false);
+      setIsBanDialogOpen(false);
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/users"] });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "সমস্যা হয়েছে",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+  
+  // ইউজারকে অ্যাডমিন করার মিউটেশন
+  const makeAdminMutation = useMutation({
+    mutationFn: async (userId: number) => {
+      const res = await fetch(`/api/admin/users/${userId}/make-admin`, {
+        method: "POST"
+      });
+      
+      if (!res.ok) throw new Error("ইউজারকে অ্যাডমিন করতে সমস্যা হয়েছে");
+      return res.json();
+    },
+    onSuccess: () => {
+      toast({
+        title: "সফল",
+        description: "ইউজারকে সফলভাবে অ্যাডমিন করা হয়েছে",
+      });
+      setIsAdminDialogOpen(false);
       queryClient.invalidateQueries({ queryKey: ["/api/admin/users"] });
     },
     onError: (error: Error) => {
@@ -64,23 +85,12 @@ export default function UsersPanel() {
   
   // সার্চ করা ইউজার লিস্ট
   const filteredUsers = users.filter(user => 
-    user.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    user.username.toLowerCase().includes(searchTerm.toLowerCase()) || 
     (user.email && user.email.toLowerCase().includes(searchTerm.toLowerCase())) ||
     (user.fullName && user.fullName.toLowerCase().includes(searchTerm.toLowerCase()))
   );
   
-  // অ্যাডমিন ও সাধারণ ইউজার
-  const adminUsers = filteredUsers.filter(user => user.isAdmin);
-  const regularUsers = filteredUsers.filter(user => !user.isAdmin);
-  const vipUsers = filteredUsers.filter(user => user.isVip);
-  
-  // ইউজার আপডেট করার হ্যান্ডলার
-  const handleUpdateUser = () => {
-    if (!selectedUser) return;
-    updateUserMutation.mutate(selectedUser);
-  };
-  
-  // ফরম্যাট ডেট
+  // তারিখ ফরম্যাট করা
   const formatDate = (dateString: string | Date) => {
     const date = new Date(dateString);
     return new Intl.DateTimeFormat('bn-BD', {
@@ -88,6 +98,27 @@ export default function UsersPanel() {
       month: 'short',
       day: 'numeric',
     }).format(date);
+  };
+  
+  // টাকা ফরম্যাট করা
+  const formatCurrency = (amount: string) => {
+    return new Intl.NumberFormat('bn-BD', {
+      style: 'currency',
+      currency: 'BDT',
+      minimumFractionDigits: 0
+    }).format(Number(amount));
+  };
+  
+  // ইউজার ব্যান করার হ্যান্ডলার
+  const handleBanUser = () => {
+    if (!selectedUser) return;
+    banUserMutation.mutate(selectedUser.id);
+  };
+  
+  // ইউজারকে অ্যাডমিন করার হ্যান্ডলার
+  const handleMakeAdmin = () => {
+    if (!selectedUser) return;
+    makeAdminMutation.mutate(selectedUser.id);
   };
   
   return (
@@ -114,104 +145,262 @@ export default function UsersPanel() {
         </div>
       </div>
       
-      <Tabs defaultValue="all">
-        <TabsList>
-          <TabsTrigger value="all">সব ইউজার ({filteredUsers.length})</TabsTrigger>
-          <TabsTrigger value="regular">সাধারণ ({regularUsers.length})</TabsTrigger>
-          <TabsTrigger value="vip">VIP ({vipUsers.length})</TabsTrigger>
-          <TabsTrigger value="admin">অ্যাডমিন ({adminUsers.length})</TabsTrigger>
-        </TabsList>
-        
-        <TabsContent value="all" className="mt-6">
-          <UserTable 
-            users={filteredUsers}
-            onUpdate={(user) => { setSelectedUser(user); setIsUpdateDialogOpen(true); }}
-            formatDate={formatDate}
-          />
-        </TabsContent>
-        
-        <TabsContent value="regular" className="mt-6">
-          <UserTable 
-            users={regularUsers}
-            onUpdate={(user) => { setSelectedUser(user); setIsUpdateDialogOpen(true); }}
-            formatDate={formatDate}
-          />
-        </TabsContent>
-        
-        <TabsContent value="vip" className="mt-6">
-          <UserTable 
-            users={vipUsers}
-            onUpdate={(user) => { setSelectedUser(user); setIsUpdateDialogOpen(true); }}
-            formatDate={formatDate}
-          />
-        </TabsContent>
-        
-        <TabsContent value="admin" className="mt-6">
-          <UserTable 
-            users={adminUsers}
-            onUpdate={(user) => { setSelectedUser(user); setIsUpdateDialogOpen(true); }}
-            formatDate={formatDate}
-          />
-        </TabsContent>
-      </Tabs>
+      {/* ইউজার টেবিল */}
+      <Card>
+        <CardContent className="p-0">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>আইডি</TableHead>
+                <TableHead>ইউজারনেম</TableHead>
+                <TableHead>নাম/ইমেইল</TableHead>
+                <TableHead>ব্যালেন্স</TableHead>
+                <TableHead>স্ট্যাটাস</TableHead>
+                <TableHead>রেজিস্ট্রেশন</TableHead>
+                <TableHead className="text-right">অ্যাকশন</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {filteredUsers.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={7} className="text-center py-6 text-muted-foreground">
+                    কোন ইউজার পাওয়া যায়নি
+                  </TableCell>
+                </TableRow>
+              ) : (
+                filteredUsers.map((user) => (
+                  <TableRow key={user.id}>
+                    <TableCell className="font-medium">{user.id}</TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-2">
+                        {user.avatarUrl ? (
+                          <div className="h-8 w-8 rounded-full overflow-hidden">
+                            <img 
+                              src={user.avatarUrl} 
+                              alt={user.username} 
+                              className="h-full w-full object-cover"
+                              onError={(e) => {
+                                (e.target as HTMLImageElement).src = "https://i.ibb.co/6RJbFkN/default-avatar.png";
+                              }}
+                            />
+                          </div>
+                        ) : (
+                          <div className="h-8 w-8 rounded-full bg-muted flex items-center justify-center">
+                            <span className="text-xs font-medium text-muted-foreground">
+                              {user.username.charAt(0).toUpperCase()}
+                            </span>
+                          </div>
+                        )}
+                        <span className="font-medium">{user.username}</span>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <div className="max-w-[220px]">
+                        {user.fullName && (
+                          <p className="font-medium truncate">{user.fullName}</p>
+                        )}
+                        {user.email && (
+                          <p className="text-xs text-muted-foreground truncate">
+                            {user.email}
+                          </p>
+                        )}
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      {formatCurrency(user.balance)}
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex flex-col gap-1">
+                        {user.isAdmin && (
+                          <Badge className="bg-indigo-500 text-white hover:bg-indigo-600">অ্যাডমিন</Badge>
+                        )}
+                        {user.isVip && (
+                          <Badge className="bg-amber-500 text-white hover:bg-amber-600">VIP</Badge>
+                        )}
+                        {!user.isAdmin && !user.isVip && (
+                          <Badge variant="outline">রেগুলার</Badge>
+                        )}
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      {formatDate(user.createdAt)}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <div className="flex justify-end space-x-1">
+                        <Button 
+                          variant="ghost" 
+                          size="icon"
+                          onClick={() => {
+                            setSelectedUser(user);
+                            setIsViewDialogOpen(true);
+                          }}
+                        >
+                          <Eye className="h-4 w-4" />
+                        </Button>
+                        {!user.isAdmin && (
+                          <Button 
+                            variant="ghost" 
+                            size="icon"
+                            className="text-indigo-500 hover:text-indigo-600"
+                            onClick={() => {
+                              setSelectedUser(user);
+                              setIsAdminDialogOpen(true);
+                            }}
+                          >
+                            <ShieldCheck className="h-4 w-4" />
+                          </Button>
+                        )}
+                        <Button 
+                          variant="ghost" 
+                          size="icon"
+                          className="text-destructive hover:text-destructive"
+                          onClick={() => {
+                            setSelectedUser(user);
+                            setIsBanDialogOpen(true);
+                          }}
+                        >
+                          <Ban className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
       
-      {/* ইউজার আপডেট ডায়ালগ */}
-      <Dialog open={isUpdateDialogOpen} onOpenChange={setIsUpdateDialogOpen}>
-        <DialogContent className="sm:max-w-[425px]">
+      {/* ইউজার ভিউ ডায়ালগ */}
+      <Dialog open={isViewDialogOpen} onOpenChange={setIsViewDialogOpen}>
+        <DialogContent className="sm:max-w-[475px]">
           <DialogHeader>
-            <DialogTitle>ইউজার আপডেট করুন</DialogTitle>
+            <DialogTitle>ইউজার বিবরণ</DialogTitle>
             <DialogDescription>
-              ইউজারের তথ্য ও স্ট্যাটাস পরিবর্তন করুন
+              ইউজারের সম্পূর্ণ বিবরণ দেখুন
             </DialogDescription>
           </DialogHeader>
           
           {selectedUser && (
-            <div className="grid gap-4 py-4">
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="username" className="text-right">
-                  ইউজারনেম
-                </Label>
-                <Input
-                  id="username"
-                  value={selectedUser.username}
-                  className="col-span-3"
-                  disabled
-                />
-              </div>
-              
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="balance" className="text-right">
-                  ব্যালেন্স
-                </Label>
-                <Input
-                  id="balance"
-                  value={selectedUser.balance}
-                  onChange={(e) => setSelectedUser({...selectedUser, balance: e.target.value})}
-                  className="col-span-3"
-                />
-              </div>
-              
-              <div className="grid grid-cols-4 items-center gap-4">
-                <div className="text-right">VIP</div>
-                <div className="flex items-center space-x-2 col-span-3">
-                  <Switch 
-                    id="vip-status" 
-                    checked={selectedUser.isVip === true}
-                    onCheckedChange={(checked) => setSelectedUser({...selectedUser, isVip: checked})}
-                  />
-                  <Label htmlFor="vip-status">VIP স্ট্যাটাস</Label>
+            <div className="py-4">
+              <div className="flex flex-col items-center mb-4">
+                <div className="h-20 w-20 rounded-full overflow-hidden mb-2 bg-muted">
+                  {selectedUser.avatarUrl ? (
+                    <img 
+                      src={selectedUser.avatarUrl} 
+                      alt={selectedUser.username} 
+                      className="h-full w-full object-cover"
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).src = "https://i.ibb.co/6RJbFkN/default-avatar.png";
+                      }}
+                    />
+                  ) : (
+                    <div className="h-full w-full flex items-center justify-center">
+                      <span className="text-3xl font-medium text-muted-foreground">
+                        {selectedUser.username.charAt(0).toUpperCase()}
+                      </span>
+                    </div>
+                  )}
+                </div>
+                <h3 className="text-lg font-medium">{selectedUser.username}</h3>
+                <div className="flex gap-2 mt-1">
+                  {selectedUser.isAdmin && (
+                    <Badge className="bg-indigo-500 text-white hover:bg-indigo-600">অ্যাডমিন</Badge>
+                  )}
+                  {selectedUser.isVip && (
+                    <Badge className="bg-amber-500 text-white hover:bg-amber-600">VIP</Badge>
+                  )}
                 </div>
               </div>
               
-              <div className="grid grid-cols-4 items-center gap-4">
-                <div className="text-right">অ্যাডমিন</div>
-                <div className="flex items-center space-x-2 col-span-3">
-                  <Switch 
-                    id="admin-status" 
-                    checked={selectedUser.isAdmin === true}
-                    onCheckedChange={(checked) => setSelectedUser({...selectedUser, isAdmin: checked})}
-                  />
-                  <Label htmlFor="admin-status">অ্যাডমিন স্ট্যাটাস</Label>
+              <div className="grid grid-cols-2 gap-y-4 text-sm">
+                <div>
+                  <p className="text-muted-foreground">পুরো নাম</p>
+                  <p className="font-medium">{selectedUser.fullName || "-"}</p>
+                </div>
+                <div>
+                  <p className="text-muted-foreground">ইমেইল</p>
+                  <p className="font-medium">{selectedUser.email || "-"}</p>
+                </div>
+                <div>
+                  <p className="text-muted-foreground">ফোন</p>
+                  <p className="font-medium">{selectedUser.phone || "-"}</p>
+                </div>
+                <div>
+                  <p className="text-muted-foreground">ব্যালেন্স</p>
+                  <p className="font-medium">{formatCurrency(selectedUser.balance)}</p>
+                </div>
+                <div>
+                  <p className="text-muted-foreground">রেজিস্ট্রেশন তারিখ</p>
+                  <p className="font-medium">{formatDate(selectedUser.createdAt)}</p>
+                </div>
+                <div>
+                  <p className="text-muted-foreground">স্ট্যাটাস</p>
+                  <p className="font-medium">
+                    {selectedUser.isAdmin 
+                      ? "অ্যাডমিন"
+                      : selectedUser.isVip
+                      ? "VIP ইউজার"
+                      : "রেগুলার ইউজার"}
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+          
+          <DialogFooter>
+            <Button onClick={() => setIsViewDialogOpen(false)}>
+              বন্ধ করুন
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      
+      {/* ইউজার ব্যান ডায়ালগ */}
+      <Dialog open={isBanDialogOpen} onOpenChange={setIsBanDialogOpen}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>ইউজার ব্যান করুন</DialogTitle>
+            <DialogDescription>
+              আপনি কি নিশ্চিত যে আপনি এই ইউজারকে ব্যান করতে চান? এই অ্যাকশন অপরিবর্তনীয়।
+            </DialogDescription>
+          </DialogHeader>
+          
+          {selectedUser && (
+            <div className="py-4">
+              <div className="flex items-center gap-2 mb-2">
+                <div className="h-10 w-10 rounded-full overflow-hidden bg-muted">
+                  {selectedUser.avatarUrl ? (
+                    <img 
+                      src={selectedUser.avatarUrl} 
+                      alt={selectedUser.username} 
+                      className="h-full w-full object-cover"
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).src = "https://i.ibb.co/6RJbFkN/default-avatar.png";
+                      }}
+                    />
+                  ) : (
+                    <div className="h-full w-full flex items-center justify-center">
+                      <span className="text-lg font-medium text-muted-foreground">
+                        {selectedUser.username.charAt(0).toUpperCase()}
+                      </span>
+                    </div>
+                  )}
+                </div>
+                <div>
+                  <p className="font-medium">{selectedUser.username}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {selectedUser.email || selectedUser.fullName || `আইডি: ${selectedUser.id}`}
+                  </p>
+                </div>
+              </div>
+              
+              <div className="rounded-md bg-destructive/10 p-3 mt-4">
+                <div className="flex items-start">
+                  <ShieldAlert className="h-5 w-5 text-destructive mr-2 mt-0.5" />
+                  <p className="text-sm text-destructive">
+                    এই ইউজারকে ব্যান করলে ইউজার আর লগইন করতে পারবে না এবং সাইটের কোন ফিচার ব্যবহার করতে পারবে না।
+                  </p>
                 </div>
               </div>
             </div>
@@ -220,102 +409,89 @@ export default function UsersPanel() {
           <DialogFooter>
             <Button 
               variant="outline" 
-              onClick={() => setIsUpdateDialogOpen(false)}
+              onClick={() => setIsBanDialogOpen(false)}
             >
               বাতিল
             </Button>
             <Button 
-              onClick={handleUpdateUser}
-              disabled={updateUserMutation.isPending}
+              variant="destructive" 
+              onClick={handleBanUser}
+              disabled={banUserMutation.isPending}
             >
-              {updateUserMutation.isPending ? "আপডেট হচ্ছে..." : "আপডেট করুন"}
+              {banUserMutation.isPending ? "ব্যান করা হচ্ছে..." : "ব্যান করুন"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      
+      {/* ইউজারকে অ্যাডমিন করার ডায়ালগ */}
+      <Dialog open={isAdminDialogOpen} onOpenChange={setIsAdminDialogOpen}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>অ্যাডমিন করুন</DialogTitle>
+            <DialogDescription>
+              আপনি কি নিশ্চিত যে আপনি এই ইউজারকে অ্যাডমিন করতে চান? এই ইউজার সম্পূর্ণ অ্যাডমিন প্যানেল অ্যাক্সেস পাবে।
+            </DialogDescription>
+          </DialogHeader>
+          
+          {selectedUser && (
+            <div className="py-4">
+              <div className="flex items-center gap-2 mb-2">
+                <div className="h-10 w-10 rounded-full overflow-hidden bg-muted">
+                  {selectedUser.avatarUrl ? (
+                    <img 
+                      src={selectedUser.avatarUrl} 
+                      alt={selectedUser.username} 
+                      className="h-full w-full object-cover"
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).src = "https://i.ibb.co/6RJbFkN/default-avatar.png";
+                      }}
+                    />
+                  ) : (
+                    <div className="h-full w-full flex items-center justify-center">
+                      <span className="text-lg font-medium text-muted-foreground">
+                        {selectedUser.username.charAt(0).toUpperCase()}
+                      </span>
+                    </div>
+                  )}
+                </div>
+                <div>
+                  <p className="font-medium">{selectedUser.username}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {selectedUser.email || selectedUser.fullName || `আইডি: ${selectedUser.id}`}
+                  </p>
+                </div>
+              </div>
+              
+              <div className="rounded-md bg-indigo-500/10 p-3 mt-4">
+                <div className="flex items-start">
+                  <ShieldCheck className="h-5 w-5 text-indigo-500 mr-2 mt-0.5" />
+                  <p className="text-sm text-indigo-600 dark:text-indigo-400">
+                    এই ইউজারকে অ্যাডমিন করলে ইউজার সাইটের সমস্ত ফিচার এবং অ্যাডমিন প্যানেল অ্যাক্সেস পাবে।
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+          
+          <DialogFooter>
+            <Button 
+              variant="outline" 
+              onClick={() => setIsAdminDialogOpen(false)}
+            >
+              বাতিল
+            </Button>
+            <Button 
+              variant="default" 
+              className="bg-indigo-600 hover:bg-indigo-700"
+              onClick={handleMakeAdmin}
+              disabled={makeAdminMutation.isPending}
+            >
+              {makeAdminMutation.isPending ? "প্রসেসিং..." : "অ্যাডমিন করুন"}
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>
-  );
-}
-
-// ইউজার টেবিল কম্পোনেন্ট
-interface UserTableProps {
-  users: User[];
-  onUpdate: (user: User) => void;
-  formatDate: (date: Date | string) => string;
-}
-
-function UserTable({ users, onUpdate, formatDate }: UserTableProps) {
-  return (
-    <Card>
-      <CardContent className="p-0">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>আইডি</TableHead>
-              <TableHead>ইউজারনেম</TableHead>
-              <TableHead>তথ্য</TableHead>
-              <TableHead>ব্যালেন্স</TableHead>
-              <TableHead>স্ট্যাটাস</TableHead>
-              <TableHead>যোগ হয়েছেন</TableHead>
-              <TableHead>অ্যাকশন</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {users.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={7} className="text-center py-6 text-muted-foreground">
-                  কোন ইউজার পাওয়া যায়নি
-                </TableCell>
-              </TableRow>
-            ) : (
-              users.map((user) => (
-                <TableRow key={user.id}>
-                  <TableCell className="font-medium">{user.id}</TableCell>
-                  <TableCell>{user.username}</TableCell>
-                  <TableCell>
-                    <div className="space-y-1">
-                      {user.fullName && <div className="text-sm">{user.fullName}</div>}
-                      {user.email && <div className="text-xs text-muted-foreground">{user.email}</div>}
-                      {user.phone && <div className="text-xs text-muted-foreground">{user.phone}</div>}
-                    </div>
-                  </TableCell>
-                  <TableCell>৳{parseFloat(user.balance).toLocaleString()}</TableCell>
-                  <TableCell>
-                    <div className="flex flex-col gap-1">
-                      {user.isAdmin && (
-                        <Badge className="bg-blue-500 hover:bg-blue-600 w-fit">
-                          <ShieldAlert className="h-3 w-3 mr-1" />
-                          অ্যাডমিন
-                        </Badge>
-                      )}
-                      {user.isVip && (
-                        <Badge className="bg-amber-500 hover:bg-amber-600 w-fit">
-                          <Shield className="h-3 w-3 mr-1" />
-                          VIP
-                        </Badge>
-                      )}
-                      {!user.isAdmin && !user.isVip && (
-                        <Badge variant="outline" className="w-fit">সাধারণ</Badge>
-                      )}
-                    </div>
-                  </TableCell>
-                  <TableCell>{formatDate(user.createdAt)}</TableCell>
-                  <TableCell>
-                    <Button 
-                      variant="ghost" 
-                      size="sm"
-                      onClick={() => onUpdate(user)}
-                    >
-                      <Wallet className="h-4 w-4 mr-1" />
-                      ম্যানেজ
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              ))
-            )}
-          </TableBody>
-        </Table>
-      </CardContent>
-    </Card>
   );
 }
