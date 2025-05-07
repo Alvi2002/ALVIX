@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Search, RefreshCcw, Eye, Ban, ShieldCheck, ShieldAlert } from "lucide-react";
+import { Search, RefreshCcw, Eye, Ban, ShieldCheck, ShieldAlert, UserCog } from "lucide-react";
 import { queryClient } from "@/lib/queryClient";
 import { User } from "@shared/schema";
 
@@ -17,7 +17,15 @@ export default function UsersPanel() {
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
   const [isBanDialogOpen, setIsBanDialogOpen] = useState(false);
+  const [isUnbanDialogOpen, setIsUnbanDialogOpen] = useState(false);
   const [isAdminDialogOpen, setIsAdminDialogOpen] = useState(false);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [editFormData, setEditFormData] = useState({
+    fullName: "",
+    email: "",
+    phone: "",
+    balance: "",
+  });
   
   // ইউজার লিস্ট ফেচ করা
   const { data: users = [], isLoading, refetch } = useQuery<User[]>({
@@ -83,6 +91,64 @@ export default function UsersPanel() {
     },
   });
   
+  // ইউজার আনব্যান করার মিউটেশন
+  const unbanUserMutation = useMutation({
+    mutationFn: async (userId: number) => {
+      const res = await fetch(`/api/admin/users/${userId}/unban`, {
+        method: "POST"
+      });
+      
+      if (!res.ok) throw new Error("ইউজার আনব্যান করতে সমস্যা হয়েছে");
+      return res.json();
+    },
+    onSuccess: () => {
+      toast({
+        title: "সফল",
+        description: "ইউজার সফলভাবে আনব্যান করা হয়েছে",
+      });
+      setIsUnbanDialogOpen(false);
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/users"] });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "সমস্যা হয়েছে",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+  
+  // ইউজার এডিট করার মিউটেশন
+  const editUserMutation = useMutation({
+    mutationFn: async ({ userId, userData }: { userId: number, userData: any }) => {
+      const res = await fetch(`/api/admin/users/${userId}/edit`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(userData)
+      });
+      
+      if (!res.ok) throw new Error("ইউজার এডিট করতে সমস্যা হয়েছে");
+      return res.json();
+    },
+    onSuccess: () => {
+      toast({
+        title: "সফল",
+        description: "ইউজার সফলভাবে আপডেট করা হয়েছে",
+      });
+      setIsEditDialogOpen(false);
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/users"] });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "সমস্যা হয়েছে",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+  
   // সার্চ করা ইউজার লিস্ট
   const filteredUsers = users.filter(user => 
     user.username.toLowerCase().includes(searchTerm.toLowerCase()) || 
@@ -119,6 +185,33 @@ export default function UsersPanel() {
   const handleMakeAdmin = () => {
     if (!selectedUser) return;
     makeAdminMutation.mutate(selectedUser.id);
+  };
+  
+  // ইউজার আনব্যান করার হ্যান্ডলার
+  const handleUnbanUser = () => {
+    if (!selectedUser) return;
+    unbanUserMutation.mutate(selectedUser.id);
+  };
+  
+  // ইউজার এডিট করার হ্যান্ডলার
+  const handleEditUser = () => {
+    if (!selectedUser) return;
+    editUserMutation.mutate({
+      userId: selectedUser.id,
+      userData: editFormData
+    });
+  };
+  
+  // ইউজার এডিট ডায়ালগ খোলার হ্যান্ডলার
+  const handleOpenEditDialog = (user: User) => {
+    setSelectedUser(user);
+    setEditFormData({
+      fullName: user.fullName || "",
+      email: user.email || "",
+      phone: user.phone || "",
+      balance: user.balance,
+    });
+    setIsEditDialogOpen(true);
   };
   
   return (
@@ -237,6 +330,16 @@ export default function UsersPanel() {
                         >
                           <Eye className="h-4 w-4" />
                         </Button>
+                        
+                        <Button 
+                          variant="ghost" 
+                          size="icon"
+                          className="text-blue-500 hover:text-blue-600"
+                          onClick={() => handleOpenEditDialog(user)}
+                        >
+                          <UserCog className="h-4 w-4" />
+                        </Button>
+                        
                         {!user.isAdmin && (
                           <Button 
                             variant="ghost" 
@@ -250,17 +353,32 @@ export default function UsersPanel() {
                             <ShieldCheck className="h-4 w-4" />
                           </Button>
                         )}
-                        <Button 
-                          variant="ghost" 
-                          size="icon"
-                          className="text-destructive hover:text-destructive"
-                          onClick={() => {
-                            setSelectedUser(user);
-                            setIsBanDialogOpen(true);
-                          }}
-                        >
-                          <Ban className="h-4 w-4" />
-                        </Button>
+                        
+                        {user.isBanned ? (
+                          <Button 
+                            variant="ghost" 
+                            size="icon"
+                            className="text-green-500 hover:text-green-600"
+                            onClick={() => {
+                              setSelectedUser(user);
+                              setIsUnbanDialogOpen(true);
+                            }}
+                          >
+                            <ShieldAlert className="h-4 w-4" />
+                          </Button>
+                        ) : (
+                          <Button 
+                            variant="ghost" 
+                            size="icon"
+                            className="text-destructive hover:text-destructive"
+                            onClick={() => {
+                              setSelectedUser(user);
+                              setIsBanDialogOpen(true);
+                            }}
+                          >
+                            <Ban className="h-4 w-4" />
+                          </Button>
+                        )}
                       </div>
                     </TableCell>
                   </TableRow>
