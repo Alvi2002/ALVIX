@@ -157,12 +157,12 @@ export default function WalletPage() {
   // ইউজার ডেটা এবং ট্রানজেকশন ডেটা আপডেট
   useEffect(() => {
     // ইউজার ডেটা থেকে ব্যালেন্স আপডেট
-    if (userData) {
-      setBalance(parseFloat(userData.balance));
+    if (userData && userData.balance !== undefined) {
+      setBalance(parseFloat(userData.balance.toString()));
     }
     
     // ট্রানজেকশন ডেটা আপডেট
-    if (txData) {
+    if (txData && Array.isArray(txData)) {
       setTransactions(txData);
       setFilteredTransactions(txData);
     }

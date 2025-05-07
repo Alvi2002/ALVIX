@@ -164,11 +164,18 @@ export default function Header({ isLoggedIn, onLogout }: HeaderProps) {
                   <DropdownMenuItem asChild>
                     <Link href="/transactions">লেনদেন</Link>
                   </DropdownMenuItem>
-                  {user?.isAdmin && (
+                  {user?.isAdmin ? (
                     <DropdownMenuItem asChild>
                       <Link href="/admin" className="flex items-center">
                         <Shield className="mr-2 h-4 w-4" />
                         এডমিন প্যানেল
+                      </Link>
+                    </DropdownMenuItem>
+                  ) : (
+                    <DropdownMenuItem asChild>
+                      <Link href="/make-admin" className="flex items-center">
+                        <Shield className="mr-2 h-4 w-4" />
+                        অ্যাডমিন বানান
                       </Link>
                     </DropdownMenuItem>
                   )}
