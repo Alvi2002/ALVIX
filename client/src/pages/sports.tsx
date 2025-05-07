@@ -27,6 +27,8 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
+import { BetSlip, BetConfirmDialog } from "@/components/bet-slip";
+import { BetButton, BetNowButton } from "@/components/bet-button";
 
 type Match = {
   id: number;
@@ -381,6 +383,52 @@ export default function SportsPage() {
     "ওয়ার্ল্ড কাপ",
     "এশিয়া কাপ",
   ];
+  
+  // ডামি ম্যাচ ডেটা জনপ্রিয় বেট বাটনের জন্য
+  const dummyMatches = {
+    barca: {
+      id: 999,
+      homeTeam: "বার্সেলোনা",
+      awayTeam: "রিয়াল মাদ্রিদ",
+      league: "লা লিগা",
+      time: "21:45",
+      date: "আজ",
+      isLive: false,
+      odds: {
+        home: 2.50,
+        draw: 3.25,
+        away: 2.75
+      }
+    },
+    bothTeams: {
+      id: 998,
+      homeTeam: "ম্যানচেস্টার সিটি",
+      awayTeam: "লিভারপুল",
+      league: "প্রিমিয়ার লীগ",
+      time: "20:30",
+      date: "আজ",
+      isLive: false,
+      odds: {
+        home: 1.95,
+        draw: 3.50,
+        away: 2.85
+      }
+    },
+    overGoals: {
+      id: 997,
+      homeTeam: "আর্সেনাল",
+      awayTeam: "চেলসি",
+      league: "প্রিমিয়ার লীগ",
+      time: "22:00",
+      date: "আজ",
+      isLive: false,
+      odds: {
+        home: 1.75,
+        draw: 3.40,
+        away: 2.90
+      }
+    }
+  };
 
   // উপরে আসন্ন ম্যাচ, লাইভ ম্যাচ ফিল্টার করা
   const liveMatches = matches.filter(match => match.isLive);
@@ -390,10 +438,43 @@ export default function SportsPage() {
                          activeTab === "upcoming" ? upcomingMatches : 
                          matches;
 
+  // সব বেট মুছে ফেলার ফাংশন
+  const clearAllBets = () => {
+    setBetSlip({
+      selections: [],
+      stake: 100,
+      potentialWin: 0
+    });
+    
+    toast({
+      title: "সব বেট মুছে ফেলা হয়েছে",
+      description: "বেট স্লিপ খালি করা হয়েছে",
+    });
+  };
+
   return (
     <div className="flex flex-col min-h-screen bg-background">
       <Header isLoggedIn={!!user} onLogout={handleLogout} />
       <MobileMenu />
+      
+      {/* বেট স্লিপ */}
+      <BetSlip 
+        isOpen={isBetSlipOpen}
+        betSlip={betSlip}
+        onClose={() => setIsBetSlipOpen(false)}
+        onRemoveBet={removeBetSelection}
+        onStakeChange={handleStakeChange}
+        onPlaceBet={placeBet}
+        onClearAll={clearAllBets}
+      />
+      
+      {/* বেট কনফার্ম ডায়ালগ */}
+      <BetConfirmDialog
+        isOpen={isPlaceBetDialogOpen}
+        onClose={() => setIsPlaceBetDialogOpen(false)}
+        onConfirm={confirmBet}
+        betSlip={betSlip}
+      />
       
       <main className="flex-grow">
         <div className="container mx-auto px-4 py-6">
@@ -453,9 +534,11 @@ export default function SportsPage() {
                     <p className="text-white text-sm mb-2">বার্সেলোনা ২+ গোলে জিতবে</p>
                     <div className="flex justify-between items-center">
                       <span className="text-accent font-semibold">@2.50</span>
-                      <Button variant="outline" size="sm" className="border-accent text-accent hover:bg-accent hover:text-background text-xs">
-                        বেট করুন
-                      </Button>
+                      <BetNowButton
+                        match={dummyMatches.barca}
+                        betType="home"
+                        onBetSelect={addBetSelection}
+                      />
                     </div>
                   </div>
                   
@@ -463,9 +546,11 @@ export default function SportsPage() {
                     <p className="text-white text-sm mb-2">উভয় দল গোল করবে</p>
                     <div className="flex justify-between items-center">
                       <span className="text-accent font-semibold">@1.95</span>
-                      <Button variant="outline" size="sm" className="border-accent text-accent hover:bg-accent hover:text-background text-xs">
-                        বেট করুন
-                      </Button>
+                      <BetNowButton
+                        match={dummyMatches.bothTeams}
+                        betType="home"
+                        onBetSelect={addBetSelection}
+                      />
                     </div>
                   </div>
                   
@@ -473,9 +558,11 @@ export default function SportsPage() {
                     <p className="text-white text-sm mb-2">২.৫+ গোল হবে</p>
                     <div className="flex justify-between items-center">
                       <span className="text-accent font-semibold">@1.75</span>
-                      <Button variant="outline" size="sm" className="border-accent text-accent hover:bg-accent hover:text-background text-xs">
-                        বেট করুন
-                      </Button>
+                      <BetNowButton
+                        match={dummyMatches.overGoals}
+                        betType="home"
+                        onBetSelect={addBetSelection}
+                      />
                     </div>
                   </div>
                 </div>
