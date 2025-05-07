@@ -106,9 +106,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       return res.status(401).json({ error: "অনুগ্রহ করে লগইন করুন" });
     }
     
-    const { amount, method } = req.body;
+    const { amount, method, transactionId } = req.body;
     if (!amount || isNaN(amount) || amount <= 0) {
       return res.status(400).json({ error: "সঠিক পরিমাণ দিন" });
+    }
+    
+    if (!transactionId) {
+      return res.status(400).json({ error: "ট্রানজেকশন আইডি দিন" });
     }
     
     const transaction: InsertTransaction = {
@@ -118,7 +122,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       status: "pending",
       userId: req.user!.id,
       method: method || null,
-      details: "ডিপোজিট অনুরোধ গৃহীত হয়েছে।",
+      details: `ট্রানজেকশন আইডি: ${transactionId}`,
     };
     
     const result = await storage.createTransaction(transaction);
