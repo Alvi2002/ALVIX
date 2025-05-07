@@ -23,11 +23,30 @@ export default function Header({ isLoggedIn, onLogout }: HeaderProps) {
   const [location] = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [authDialogOpen, setAuthDialogOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [isSearching, setIsSearching] = useState(false);
 
   // Close auth dialog if user is logged in or navigated to auth page
   if ((isLoggedIn || location === "/auth") && authDialogOpen) {
     setAuthDialogOpen(false);
   }
+
+  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchTerm(e.target.value);
+  };
+
+  const handleSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchTerm.trim()) {
+      setIsSearching(true);
+      // এখানে সার্চ লজিক যোগ করা হবে
+      // API কল করে রেজাল্ট আনতে পারি
+      setTimeout(() => {
+        alert(`আপনি "${searchTerm}" সম্পর্কে অনুসন্ধান করছেন`);
+        setIsSearching(false);
+      }, 500);
+    }
+  };
 
   const toggleMobileMenu = () => {
     const mobileMenu = document.getElementById("mobile-menu");
@@ -69,6 +88,12 @@ export default function Header({ isLoggedIn, onLogout }: HeaderProps) {
               হোম
             </Link>
             <Link
+              href="/games"
+              className="text-white hover:text-accent font-medium transition duration-200 font-body"
+            >
+              গেমস
+            </Link>
+            <Link
               href="/slots"
               className="text-white hover:text-accent font-medium transition duration-200 font-body"
             >
@@ -102,14 +127,21 @@ export default function Header({ isLoggedIn, onLogout }: HeaderProps) {
 
           {/* User Actions */}
           <div className="flex items-center space-x-4">
-            <div className="relative hidden sm:block">
+            <form onSubmit={handleSearchSubmit} className="relative hidden sm:block">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
               <Input
                 type="text"
                 placeholder="খেলা অনুসন্ধান করুন"
+                value={searchTerm}
+                onChange={handleSearch}
                 className="bg-secondary text-white pl-9 pr-4 py-2 rounded-full text-sm w-40 lg:w-56 focus:ring-accent"
               />
-            </div>
+              {isSearching && (
+                <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                  <span className="h-4 w-4 block rounded-full border-2 border-accent border-r-transparent animate-spin"></span>
+                </div>
+              )}
+            </form>
 
             {isLoggedIn ? (
               <DropdownMenu>
