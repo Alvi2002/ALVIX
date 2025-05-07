@@ -4,9 +4,12 @@ import {
   liveCasinoGames, type LiveCasinoGame, type InsertLiveCasinoGame,
   sportMatches, type SportMatch, type InsertSportMatch,
   transactions, type Transaction, type InsertTransaction,
-  promotions, type Promotion, type InsertPromotion
+  promotions, type Promotion, type InsertPromotion,
+  depositPhones, type DepositPhone, type InsertDepositPhone
 } from "@shared/schema";
-import session, { SessionStore as ExpressSessionStore } from "express-session";
+import session from "express-session";
+
+type ExpressSessionStore = session.Store;
 import createMemoryStore from "memorystore";
 
 const MemoryStore = createMemoryStore(session);
@@ -69,6 +72,7 @@ export class MemStorage implements IStorage {
   private sportMatches: Map<number, SportMatch>;
   private transactions: Map<number, Transaction>;
   private promotions: Map<number, Promotion>;
+  private depositPhones: Map<number, DepositPhone>;
   
   private userIdCounter: number;
   private slotGameIdCounter: number;
@@ -76,8 +80,9 @@ export class MemStorage implements IStorage {
   private sportMatchIdCounter: number;
   private transactionIdCounter: number;
   private promotionIdCounter: number;
+  private depositPhoneIdCounter: number;
   
-  sessionStore: session.SessionStore;
+  sessionStore: ExpressSessionStore;
 
   constructor() {
     this.users = new Map();
@@ -86,6 +91,7 @@ export class MemStorage implements IStorage {
     this.sportMatches = new Map();
     this.transactions = new Map();
     this.promotions = new Map();
+    this.depositPhones = new Map();
     
     this.userIdCounter = 1;
     this.slotGameIdCounter = 1;
@@ -93,6 +99,7 @@ export class MemStorage implements IStorage {
     this.sportMatchIdCounter = 1;
     this.transactionIdCounter = 1;
     this.promotionIdCounter = 1;
+    this.depositPhoneIdCounter = 1;
     
     this.sessionStore = new MemoryStore({
       checkPeriod: 86400000, // 24 hours
@@ -123,6 +130,7 @@ export class MemStorage implements IStorage {
       createdAt: now,
       isVip: false,
       isAdmin: false,
+      isBanned: false,
       avatarUrl: null,
     };
     this.users.set(id, user);
@@ -305,6 +313,50 @@ export class MemStorage implements IStorage {
     const promo: Promotion = { ...promotion, id };
     this.promotions.set(id, promo);
     return promo;
+  }
+  
+  // ডিপোজিট ফোন নাম্বার মেথডস
+  async getDepositPhones(): Promise<DepositPhone[]> {
+    return Array.from(this.depositPhones.values());
+  }
+  
+  async getDepositPhoneById(id: number): Promise<DepositPhone | undefined> {
+    return this.depositPhones.get(id);
+  }
+  
+  async createDepositPhone(phone: InsertDepositPhone): Promise<DepositPhone> {
+    const id = this.depositPhoneIdCounter++;
+    const now = new Date();
+    const depositPhone: DepositPhone = { 
+      ...phone, 
+      id,
+      createdAt: now,
+      isActive: phone.isActive ?? true
+    };
+    this.depositPhones.set(id, depositPhone);
+    return depositPhone;
+  }
+  
+  async updateDepositPhone(id: number, phoneData: Partial<DepositPhone>): Promise<DepositPhone | undefined> {
+    const phone = this.depositPhones.get(id);
+    if (!phone) return undefined;
+    
+    const updatedPhone = { ...phone, ...phoneData };
+    this.depositPhones.set(id, updatedPhone);
+    return updatedPhone;
+  }
+  
+  async deleteDepositPhone(id: number): Promise<boolean> {
+    return this.depositPhones.delete(id);
+  }
+  
+  async toggleDepositPhoneStatus(id: number, isActive: boolean): Promise<DepositPhone | undefined> {
+    const phone = this.depositPhones.get(id);
+    if (!phone) return undefined;
+    
+    const updatedPhone = { ...phone, isActive };
+    this.depositPhones.set(id, updatedPhone);
+    return updatedPhone;
   }
   
   // ডেমো ডাটা সীড মেথড
