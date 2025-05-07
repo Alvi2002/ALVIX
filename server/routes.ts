@@ -48,6 +48,20 @@ function asyncHandler(fn: (req: Request, res: Response) => Promise<void>) {
 export async function registerRoutes(app: Express): Promise<Server> {
   // Sets up /api/register, /api/login, /api/logout, /api/user
   setupAuth(app);
+  
+  // এডমিন মিডলওয়্যার - এডমিন পাথ যাচাই
+  const adminMiddleware = (req: Request, res: Response, next: NextFunction) => {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ error: "অনুগ্রহ করে লগইন করুন" });
+    }
+    
+    const user = req.user as User;
+    if (!user.isAdmin) {
+      return res.status(403).json({ error: "এডমিন অ্যাক্সেস নেই" });
+    }
+    
+    next();
+  };
 
   // --------------------------------
   // স্লট গেম API এন্ডপয়েন্ট
@@ -323,6 +337,104 @@ export async function registerRoutes(app: Express): Promise<Server> {
     // পাসওয়ার্ড রিটার্ন করব না
     const { password, ...userWithoutPassword } = updatedUser;
     res.json(userWithoutPassword);
+  }));
+  
+  // --------------------------------
+  // এডমিন API এন্ডপয়েন্ট
+  // --------------------------------
+  
+  // সব ইউজার
+  app.get("/api/admin/users", adminMiddleware, asyncHandler(async (req, res) => {
+    const users = [];
+    
+    // প্রতিটি ইউজার নিই, কিন্তু পাসওয়ার্ড বাদ দিই
+    for (const user of await storage.getAllUsers()) {
+      const { password, ...userWithoutPassword } = user;
+      users.push(userWithoutPassword);
+    }
+    
+    res.json(users);
+  }));
+  
+  // একটি নির্দিষ্ট ইউজার আপডেট (এডমিন)
+  app.patch("/api/admin/users/:id", adminMiddleware, asyncHandler(async (req, res) => {
+    const id = parseInt(req.params.id);
+    const userData = req.body;
+    
+    const updatedUser = await storage.updateUser(id, userData);
+    
+    if (!updatedUser) {
+      return res.status(404).json({ error: "ইউজার পাওয়া যায়নি" });
+    }
+    
+    // পাসওয়ার্ড রিটার্ন করব না
+    const { password, ...userWithoutPassword } = updatedUser;
+    res.json(userWithoutPassword);
+  }));
+  
+  // এডমিন ড্যাশবোর্ড স্ট্যাটিস্টিকস
+  app.get("/api/admin/stats", adminMiddleware, asyncHandler(async (req, res) => {
+    const users = await storage.getAllUsers();
+    const transactions = await storage.getAllTransactions();
+    const slots = await storage.getSlotGames();
+    const liveCasinoGames = await storage.getLiveCasinoGames();
+    const sportMatches = await storage.getSportMatches();
+    
+    // ২৪ ঘণ্টার মধ্যে নতুন ইউজার
+    const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+    const newUsers24h = users.filter(user => user.createdAt > oneDayAgo).length;
+    
+    // ডিপোজিট ও উইথড্র পরিমাণ
+    const totalDeposits = transactions
+      .filter(tx => tx.type === "deposit" && tx.status === "success")
+      .reduce((sum, tx) => sum + parseFloat(tx.amount), 0);
+      
+    const totalWithdraws = transactions
+      .filter(tx => tx.type === "withdraw" && tx.status === "success")
+      .reduce((sum, tx) => sum + parseFloat(tx.amount), 0);
+    
+    // ২৪ ঘণ্টার মধ্যে ট্রানজেকশন
+    const transactions24h = transactions.filter(tx => 
+      new Date(tx.date) > oneDayAgo
+    ).length;
+    
+    const stats = {
+      totalUsers: users.length,
+      newUsers24h,
+      totalGames: slots.length + liveCasinoGames.length + sportMatches.length,
+      activeGames: sportMatches.filter(match => match.isLive).length + liveCasinoGames.length,
+      totalTransactions: transactions.length,
+      transactions24h,
+      totalDeposits: Math.round(totalDeposits * 100), // পয়সায় রূপান্তর
+      totalWithdraws: Math.round(totalWithdraws * 100), // পয়সায় রূপান্তর
+      totalRevenue: Math.round((totalDeposits - totalWithdraws) * 100) // পয়সায় রূপান্তর
+    };
+    
+    res.json(stats);
+  }));
+  
+  // সব ট্রানজেকশন (এডমিন)
+  app.get("/api/admin/transactions", adminMiddleware, asyncHandler(async (req, res) => {
+    const transactions = await storage.getAllTransactions();
+    res.json(transactions);
+  }));
+  
+  // ট্রানজেকশন স্ট্যাটাস পরিবর্তন (এডমিন)
+  app.patch("/api/admin/transactions/:id/status", adminMiddleware, asyncHandler(async (req, res) => {
+    const id = parseInt(req.params.id);
+    const { status } = req.body;
+    
+    if (!status || !["success", "pending", "failed"].includes(status)) {
+      return res.status(400).json({ error: "অবৈধ স্ট্যাটাস" });
+    }
+    
+    const updatedTransaction = await storage.updateTransactionStatus(id, status);
+    
+    if (!updatedTransaction) {
+      return res.status(404).json({ error: "ট্রানজেকশন পাওয়া যায়নি" });
+    }
+    
+    res.json(updatedTransaction);
   }));
   
   // পাসওয়ার্ড পরিবর্তন

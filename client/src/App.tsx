@@ -18,6 +18,7 @@ import GamesPage from "@/pages/games";
 import AboutPage from "@/pages/about";
 import ResponsibleGamingPage from "@/pages/responsible-gaming";
 import AffiliatePage from "@/pages/affiliate";
+import AdminPage from "@/pages/admin";
 // গেম ক্যাটাগরি পেজগুলো ইমপোর্ট করছি
 import CardGamesPage from "@/pages/games/card";
 import ArcadeGamesPage from "@/pages/games/arcade";
@@ -36,6 +37,7 @@ function Router() {
       <ProtectedRoute path="/profile" component={ProfilePage} />
       <ProtectedRoute path="/wallet" component={WalletPage} />
       <ProtectedRoute path="/transactions" component={TransactionsPage} />
+      <ProtectedRoute path="/admin" component={AdminPage} />
       <Route path="/promotions" component={PromotionsPage} />
       <Route path="/games" component={GamesPage} />
       <ProtectedRoute path="/games/card" component={CardGamesPage} />
