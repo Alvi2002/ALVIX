@@ -19,6 +19,7 @@ import AboutPage from "@/pages/about";
 import ResponsibleGamingPage from "@/pages/responsible-gaming";
 import AffiliatePage from "@/pages/affiliate";
 import AdminPage from "@/pages/admin";
+import MakeAdminPage from "@/pages/make-admin";
 import PasswordResetPage from "@/pages/password-reset";
 import TermsPage from "@/pages/terms";
 import PrivacyPage from "@/pages/privacy";
@@ -41,6 +42,7 @@ function Router() {
       <ProtectedRoute path="/wallet" component={WalletPage} />
       <ProtectedRoute path="/transactions" component={TransactionsPage} />
       <ProtectedRoute path="/admin" component={AdminPage} />
+      <ProtectedRoute path="/make-admin" component={MakeAdminPage} />
       <Route path="/promotions" component={PromotionsPage} />
       <Route path="/games" component={GamesPage} />
       <ProtectedRoute path="/games/card" component={CardGamesPage} />
