@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Search, RefreshCcw, Eye, Check, X } from "lucide-react";
+import { Search, RefreshCcw, Eye, Check, X, CheckCircle2, XCircle, AlertCircle } from "lucide-react";
 import { queryClient } from "@/lib/queryClient";
 import { Transaction } from "@shared/schema";
 
