@@ -15,6 +15,8 @@ import ContactPage from "@/pages/contact";
 import TransactionsPage from "@/pages/transactions";
 import PromotionsPage from "@/pages/promotions";
 import GamesPage from "@/pages/games";
+import AboutPage from "@/pages/about";
+import ResponsibleGamingPage from "@/pages/responsible-gaming";
 import { ProtectedRoute } from "./lib/protected-route";
 import { AuthProvider } from "./hooks/use-auth";
 
@@ -32,6 +34,15 @@ function Router() {
       <Route path="/promotions" component={PromotionsPage} />
       <Route path="/games" component={GamesPage} />
       <Route path="/contact" component={ContactPage} />
+      <Route path="/about" component={AboutPage} />
+      <Route path="/responsible-gaming" component={ResponsibleGamingPage} />
+      <Route path="/terms" component={AboutPage} /> {/* অস্থায়ীভাবে AboutPage দিয়েই দেখাচ্ছি */}
+      <Route path="/privacy" component={AboutPage} /> {/* অস্থায়ীভাবে AboutPage দিয়েই দেখাচ্ছি */}
+      <Route path="/faq" component={AboutPage} /> {/* অস্থায়ীভাবে AboutPage দিয়েই দেখাচ্ছি */}
+      <Route path="/affiliate" component={AboutPage} /> {/* অস্থায়ীভাবে AboutPage দিয়েই দেখাচ্ছি */}
+      <Route path="/payments" component={AboutPage} /> {/* অস্থায়ীভাবে AboutPage দিয়েই দেখাচ্ছি */}
+      <Route path="/tournament-rules" component={AboutPage} /> {/* অস্থায়ীভাবে AboutPage দিয়েই দেখাচ্ছি */}
+      <Route path="/helpdesk" component={ContactPage} /> {/* অস্থায়ীভাবে ContactPage দিয়েই দেখাচ্ছি */}
       <Route component={NotFound} />
     </Switch>
   );
