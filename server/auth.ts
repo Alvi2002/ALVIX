@@ -105,4 +105,40 @@ export function setupAuth(app: Express) {
     if (!req.isAuthenticated()) return res.sendStatus(401);
     res.json(req.user);
   });
+  
+  // অ্যাডমিন বানানোর রাউট
+  app.post("/api/make-admin", async (req, res, next) => {
+    try {
+      if (!req.isAuthenticated()) {
+        return res.status(401).json({ message: "অনুগ্রহ করে প্রথমে লগইন করুন" });
+      }
+      
+      // সিক্রেট কী চেক করা
+      const { secretKey } = req.body;
+      const ADMIN_SECRET_KEY = process.env.ADMIN_SECRET_KEY || "tok999-admin-secret";
+      
+      if (secretKey !== ADMIN_SECRET_KEY) {
+        return res.status(400).json({ message: "ভুল গোপন কোড" });
+      }
+      
+      // ইউজারকে অ্যাডমিন বানানো
+      const updatedUser = await storage.updateUser(req.user.id, { isAdmin: true });
+      
+      if (!updatedUser) {
+        return res.status(404).json({ message: "ইউজার পাওয়া যায়নি" });
+      }
+      
+      // পাসপোর্ট সেশন আপডেট করা
+      req.login(updatedUser, (err) => {
+        if (err) return next(err);
+        
+        res.status(200).json({ 
+          message: "আপনাকে সফলভাবে অ্যাডমিন করা হয়েছে",
+          user: updatedUser
+        });
+      });
+    } catch (error) {
+      return next(error);
+    }
+  });
 }
