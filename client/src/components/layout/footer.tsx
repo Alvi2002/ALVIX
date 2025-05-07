@@ -6,10 +6,10 @@ export default function Footer() {
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div>
-            <h3 className="font-bold mb-4 text-lg">টক999</h3>
+            <h3 className="font-bold mb-4 text-lg">ALVIX</h3>
             <p className="text-muted-foreground text-sm mb-4">
-              টক999 হল বাংলাদেশের সেরা অনলাইন গেমিং প্ল্যাটফর্ম।
-              নিরাপদ এবং বিশ্বাসযোগ্য গেমিং অভিজ্ঞতা পেতে আজই টক999এ যোগ দিন।
+              ALVIX হল বাংলাদেশের সেরা অনলাইন গেমিং প্ল্যাটফর্ম।
+              নিরাপদ এবং বিশ্বাসযোগ্য গেমিং অভিজ্ঞতা পেতে আজই ALVIX-এ যোগ দিন।
             </p>
           </div>
           
@@ -104,7 +104,7 @@ export default function Footer() {
         
         <div className="mt-8 pt-6 border-t border-accent/10 flex flex-col md:flex-row justify-between items-center">
           <p className="text-sm text-muted-foreground mb-4 md:mb-0">
-            &copy; {new Date().getFullYear()} টক999। সর্বস্বত্ব সংরক্ষিত।
+            &copy; {new Date().getFullYear()} ALVIX। সর্বস্বত্ব সংরক্ষিত।
           </p>
           
           <div className="flex space-x-4">
