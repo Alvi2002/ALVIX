@@ -1,17 +1,17 @@
 import { useState } from "react";
+import { useMutation } from "@tanstack/react-query";
+import { useToast } from "@/hooks/use-toast";
+import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { ShieldCheck } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
-import { useMutation } from "@tanstack/react-query";
 import { queryClient } from "@/lib/queryClient";
+import { ShieldAlert } from "lucide-react";
 
 export function MakeAdmin() {
   const [secretKey, setSecretKey] = useState("");
   const { toast } = useToast();
   
+  // অ্যাডমিন বানানোর মিউটেশন
   const makeAdminMutation = useMutation({
     mutationFn: async (key: string) => {
       const res = await fetch("/api/make-admin", {
@@ -23,23 +23,26 @@ export function MakeAdmin() {
       });
       
       if (!res.ok) {
-        const errorData = await res.json();
-        throw new Error(errorData.message || "অ্যাডমিন বানাতে সমস্যা হয়েছে");
+        const error = await res.json();
+        throw new Error(error.message || "অ্যাডমিন বানাতে সমস্যা হয়েছে");
       }
       
       return res.json();
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
       toast({
-        title: "অভিনন্দন!",
-        description: "আপনি সফলভাবে অ্যাডমিন হিসেবে যোগ হয়েছেন। পেইজটি রিফ্রেশ করুন।",
+        title: "সফল!",
+        description: data.message || "আপনাকে অ্যাডমিন করা হয়েছে।",
       });
+      
       setSecretKey("");
+      
+      // ইউজার ডাটা রিফ্রেশ করা
       queryClient.invalidateQueries({ queryKey: ["/api/user"] });
     },
     onError: (error: Error) => {
       toast({
-        title: "সমস্যা হয়েছে",
+        title: "সমস্যা হয়েছে!",
         description: error.message,
         variant: "destructive",
       });
@@ -48,10 +51,11 @@ export function MakeAdmin() {
   
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    
     if (!secretKey.trim()) {
       toast({
-        title: "সমস্যা হয়েছে",
-        description: "গোপন কোড দিতে হবে",
+        title: "সমস্যা হয়েছে!",
+        description: "গোপন কোড দিন",
         variant: "destructive",
       });
       return;
@@ -61,34 +65,43 @@ export function MakeAdmin() {
   };
   
   return (
-    <Card>
+    <Card className="border-dashed">
       <CardHeader>
-        <CardTitle className="flex items-center">
-          <ShieldCheck className="h-5 w-5 mr-2 text-primary" />
-          অ্যাডমিন অ্যাক্সেস
-        </CardTitle>
-        <CardDescription>অ্যাডমিন প্যানেল অ্যাক্সেস করতে গোপন কোড দিন</CardDescription>
+        <div className="flex items-center gap-2">
+          <ShieldAlert className="h-5 w-5 text-primary" />
+          <CardTitle className="text-lg">অ্যাডমিন প্যানেল অ্যাক্সেস</CardTitle>
+        </div>
+        <CardDescription>
+          অ্যাডমিন প্যানেল অ্যাক্সেস পেতে আপনার গোপন কোড দিন
+        </CardDescription>
       </CardHeader>
       <form onSubmit={handleSubmit}>
         <CardContent>
           <div className="grid w-full items-center gap-4">
             <div className="flex flex-col space-y-1.5">
-              <Label htmlFor="secretKey">গোপন কোড</Label>
-              <Input 
-                id="secretKey" 
-                placeholder="গোপন কোড দিন" 
+              <Input
+                id="secretKey"
+                placeholder="গোপন কোড"
                 value={secretKey}
                 onChange={(e) => setSecretKey(e.target.value)}
+                autoComplete="off"
               />
             </div>
           </div>
         </CardContent>
-        <CardFooter className="flex justify-end">
+        <CardFooter className="flex justify-between">
           <Button 
-            type="submit" 
-            disabled={makeAdminMutation.isPending}
+            variant="outline" 
+            onClick={() => setSecretKey("")}
+            type="button"
           >
-            {makeAdminMutation.isPending ? "প্রসেসিং..." : "অ্যাডমিন হোন"}
+            মুছুন
+          </Button>
+          <Button 
+            type="submit"
+            disabled={makeAdminMutation.isPending || !secretKey.trim()}
+          >
+            {makeAdminMutation.isPending ? "প্রসেসিং..." : "অ্যাডমিন বানান"}
           </Button>
         </CardFooter>
       </form>
