@@ -88,6 +88,7 @@ export const insertUserSchema = createInsertSchema(users).pick({
   email: true,
   phone: true,
   fullName: true,
+  isAdmin: true,
 });
 
 export const insertSlotGameSchema = createInsertSchema(slotGames);

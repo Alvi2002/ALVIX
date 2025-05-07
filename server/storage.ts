@@ -112,6 +112,8 @@ export class MemStorage implements IStorage {
       balance: "0",
       createdAt: now,
       isVip: false,
+      isAdmin: false,
+      avatarUrl: null,
     };
     this.users.set(id, user);
     return user;
