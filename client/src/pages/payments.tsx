@@ -40,7 +40,16 @@ export default function PaymentsPage() {
         id: 'bkash',
         name: 'বিকাশ',
         type: 'mobile',
-        icon: <Smartphone className="h-5 w-5" />,
+        icon: (
+          <div className="bg-pink-600 rounded-full p-2 flex justify-center items-center">
+            <span className="text-white font-bold">b</span>
+          </div>
+        ),
+        logo: (
+          <div className="w-10 h-10 bg-pink-600 rounded-full p-2 flex justify-center items-center">
+            <span className="text-white font-bold text-lg">b</span>
+          </div>
+        ),
         minAmount: 500,
         maxAmount: 50000,
         processingTime: 'তাৎক্ষণিক',
@@ -58,7 +67,16 @@ export default function PaymentsPage() {
         id: 'rocket',
         name: 'রকেট',
         type: 'mobile',
-        icon: <Smartphone className="h-5 w-5" />,
+        icon: (
+          <div className="bg-purple-700 rounded-full p-2 flex justify-center items-center">
+            <span className="text-white font-bold">R</span>
+          </div>
+        ),
+        logo: (
+          <div className="w-10 h-10 bg-purple-700 rounded-full p-2 flex justify-center items-center">
+            <span className="text-white font-bold text-lg">R</span>
+          </div>
+        ),
         minAmount: 500,
         maxAmount: 30000,
         processingTime: 'তাৎক্ষণিক থেকে ৩০ মিনিট',
@@ -76,7 +94,16 @@ export default function PaymentsPage() {
         id: 'nagad',
         name: 'নগদ',
         type: 'mobile',
-        icon: <Smartphone className="h-5 w-5" />,
+        icon: (
+          <div className="bg-orange-600 rounded-full p-2 flex justify-center items-center">
+            <span className="text-white font-bold">ন</span>
+          </div>
+        ),
+        logo: (
+          <div className="w-10 h-10 bg-orange-600 rounded-full p-2 flex justify-center items-center">
+            <span className="text-white font-bold text-lg">ন</span>
+          </div>
+        ),
         minAmount: 500,
         maxAmount: 50000,
         processingTime: 'তাৎক্ষণিক',
@@ -95,6 +122,11 @@ export default function PaymentsPage() {
         name: 'ব্যাংক ট্রান্সফার',
         type: 'bank',
         icon: <Landmark className="h-5 w-5" />,
+        logo: (
+          <div className="w-10 h-10 bg-blue-700 rounded-full p-2 flex justify-center items-center">
+            <Landmark className="h-6 w-6 text-white" />
+          </div>
+        ),
         minAmount: 1000,
         maxAmount: 1000000,
         processingTime: '১-২৪ ঘন্টা',
@@ -114,6 +146,11 @@ export default function PaymentsPage() {
         name: 'ক্রেডিট/ডেবিট কার্ড',
         type: 'card',
         icon: <CreditCard className="h-5 w-5" />,
+        logo: (
+          <div className="w-10 h-10 bg-gray-700 rounded-full p-2 flex justify-center items-center">
+            <CreditCard className="h-6 w-6 text-white" />
+          </div>
+        ),
         minAmount: 1000,
         maxAmount: 100000,
         processingTime: 'তাৎক্ষণিক',
@@ -132,6 +169,11 @@ export default function PaymentsPage() {
         name: 'ক্রিপ্টোকারেন্সি',
         type: 'crypto',
         icon: <Wallet className="h-5 w-5" />,
+        logo: (
+          <div className="w-10 h-10 bg-yellow-500 rounded-full p-2 flex justify-center items-center">
+            <Wallet className="h-6 w-6 text-white" />
+          </div>
+        ),
         minAmount: 1000,
         maxAmount: 1000000,
         processingTime: '১-৬ নিশ্চিতকরণ',
@@ -151,7 +193,16 @@ export default function PaymentsPage() {
         id: 'bkash-withdraw',
         name: 'বিকাশ',
         type: 'mobile',
-        icon: <Smartphone className="h-5 w-5" />,
+        icon: (
+          <div className="bg-pink-600 rounded-full p-2 flex justify-center items-center">
+            <span className="text-white font-bold">b</span>
+          </div>
+        ),
+        logo: (
+          <div className="w-10 h-10 bg-pink-600 rounded-full p-2 flex justify-center items-center">
+            <span className="text-white font-bold text-lg">b</span>
+          </div>
+        ),
         minAmount: 500,
         maxAmount: 25000,
         processingTime: '১-২৪ ঘন্টা',
@@ -169,7 +220,16 @@ export default function PaymentsPage() {
         id: 'nagad-withdraw',
         name: 'নগদ',
         type: 'mobile',
-        icon: <Smartphone className="h-5 w-5" />,
+        icon: (
+          <div className="bg-orange-600 rounded-full p-2 flex justify-center items-center">
+            <span className="text-white font-bold">ন</span>
+          </div>
+        ),
+        logo: (
+          <div className="w-10 h-10 bg-orange-600 rounded-full p-2 flex justify-center items-center">
+            <span className="text-white font-bold text-lg">ন</span>
+          </div>
+        ),
         minAmount: 500,
         maxAmount: 25000,
         processingTime: '১-২৪ ঘন্টা',
@@ -187,7 +247,16 @@ export default function PaymentsPage() {
         id: 'rocket-withdraw',
         name: 'রকেট',
         type: 'mobile',
-        icon: <Smartphone className="h-5 w-5" />,
+        icon: (
+          <div className="bg-purple-700 rounded-full p-2 flex justify-center items-center">
+            <span className="text-white font-bold">R</span>
+          </div>
+        ),
+        logo: (
+          <div className="w-10 h-10 bg-purple-700 rounded-full p-2 flex justify-center items-center">
+            <span className="text-white font-bold text-lg">R</span>
+          </div>
+        ),
         minAmount: 500,
         maxAmount: 20000,
         processingTime: '১-২৪ ঘন্টা',

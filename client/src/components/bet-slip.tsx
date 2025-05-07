@@ -137,7 +137,7 @@ export function BetSlip({
                 <label htmlFor="stake" className="text-sm font-medium">
                   বাজি (৳)
                 </label>
-                <div className="flex items-center">
+                <div className="flex items-center relative">
                   <DollarSign className="h-4 w-4 text-muted-foreground mr-1" />
                   <Input
                     id="stake"
@@ -151,12 +151,14 @@ export function BetSlip({
               
               <div className="flex items-center justify-between w-full">
                 <span className="text-sm font-medium">সম্ভাব্য জিত:</span>
-                <span className="text-accent font-bold">৳{betSlip.potentialWin}</span>
+                <span className="text-accent font-bold">৳{betSlip.potentialWin.toFixed(2)}</span>
               </div>
               
               <Button
-                className="w-full bg-accent hover:bg-accent/90 text-white"
+                variant="default"
+                className="w-full bg-accent hover:bg-accent/90 text-white mt-2"
                 onClick={onPlaceBet}
+                size="lg"
               >
                 বেট করুন
               </Button>
