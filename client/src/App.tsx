@@ -27,6 +27,7 @@ import PrivacyPage from "@/pages/privacy";
 import CardGamesPage from "@/pages/games/card";
 import ArcadeGamesPage from "@/pages/games/arcade";
 import TournamentsPage from "@/pages/games/tournaments";
+import BetSlipSystem from "@/pages/games/betslip";
 import { ProtectedRoute } from "./lib/protected-route";
 import { AuthProvider } from "./hooks/use-auth";
 
@@ -51,6 +52,7 @@ function Router() {
       <ProtectedRoute path="/games/slots" component={SlotsPage} />
       <ProtectedRoute path="/games/live-casino" component={LiveCasinoPage} />
       <ProtectedRoute path="/games/sports" component={SportsPage} />
+      <ProtectedRoute path="/games/betslip" component={BetSlipSystem} />
       <Route path="/contact" component={ContactPage} />
       <Route path="/about" component={AboutPage} />
       <Route path="/responsible-gaming" component={ResponsibleGamingPage} />
