@@ -178,9 +178,9 @@ export default function DepositPhonesPanel() {
   
   // সার্চ করা নাম্বার লিস্ট
   const filteredPhones = phones.filter(phone => 
-    phone.number.includes(searchTerm) || 
-    phone.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    phone.provider.toLowerCase().includes(searchTerm.toLowerCase())
+    phone.phoneNumber.includes(searchTerm) || 
+    phone.accountName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    phone.operator.toLowerCase().includes(searchTerm.toLowerCase())
   );
   
   // নতুন নাম্বার যোগ করার হ্যান্ডলার

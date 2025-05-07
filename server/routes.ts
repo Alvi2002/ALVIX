@@ -31,7 +31,7 @@ function validateBody<T>(schema: any, body: any): T {
 }
 
 // এক্সপ্রেস রিকুয়েস্ট হ্যান্ডলারে এরর হ্যান্ডলিং
-function asyncHandler(fn: (req: Request, res: Response) => Promise<void>) {
+function asyncHandler(fn: (req: Request, res: Response) => Promise<any>) {
   return async (req: Request, res: Response) => {
     try {
       await fn(req, res);
