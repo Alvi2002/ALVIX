@@ -29,6 +29,7 @@ import ArcadeGamesPage from "@/pages/games/arcade";
 import TournamentsPage from "@/pages/games/tournaments";
 import BetSlipSystem from "@/pages/games/betslip";
 import PaymentMethodsPage from "@/pages/payment-methods";
+import PaymentsFixedPage from "@/pages/payments-fixed";
 import { ProtectedRoute } from "./lib/protected-route";
 import { AuthProvider } from "./hooks/use-auth";
 
@@ -62,7 +63,7 @@ function Router() {
       <Route path="/password-reset" component={PasswordResetPage} />
       <Route path="/faq" component={AboutPage} /> {/* অস্থায়ীভাবে AboutPage দিয়েই দেখাচ্ছি */}
       <Route path="/affiliate" component={AffiliatePage} />
-      <Route path="/payments" component={PaymentMethodsPage} />
+      <Route path="/payments" component={PaymentsFixedPage} />
       <Route path="/tournament-rules" component={AboutPage} /> {/* অস্থায়ীভাবে AboutPage দিয়েই দেখাচ্ছি */}
       <Route path="/helpdesk" component={ContactPage} /> {/* অস্থায়ীভাবে ContactPage দিয়েই দেখাচ্ছি */}
       <Route component={NotFound} />
