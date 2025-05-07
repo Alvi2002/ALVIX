@@ -33,7 +33,7 @@ export default function MobileMenu() {
           <div className="flex flex-col h-full">
             <div className="p-4 border-b border-accent/10 flex justify-between items-center">
               <Link href="/" onClick={closeMenu}>
-                <a className="font-bold text-xl text-accent">টক999</a>
+                <a className="font-bold text-xl text-accent">ALVIX</a>
               </Link>
               <Button variant="ghost" size="icon" onClick={closeMenu}>
                 <X className="h-4 w-4" />

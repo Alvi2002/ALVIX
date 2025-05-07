@@ -24,7 +24,7 @@ export default function Header({ isLoggedIn, onLogout }: HeaderProps) {
       <div className="container mx-auto px-4 py-3 flex justify-between items-center">
         <div className="flex items-center">
           <Link href="/">
-            <a className="font-bold text-xl mr-6 text-accent">টক999</a>
+            <a className="font-bold text-xl mr-6 text-accent">ALVIX</a>
           </Link>
           
           <nav className="hidden md:flex space-x-6">
