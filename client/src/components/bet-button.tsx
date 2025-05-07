@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import { Sparkles } from "lucide-react";
 
 type Match = {
   id: number;
@@ -63,17 +64,23 @@ export function BetButton({
       displayName = "ড্র";
     }
   }
+  
+  // উচ্চ অডস কি না চেক করা
+  const isHighOdds = betOdds >= 2.5;
 
   return (
     <Button
       variant="outline"
-      className={`flex-1 justify-center border-accent bg-secondary/30 hover:bg-accent hover:text-secondary ${className}`}
+      className={`flex-1 justify-between border-accent/70 bg-secondary/30 hover:bg-accent hover:text-secondary transition-all ${className}`}
       onClick={() => onBetSelect(match, betType)}
     >
       {children || (
         <>
-          <span className="text-white">{displayName}</span>
-          <span className="text-accent ml-2">{betOdds}</span>
+          <span className="text-foreground">{displayName}</span>
+          <div className="flex items-center">
+            {isHighOdds && <Sparkles className="h-3 w-3 text-yellow-400 mr-1" />}
+            <span className={`${isHighOdds ? 'text-yellow-400' : 'text-accent'} font-bold`}>{betOdds}</span>
+          </div>
         </>
       )}
     </Button>
@@ -94,7 +101,7 @@ export function BetNowButton({
     <Button
       variant="outline"
       size="sm"
-      className="border-accent text-accent hover:bg-accent hover:text-background text-xs"
+      className="border-accent text-accent hover:bg-accent hover:text-background text-xs font-medium transition-all shadow-sm"
       onClick={() => onBetSelect(match, betType)}
     >
       বেট করুন
