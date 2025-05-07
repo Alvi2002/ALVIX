@@ -2,7 +2,7 @@ import type { Express, Request, Response, NextFunction } from "express";
 import { createServer, type Server } from "http";
 import { setupAuth } from "./auth";
 import { storage } from "./storage";
-import { InsertSlotGame, InsertLiveCasinoGame, InsertSportMatch, InsertTransaction, InsertPromotion, User, insertSlotGameSchema, insertLiveCasinoGameSchema, insertSportMatchSchema, insertTransactionSchema, insertPromotionSchema } from "@shared/schema";
+import { InsertSlotGame, InsertLiveCasinoGame, InsertSportMatch, InsertTransaction, InsertPromotion, InsertDepositPhone, User, insertSlotGameSchema, insertLiveCasinoGameSchema, insertSportMatchSchema, insertTransactionSchema, insertPromotionSchema, insertDepositPhoneSchema } from "@shared/schema";
 import { ZodError } from "zod";
 import { createId } from "@paralleldrive/cuid2";
 import { WebSocketServer, WebSocket } from "ws";
@@ -500,6 +500,79 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
     
     res.json({ success: true, message: "আপনি এখন এডমিন" });
+  }));
+  
+  // --------------------------------
+  // ডিপোজিট ফোন নাম্বার API এন্ডপয়েন্ট
+  // --------------------------------
+  
+  // সব ডিপোজিট ফোন নাম্বার (পাবলিক)
+  app.get("/api/deposit-phones", asyncHandler(async (req, res) => {
+    const phones = await storage.getDepositPhones();
+    res.json(phones);
+  }));
+  
+  // একটি নির্দিষ্ট ডিপোজিট ফোন নাম্বার
+  app.get("/api/deposit-phones/:id", asyncHandler(async (req, res) => {
+    const id = parseInt(req.params.id);
+    const phone = await storage.getDepositPhoneById(id);
+    
+    if (!phone) {
+      return res.status(404).json({ error: "ডিপোজিট ফোন নাম্বার পাওয়া যায়নি" });
+    }
+    
+    res.json(phone);
+  }));
+  
+  // নতুন ডিপোজিট ফোন নাম্বার যোগ করা (এডমিন পাথ)
+  app.post("/api/admin/deposit-phones", adminMiddleware, asyncHandler(async (req, res) => {
+    const data = validateBody<InsertDepositPhone>(insertDepositPhoneSchema, req.body);
+    const phone = await storage.createDepositPhone(data);
+    res.status(201).json(phone);
+  }));
+  
+  // ডিপোজিট ফোন আপডেট করা (এডমিন পাথ)
+  app.patch("/api/admin/deposit-phones/:id", adminMiddleware, asyncHandler(async (req, res) => {
+    const id = parseInt(req.params.id);
+    const phoneData = req.body;
+    
+    const updatedPhone = await storage.updateDepositPhone(id, phoneData);
+    
+    if (!updatedPhone) {
+      return res.status(404).json({ error: "ডিপোজিট ফোন নাম্বার পাওয়া যায়নি" });
+    }
+    
+    res.json(updatedPhone);
+  }));
+  
+  // ডিপোজিট ফোন ডিলিট করা (এডমিন পাথ)
+  app.delete("/api/admin/deposit-phones/:id", adminMiddleware, asyncHandler(async (req, res) => {
+    const id = parseInt(req.params.id);
+    const success = await storage.deleteDepositPhone(id);
+    
+    if (!success) {
+      return res.status(404).json({ error: "ডিপোজিট ফোন নাম্বার পাওয়া যায়নি" });
+    }
+    
+    res.status(204).end();
+  }));
+  
+  // ডিপোজিট ফোন স্ট্যাটাস টগল করা (এডমিন পাথ)
+  app.patch("/api/admin/deposit-phones/:id/toggle-status", adminMiddleware, asyncHandler(async (req, res) => {
+    const id = parseInt(req.params.id);
+    const { isActive } = req.body;
+    
+    if (isActive === undefined) {
+      return res.status(400).json({ error: "isActive প্যারামিটার দিতে হবে" });
+    }
+    
+    const updatedPhone = await storage.toggleDepositPhoneStatus(id, isActive);
+    
+    if (!updatedPhone) {
+      return res.status(404).json({ error: "ডিপোজিট ফোন নাম্বার পাওয়া যায়নি" });
+    }
+    
+    res.json(updatedPhone);
   }));
   
   // --------------------------------
