@@ -22,7 +22,7 @@ import {
   ChevronDown,
   Trophy,
   Timer,
-  FootballIcon,
+  Activity,
   TrendingUp,
   CircleDot,
   Clock
@@ -53,7 +53,7 @@ export default function SportsPage() {
 
   // লীগগুলোর লিস্ট (ডুপ্লিকেট বাদ দিয়ে)
   const leagues = sportMatches 
-    ? [...new Set(sportMatches.map((match: SportMatch) => match.league))]
+    ? Array.from(new Set(sportMatches.map((match: SportMatch) => match.league)))
     : [];
 
   // ম্যাচ ফিল্টারিং ফাংশন
@@ -286,7 +286,7 @@ export default function SportsPage() {
               // আপকামিং ম্যাচ
               <div>
                 {/* তারিখ অনুসারে গ্রুপ করা */}
-                {[...new Set(sortedUpcomingMatches().map(match => match.date))].map(date => (
+                {Array.from(new Set(sortedUpcomingMatches().map(match => match.date))).map(date => (
                   <div key={date} className="mb-6">
                     <h3 className="text-lg font-semibold mb-3 flex items-center gap-2">
                       <Calendar className="h-5 w-5 text-accent" />
@@ -392,7 +392,7 @@ export default function SportsPage() {
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                   <div className="bg-muted/30 p-4 rounded-lg">
                     <div className="flex items-center gap-2 mb-2">
-                      <FootballIcon className="h-5 w-5 text-accent" />
+                      <Activity className="h-5 w-5 text-accent" />
                       <h4 className="font-medium">ম্যাচ উইনার</h4>
                     </div>
                     <p className="text-sm text-muted-foreground mb-2">
@@ -406,7 +406,7 @@ export default function SportsPage() {
                   
                   <div className="bg-muted/30 p-4 rounded-lg">
                     <div className="flex items-center gap-2 mb-2">
-                      <FootballIcon className="h-5 w-5 text-accent" />
+                      <Activity className="h-5 w-5 text-accent" />
                       <h4 className="font-medium">ওভার/আন্ডার</h4>
                     </div>
                     <p className="text-sm text-muted-foreground mb-2">
@@ -420,7 +420,7 @@ export default function SportsPage() {
                   
                   <div className="bg-muted/30 p-4 rounded-lg">
                     <div className="flex items-center gap-2 mb-2">
-                      <FootballIcon className="h-5 w-5 text-accent" />
+                      <Activity className="h-5 w-5 text-accent" />
                       <h4 className="font-medium">উভয় দল গোল</h4>
                     </div>
                     <p className="text-sm text-muted-foreground mb-2">
