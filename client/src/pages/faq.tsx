@@ -26,8 +26,8 @@ import {
   Shield, 
   Users, 
   Gamepad2, 
-  PhoneCall 
-  Zap,
+  PhoneCall, 
+  Zap
 } from "lucide-react";
 import { useState } from "react";
 

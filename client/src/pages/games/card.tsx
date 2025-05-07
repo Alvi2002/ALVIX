@@ -30,7 +30,8 @@ import {
   Sparkles,
   Book,
   Zap,
-  Trophy
+  Trophy,
+  Calendar
 } from "lucide-react";
 import { useState } from "react";
 import { apiRequest } from "@/lib/queryClient";
