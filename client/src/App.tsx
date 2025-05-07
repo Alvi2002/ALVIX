@@ -12,6 +12,9 @@ import SportsPage from "@/pages/sports";
 import ProfilePage from "@/pages/profile";
 import WalletPage from "@/pages/wallet";
 import ContactPage from "@/pages/contact";
+import TransactionsPage from "@/pages/transactions";
+import PromotionsPage from "@/pages/promotions";
+import GamesPage from "@/pages/games";
 import { ProtectedRoute } from "./lib/protected-route";
 import { AuthProvider } from "./hooks/use-auth";
 
@@ -25,6 +28,9 @@ function Router() {
       <ProtectedRoute path="/sports" component={SportsPage} />
       <ProtectedRoute path="/profile" component={ProfilePage} />
       <ProtectedRoute path="/wallet" component={WalletPage} />
+      <ProtectedRoute path="/transactions" component={TransactionsPage} />
+      <Route path="/promotions" component={PromotionsPage} />
+      <Route path="/games" component={GamesPage} />
       <Route path="/contact" component={ContactPage} />
       <Route component={NotFound} />
     </Switch>
