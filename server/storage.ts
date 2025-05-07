@@ -19,6 +19,7 @@ export interface IStorage {
   getUserByUsername(username: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
   updateUser(id: number, userData: Partial<User>): Promise<User | undefined>;
+  getAllUsers(): Promise<User[]>;
   
   // স্লট গেম মেথডস
   getSlotGames(): Promise<SlotGame[]>;
@@ -41,6 +42,7 @@ export interface IStorage {
   
   // ট্রানজেকশন মেথডস
   getUserTransactions(userId: number): Promise<Transaction[]>;
+  getAllTransactions(): Promise<Transaction[]>;
   createTransaction(transaction: InsertTransaction): Promise<Transaction>;
   updateTransactionStatus(id: number, status: string): Promise<Transaction | undefined>;
   
@@ -128,6 +130,10 @@ export class MemStorage implements IStorage {
     return updatedUser;
   }
   
+  async getAllUsers(): Promise<User[]> {
+    return Array.from(this.users.values());
+  }
+  
   // স্লট গেম মেথডস
   async getSlotGames(): Promise<SlotGame[]> {
     return Array.from(this.slotGames.values());
@@ -205,6 +211,10 @@ export class MemStorage implements IStorage {
   async getUserTransactions(userId: number): Promise<Transaction[]> {
     return Array.from(this.transactions.values())
       .filter(tx => tx.userId === userId);
+  }
+  
+  async getAllTransactions(): Promise<Transaction[]> {
+    return Array.from(this.transactions.values());
   }
   
   async createTransaction(transaction: InsertTransaction): Promise<Transaction> {

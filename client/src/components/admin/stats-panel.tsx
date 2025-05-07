@@ -1,23 +1,26 @@
-import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import {
   Card,
   CardContent,
-  CardDescription,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { Loader2 } from "lucide-react";
 import {
-  Users,
-  Gamepad2,
-  Banknote,
-  BarChart3,
-  TrendingUp,
-} from "lucide-react";
-import { apiRequest } from "@/lib/queryClient";
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+  PieChart,
+  Pie,
+  Cell,
+} from "recharts";
 
-// স্ট্যাটিস্টিকস টাইপ (এপিআই থেকে প্রাপ্ত ডাটা অনুযায়ী)
-interface Stats {
+type Stats = {
   totalUsers: number;
   newUsers24h: number;
   totalGames: number;
@@ -27,175 +30,152 @@ interface Stats {
   totalDeposits: number;
   totalWithdraws: number;
   totalRevenue: number;
-}
+};
+
+const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8'];
 
 export default function StatsPanel() {
-  // ডেমো স্ট্যাটিস্টিকস (আসল এপিআই না থাকলে এগুলি দেখাবে)
-  const [stats, setStats] = useState<Stats>({
-    totalUsers: 0,
-    newUsers24h: 0,
-    totalGames: 0,
-    activeGames: 0,
-    totalTransactions: 0,
-    transactions24h: 0,
-    totalDeposits: 0,
-    totalWithdraws: 0,
-    totalRevenue: 0,
+  const { data: stats, isLoading, error } = useQuery<Stats>({
+    queryKey: ['/api/admin/stats'],
   });
 
-  // এপিআই থেকে স্ট্যাটিস্টিকস প্রাপ্ত হলে এই ফাংশন দিয়ে সেগুলি সেট করতে হবে
-  const { data, isLoading, error } = useQuery<Stats>({
-    queryKey: ["/api/admin/stats"],
-    queryFn: async () => {
-      // এপিআই আছে কিনা চেক করা
-      try {
-        const res = await apiRequest("GET", "/api/admin/stats");
-        return await res.json();
-      } catch (error) {
-        console.error("স্ট্যাটিস্টিকস লোড করতে সমস্যা হয়েছে:", error);
-        // ডেমো ডাটা দিয়ে এড়িয়ে যাওয়া
-        return {
-          totalUsers: 568,
-          newUsers24h: 42,
-          totalGames: 245,
-          activeGames: 128,
-          totalTransactions: 7651,
-          transactions24h: 322,
-          totalDeposits: 5640000,
-          totalWithdraws: 4380000,
-          totalRevenue: 1260000,
-        };
-      }
-    },
-  });
+  if (isLoading) {
+    return (
+      <div className="w-full h-48 flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
 
-  useEffect(() => {
-    if (data) {
-      setStats(data);
-    }
-  }, [data]);
+  if (error || !stats) {
+    return (
+      <div className="text-destructive p-4 bg-destructive/10 rounded-lg">
+        ডাটা লোড করতে সমস্যা হয়েছে। পরে আবার চেষ্টা করুন।
+      </div>
+    );
+  }
+
+  // টাকা কনভার্ট
+  const depositsBDT = stats.totalDeposits / 100;
+  const withdrawsBDT = stats.totalWithdraws / 100;
+  const revenueBDT = stats.totalRevenue / 100;
+
+  // পাই চার্টের জন্য ডাটা
+  const transactionData = [
+    { name: 'ডিপোজিট', value: depositsBDT },
+    { name: 'উইথড্র', value: withdrawsBDT },
+  ];
+
+  // বার চার্টের জন্য ডাটা
+  const moneyData = [
+    { name: 'ডিপোজিট', value: depositsBDT },
+    { name: 'উইথড্র', value: withdrawsBDT },
+    { name: 'রেভিনিউ', value: revenueBDT },
+  ];
 
   return (
     <div className="space-y-6">
-      <h2 className="text-2xl font-bold mb-4">ড্যাশবোর্ড</h2>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {/* ইউজার স্ট্যাটিস্টিকস */}
+      <h2 className="text-2xl font-bold">এডমিন ড্যাশবোর্ড</h2>
+      
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium">মোট ইউজার</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{stats.totalUsers.toLocaleString()}</div>
+            <div className="text-2xl font-bold">{stats.totalUsers}</div>
             <p className="text-xs text-muted-foreground mt-1">
-              +{stats.newUsers24h} গত ২৪ ঘন্টায়
+              গত ২৪ ঘন্টায়: +{stats.newUsers24h}
             </p>
           </CardContent>
         </Card>
-
-        {/* গেম স্ট্যাটিস্টিকস */}
+        
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">সক্রিয় গেম</CardTitle>
-            <Gamepad2 className="h-4 w-4 text-muted-foreground" />
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium">মোট গেম</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{stats.activeGames.toLocaleString()}</div>
+            <div className="text-2xl font-bold">{stats.totalGames}</div>
             <p className="text-xs text-muted-foreground mt-1">
-              {stats.totalGames} মোট গেম
+              সক্রিয় গেম: {stats.activeGames}
             </p>
           </CardContent>
         </Card>
-
-        {/* ট্রানজেকশন স্ট্যাটিস্টিকস */}
+        
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">লেনদেন</CardTitle>
-            <Banknote className="h-4 w-4 text-muted-foreground" />
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium">মোট ট্রানজেকশন</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{stats.totalTransactions.toLocaleString()}</div>
+            <div className="text-2xl font-bold">{stats.totalTransactions}</div>
             <p className="text-xs text-muted-foreground mt-1">
-              +{stats.transactions24h} গত ২৪ ঘন্টায়
+              গত ২৪ ঘন্টায়: {stats.transactions24h}
             </p>
           </CardContent>
         </Card>
-
-        {/* রেভিনিউ স্ট্যাটিস্টিকস */}
+        
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">মোট আয়</CardTitle>
-            <BarChart3 className="h-4 w-4 text-muted-foreground" />
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium">মোট রেভিনিউ</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">
-              ৳{(stats.totalRevenue / 100).toLocaleString()}
-            </div>
+            <div className="text-2xl font-bold">{revenueBDT.toLocaleString('bn-BD')} ৳</div>
             <p className="text-xs text-muted-foreground mt-1">
-              <TrendingUp className="inline h-3 w-3 mr-1" /> 
-              {Math.round((stats.totalRevenue / (stats.totalDeposits || 1)) * 100)}% রিটার্ন রেট
+              ডিপোজিট - উইথড্র
             </p>
           </CardContent>
         </Card>
       </div>
 
-      {/* আরও বিস্তারিত স্ট্যাটিস্টিকস */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
         <Card>
           <CardHeader>
-            <CardTitle>ডিপোজিট / উইথড্র</CardTitle>
-            <CardDescription>
-              মোট ডিপোজিট এবং উইথড্র এর পরিমাণ
-            </CardDescription>
+            <CardTitle>ট্রানজেকশন অবস্থা</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <div className="space-y-1">
-                  <p className="text-sm font-medium leading-none">মোট ডিপোজিট</p>
-                  <p className="text-sm text-muted-foreground">সমস্ত সময়ের জন্য</p>
-                </div>
-                <div className="font-bold text-right">
-                  ৳{(stats.totalDeposits / 100).toLocaleString()}
-                </div>
-              </div>
-              <div className="flex items-center justify-between">
-                <div className="space-y-1">
-                  <p className="text-sm font-medium leading-none">মোট উইথড্র</p>
-                  <p className="text-sm text-muted-foreground">সমস্ত সময়ের জন্য</p>
-                </div>
-                <div className="font-bold text-right">
-                  ৳{(stats.totalWithdraws / 100).toLocaleString()}
-                </div>
-              </div>
+            <div className="h-80">
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={transactionData}
+                    cx="50%"
+                    cy="50%"
+                    labelLine={true}
+                    label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                    outerRadius={80}
+                    fill="#8884d8"
+                    dataKey="value"
+                  >
+                    {transactionData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                    ))}
+                  </Pie>
+                  <Tooltip 
+                    formatter={(value) => `${value.toLocaleString('bn-BD')} ৳`} 
+                  />
+                  <Legend />
+                </PieChart>
+              </ResponsiveContainer>
             </div>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader>
-            <CardTitle>প্ল্যাটফর্ম পরিসংখ্যান</CardTitle>
-            <CardDescription>
-              সাইটের সামগ্রিক পারফরম্যান্স
-            </CardDescription>
+            <CardTitle>আর্থিক সারাংশ</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <div className="space-y-1">
-                  <p className="text-sm font-medium leading-none">ইউজার রিটেনশন</p>
-                  <p className="text-sm text-muted-foreground">ইউজার বজায় রাখার হার</p>
-                </div>
-                <div className="font-bold text-right">78%</div>
-              </div>
-              <div className="flex items-center justify-between">
-                <div className="space-y-1">
-                  <p className="text-sm font-medium leading-none">আয় বৃদ্ধি</p>
-                  <p className="text-sm text-muted-foreground">গত মাসের তুলনায়</p>
-                </div>
-                <div className="font-bold text-right text-green-500">+12%</div>
-              </div>
+            <div className="h-80">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={moneyData}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="name" />
+                  <YAxis />
+                  <Tooltip formatter={(value) => `${value.toLocaleString('bn-BD')} ৳`} />
+                  <Legend />
+                  <Bar dataKey="value" fill="#8884d8" />
+                </BarChart>
+              </ResponsiveContainer>
             </div>
           </CardContent>
         </Card>
