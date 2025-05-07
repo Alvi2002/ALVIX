@@ -524,6 +524,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.json(phone);
   }));
   
+  // সব ডিপোজিট ফোন নাম্বার পাওয়া (এডমিন পাথ)
+  app.get("/api/admin/deposit-phones", adminMiddleware, asyncHandler(async (req, res) => {
+    const phones = await storage.getDepositPhones();
+    res.json(phones);
+  }));
+
   // নতুন ডিপোজিট ফোন নাম্বার যোগ করা (এডমিন পাথ)
   app.post("/api/admin/deposit-phones", adminMiddleware, asyncHandler(async (req, res) => {
     const data = validateBody<InsertDepositPhone>(insertDepositPhoneSchema, req.body);
