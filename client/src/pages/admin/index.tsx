@@ -48,44 +48,43 @@ export default function AdminPage() {
             </span>
           </div>
         </div>
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="mt-4">
-          <TabsList>
-            <TabsTrigger value="dashboard" className="flex items-center">
-              <LayoutDashboard className="h-4 w-4 mr-2" />
-              ড্যাশবোর্ড
-            </TabsTrigger>
-            <TabsTrigger value="users" className="flex items-center">
-              <Users className="h-4 w-4 mr-2" />
-              ইউজার ম্যানেজমেন্ট
-            </TabsTrigger>
-            <TabsTrigger value="transactions" className="flex items-center">
-              <CreditCard className="h-4 w-4 mr-2" />
-              ট্রানজেকশন ম্যানেজমেন্ট
-            </TabsTrigger>
-            <TabsTrigger value="promotions" className="flex items-center">
-              <GanttChart className="h-4 w-4 mr-2" />
-              প্রমোশন ম্যানেজমেন্ট
-            </TabsTrigger>
-          </TabsList>
-        </Tabs>
+        <div className="mt-4 flex space-x-4 border-b">
+          <button 
+            onClick={() => setActiveTab('dashboard')} 
+            className={`pb-2 px-2 flex items-center ${activeTab === 'dashboard' ? 'border-b-2 border-primary text-primary font-medium' : 'text-muted-foreground'}`}
+          >
+            <LayoutDashboard className="h-4 w-4 mr-2" />
+            ড্যাশবোর্ড
+          </button>
+          <button 
+            onClick={() => setActiveTab('users')} 
+            className={`pb-2 px-2 flex items-center ${activeTab === 'users' ? 'border-b-2 border-primary text-primary font-medium' : 'text-muted-foreground'}`}
+          >
+            <Users className="h-4 w-4 mr-2" />
+            ইউজার ম্যানেজমেন্ট
+          </button>
+          <button 
+            onClick={() => setActiveTab('transactions')} 
+            className={`pb-2 px-2 flex items-center ${activeTab === 'transactions' ? 'border-b-2 border-primary text-primary font-medium' : 'text-muted-foreground'}`}
+          >
+            <CreditCard className="h-4 w-4 mr-2" />
+            ট্রানজেকশন ম্যানেজমেন্ট
+          </button>
+          <button 
+            onClick={() => setActiveTab('promotions')} 
+            className={`pb-2 px-2 flex items-center ${activeTab === 'promotions' ? 'border-b-2 border-primary text-primary font-medium' : 'text-muted-foreground'}`}
+          >
+            <GanttChart className="h-4 w-4 mr-2" />
+            প্রমোশন ম্যানেজমেন্ট
+          </button>
+        </div>
       </LayoutHeader>
       
       <LayoutContent className="p-6">
-        <TabsContent value="dashboard" className="mt-0">
-          <StatsPanel />
-        </TabsContent>
-        
-        <TabsContent value="users" className="mt-0">
-          <UsersPanel />
-        </TabsContent>
-        
-        <TabsContent value="transactions" className="mt-0">
-          <TransactionsPanel />
-        </TabsContent>
-        
-        <TabsContent value="promotions" className="mt-0">
-          <PromotionsPanel />
-        </TabsContent>
+        {activeTab === 'dashboard' && <StatsPanel />}
+        {activeTab === 'users' && <UsersPanel />}
+        {activeTab === 'transactions' && <TransactionsPanel />}
+        {activeTab === 'promotions' && <PromotionsPanel />}
       </LayoutContent>
     </Layout>
   );
