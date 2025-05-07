@@ -476,13 +476,13 @@ export default function DepositPhonesPanel() {
               </Select>
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
-              <label htmlFor="edit-name" className="text-right">
+              <label htmlFor="edit-accountName" className="text-right">
                 নাম
               </label>
               <Input
-                id="edit-name"
-                value={formData.name}
-                onChange={(e) => setFormData({...formData, name: e.target.value})}
+                id="edit-accountName"
+                value={formData.accountName}
+                onChange={(e) => setFormData({...formData, accountName: e.target.value})}
                 className="col-span-3"
                 placeholder="এজেন্ট নাম"
               />
@@ -515,7 +515,7 @@ export default function DepositPhonesPanel() {
             </Button>
             <Button 
               onClick={handleEditPhone}
-              disabled={editPhoneMutation.isPending || !formData.number || !formData.name}
+              disabled={editPhoneMutation.isPending || !formData.phoneNumber || !formData.accountName}
             >
               {editPhoneMutation.isPending ? "আপডেট হচ্ছে..." : "আপডেট করুন"}
             </Button>
@@ -540,9 +540,9 @@ export default function DepositPhonesPanel() {
                   <Phone className="h-5 w-5 text-muted-foreground" />
                 </div>
                 <div>
-                  <p className="font-medium">{selectedPhone.number}</p>
+                  <p className="font-medium">{selectedPhone.phoneNumber}</p>
                   <p className="text-xs text-muted-foreground">
-                    {selectedPhone.provider} | {selectedPhone.name}
+                    {selectedPhone.operator} | {selectedPhone.accountName}
                   </p>
                 </div>
               </div>
