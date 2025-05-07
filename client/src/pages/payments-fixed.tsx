@@ -121,7 +121,11 @@ export default function PaymentsPage() {
         id: 'bank-transfer',
         name: 'ব্যাংক ট্রান্সফার',
         type: 'bank',
-        icon: <Landmark className="h-5 w-5" />,
+        icon: (
+          <div className="bg-blue-700 rounded-full p-2 flex justify-center items-center">
+            <Landmark className="h-5 w-5 text-white" />
+          </div>
+        ),
         logo: (
           <div className="w-10 h-10 bg-blue-700 rounded-full p-2 flex justify-center items-center">
             <Landmark className="h-6 w-6 text-white" />
@@ -145,7 +149,11 @@ export default function PaymentsPage() {
         id: 'card',
         name: 'ক্রেডিট/ডেবিট কার্ড',
         type: 'card',
-        icon: <CreditCard className="h-5 w-5" />,
+        icon: (
+          <div className="bg-gray-700 rounded-full p-2 flex justify-center items-center">
+            <CreditCard className="h-5 w-5 text-white" />
+          </div>
+        ),
         logo: (
           <div className="w-10 h-10 bg-gray-700 rounded-full p-2 flex justify-center items-center">
             <CreditCard className="h-6 w-6 text-white" />
@@ -168,7 +176,11 @@ export default function PaymentsPage() {
         id: 'crypto',
         name: 'ক্রিপ্টোকারেন্সি',
         type: 'crypto',
-        icon: <Wallet className="h-5 w-5" />,
+        icon: (
+          <div className="bg-yellow-500 rounded-full p-2 flex justify-center items-center">
+            <Wallet className="h-5 w-5 text-white" />
+          </div>
+        ),
         logo: (
           <div className="w-10 h-10 bg-yellow-500 rounded-full p-2 flex justify-center items-center">
             <Wallet className="h-6 w-6 text-white" />
@@ -274,7 +286,16 @@ export default function PaymentsPage() {
         id: 'bank-withdraw',
         name: 'ব্যাংক ট্রান্সফার',
         type: 'bank',
-        icon: <Landmark className="h-5 w-5" />,
+        icon: (
+          <div className="bg-blue-700 rounded-full p-2 flex justify-center items-center">
+            <Landmark className="h-5 w-5 text-white" />
+          </div>
+        ),
+        logo: (
+          <div className="w-10 h-10 bg-blue-700 rounded-full p-2 flex justify-center items-center">
+            <Landmark className="h-6 w-6 text-white" />
+          </div>
+        ),
         minAmount: 1000,
         maxAmount: 500000,
         processingTime: '১-৩ কার্যদিবস',
@@ -293,7 +314,16 @@ export default function PaymentsPage() {
         id: 'crypto-withdraw',
         name: 'ক্রিপ্টোকারেন্সি',
         type: 'crypto',
-        icon: <Wallet className="h-5 w-5" />,
+        icon: (
+          <div className="bg-yellow-500 rounded-full p-2 flex justify-center items-center">
+            <Wallet className="h-5 w-5 text-white" />
+          </div>
+        ),
+        logo: (
+          <div className="w-10 h-10 bg-yellow-500 rounded-full p-2 flex justify-center items-center">
+            <Wallet className="h-6 w-6 text-white" />
+          </div>
+        ),
         minAmount: 2000,
         maxAmount: 1000000,
         processingTime: '১-২৪ ঘন্টা',
@@ -359,7 +389,7 @@ export default function PaymentsPage() {
                         </div>
                       </div>
                       {method.popular && (
-                        <Badge className="bg-accent text-secondary">জনপ্রিয়</Badge>
+                        <Badge variant="outline" className="border-accent text-accent">জনপ্রিয়</Badge>
                       )}
                     </div>
                   </CardHeader>
@@ -416,7 +446,7 @@ export default function PaymentsPage() {
                         </div>
                       </div>
                       {method.popular && (
-                        <Badge className="bg-accent text-secondary">জনপ্রিয়</Badge>
+                        <Badge variant="outline" className="border-accent text-accent">জনপ্রিয়</Badge>
                       )}
                     </div>
                   </CardHeader>
@@ -468,23 +498,38 @@ export default function PaymentsPage() {
               <CardContent className="space-y-4">
                 <div className="flex gap-3">
                   <div className="bg-accent/10 text-accent rounded-full h-6 w-6 flex items-center justify-center flex-shrink-0 mt-0.5">1</div>
-                  <p className="text-sm text-muted-foreground">আপনার TK999 অ্যাকাউন্টে লগইন করুন</p>
+                  <div>
+                    <p className="text-sm text-white">লগইন করুন</p>
+                    <p className="text-xs text-muted-foreground">আপনার TK999 অ্যাকাউন্টে লগইন করুন</p>
+                  </div>
                 </div>
                 <div className="flex gap-3">
                   <div className="bg-accent/10 text-accent rounded-full h-6 w-6 flex items-center justify-center flex-shrink-0 mt-0.5">2</div>
-                  <p className="text-sm text-muted-foreground">ওয়ালেট মেনুতে ক্লিক করুন এবং "ডিপোজিট" অপশন সিলেক্ট করুন</p>
+                  <div>
+                    <p className="text-sm text-white">ওয়ালেট পেজে যান</p>
+                    <p className="text-xs text-muted-foreground">প্রোফাইল থেকে ওয়ালেট অপশনে ক্লিক করুন</p>
+                  </div>
                 </div>
                 <div className="flex gap-3">
                   <div className="bg-accent/10 text-accent rounded-full h-6 w-6 flex items-center justify-center flex-shrink-0 mt-0.5">3</div>
-                  <p className="text-sm text-muted-foreground">আপনার পছন্দের পেমেন্ট পদ্ধতি সিলেক্ট করুন</p>
+                  <div>
+                    <p className="text-sm text-white">ডিপোজিট সিলেক্ট করুন</p>
+                    <p className="text-xs text-muted-foreground">ডিপোজিট অপশনে ক্লিক করুন</p>
+                  </div>
                 </div>
                 <div className="flex gap-3">
                   <div className="bg-accent/10 text-accent rounded-full h-6 w-6 flex items-center justify-center flex-shrink-0 mt-0.5">4</div>
-                  <p className="text-sm text-muted-foreground">আপনার ডিপোজিট পরিমাণ এবং অন্যান্য প্রয়োজনীয় তথ্য পূরণ করুন</p>
+                  <div>
+                    <p className="text-sm text-white">পেমেন্ট পদ্ধতি বেছে নিন</p>
+                    <p className="text-xs text-muted-foreground">আপনার পছন্দের পেমেন্ট পদ্ধতি নির্বাচন করুন</p>
+                  </div>
                 </div>
                 <div className="flex gap-3">
                   <div className="bg-accent/10 text-accent rounded-full h-6 w-6 flex items-center justify-center flex-shrink-0 mt-0.5">5</div>
-                  <p className="text-sm text-muted-foreground">পেমেন্ট সম্পূর্ণ করুন এবং নিশ্চিতকরণ অপেক্ষা করুন</p>
+                  <div>
+                    <p className="text-sm text-white">পেমেন্ট সম্পন্ন করুন</p>
+                    <p className="text-xs text-muted-foreground">নির্দেশাবলী অনুসরণ করে আপনার পেমেন্ট সম্পন্ন করুন</p>
+                  </div>
                 </div>
               </CardContent>
             </Card>
@@ -495,137 +540,150 @@ export default function PaymentsPage() {
                   <Wallet className="h-5 w-5 text-accent" />
                   <span>কিভাবে উত্তোলন করবেন</span>
                 </CardTitle>
-                <CardDescription>TK999 অ্যাকাউন্ট থেকে টাকা উত্তোলন করার সহজ পদ্ধতি</CardDescription>
+                <CardDescription>TK999 অ্যাকাউন্ট থেকে টাকা উত্তোলনের সহজ পদ্ধতি</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="flex gap-3">
                   <div className="bg-accent/10 text-accent rounded-full h-6 w-6 flex items-center justify-center flex-shrink-0 mt-0.5">1</div>
-                  <p className="text-sm text-muted-foreground">আপনার TK999 অ্যাকাউন্টে লগইন করুন</p>
+                  <div>
+                    <p className="text-sm text-white">লগইন করুন</p>
+                    <p className="text-xs text-muted-foreground">আপনার TK999 অ্যাকাউন্টে লগইন করুন</p>
+                  </div>
                 </div>
                 <div className="flex gap-3">
                   <div className="bg-accent/10 text-accent rounded-full h-6 w-6 flex items-center justify-center flex-shrink-0 mt-0.5">2</div>
-                  <p className="text-sm text-muted-foreground">ওয়ালেট মেনুতে ক্লিক করুন এবং "উত্তোলন" অপশন সিলেক্ট করুন</p>
+                  <div>
+                    <p className="text-sm text-white">ওয়ালেট পেজে যান</p>
+                    <p className="text-xs text-muted-foreground">প্রোফাইল থেকে ওয়ালেট অপশনে ক্লিক করুন</p>
+                  </div>
                 </div>
                 <div className="flex gap-3">
                   <div className="bg-accent/10 text-accent rounded-full h-6 w-6 flex items-center justify-center flex-shrink-0 mt-0.5">3</div>
-                  <p className="text-sm text-muted-foreground">আপনার পছন্দের উত্তোলন পদ্ধতি সিলেক্ট করুন</p>
+                  <div>
+                    <p className="text-sm text-white">উত্তোলন সিলেক্ট করুন</p>
+                    <p className="text-xs text-muted-foreground">উত্তোলন অপশনে ক্লিক করুন</p>
+                  </div>
                 </div>
                 <div className="flex gap-3">
                   <div className="bg-accent/10 text-accent rounded-full h-6 w-6 flex items-center justify-center flex-shrink-0 mt-0.5">4</div>
-                  <p className="text-sm text-muted-foreground">উত্তোলন পরিমাণ এবং আপনার পেমেন্ট বিবরণ পূরণ করুন</p>
+                  <div>
+                    <p className="text-sm text-white">উত্তোলন পদ্ধতি বেছে নিন</p>
+                    <p className="text-xs text-muted-foreground">আপনার পছন্দের উত্তোলন পদ্ধতি নির্বাচন করুন</p>
+                  </div>
                 </div>
                 <div className="flex gap-3">
                   <div className="bg-accent/10 text-accent rounded-full h-6 w-6 flex items-center justify-center flex-shrink-0 mt-0.5">5</div>
-                  <p className="text-sm text-muted-foreground">উত্তোলন অনুরোধ নিশ্চিত করুন এবং প্রক্রিয়া সম্পূর্ণ হওয়ার জন্য অপেক্ষা করুন</p>
+                  <div>
+                    <p className="text-sm text-white">অনুরোধ জমা দিন</p>
+                    <p className="text-xs text-muted-foreground">নির্দেশাবলী অনুসরণ করে আপনার উত্তোলন অনুরোধ জমা দিন</p>
+                  </div>
                 </div>
               </CardContent>
             </Card>
           </div>
         </div>
         
-        {/* প্রায়শই জিজ্ঞাসিত প্রশ্ন */}
+        {/* সাধারণ প্রশ্ন */}
         <div className="mb-10">
-          <h2 className="text-2xl font-bold mb-6">পেমেন্ট সংক্রান্ত প্রশ্নোত্তর</h2>
+          <h2 className="text-2xl font-bold mb-6">সাধারণ প্রশ্ন</h2>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <Card className="bg-card border-accent/20">
+          <div className="space-y-4">
+            <Card className="bg-card">
               <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-lg">
+                <CardTitle className="flex items-center gap-2">
                   <BadgeHelp className="h-5 w-5 text-accent" />
-                  <span>আমার ডিপোজিট কতক্ষণে প্রসেস হবে?</span>
+                  <span>ডিপোজিট বা উত্তোলনে কত সময় লাগে?</span>
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-sm text-muted-foreground">
-                  মোবাইল ব্যাংকিং পদ্ধতি (বিকাশ, নগদ, রকেট) দিয়ে ডিপোজিট সাধারণত তাৎক্ষণিক থেকে ৩০ মিনিটের মধ্যে প্রসেস হয়। ব্যাংক ট্রান্সফার ১-২৪ ঘন্টা এবং ক্রিপ্টোকারেন্সি ১-৬ নিশ্চিতকরণ সময় নিতে পারে। প্রতিটি পেমেন্ট পদ্ধতির জন্য সঠিক প্রক্রিয়াকরণ সময় আমাদের পেমেন্ট পৃষ্ঠায় দেওয়া আছে।
+                  ডিপোজিট সাধারণত মোবাইল ব্যাংকিংয়ের ক্ষেত্রে তাৎক্ষণিক এবং ব্যাংক ট্রান্সফারের ক্ষেত্রে ১-২৪ ঘন্টা সময় লাগতে পারে।
+                  উত্তোলনের ক্ষেত্রে মোবাইল ব্যাংকিংয়ে ১-২৪ ঘন্টা এবং ব্যাংক ট্রান্সফারের ক্ষেত্রে ১-৩ কার্যদিবস সময় লাগতে পারে।
                 </p>
               </CardContent>
             </Card>
             
-            <Card className="bg-card border-accent/20">
+            <Card className="bg-card">
               <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-lg">
+                <CardTitle className="flex items-center gap-2">
                   <BadgeHelp className="h-5 w-5 text-accent" />
-                  <span>উত্তোলনে কি কোন ফি আছে?</span>
+                  <span>ন্যূনতম এবং সর্বোচ্চ ডিপোজিট/উত্তোলন পরিমাণ কত?</span>
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-sm text-muted-foreground">
-                  হ্যাঁ, উত্তোলনে কিছু ফি প্রযোজ্য হতে পারে। মোবাইল ব্যাংকিং পদ্ধতির জন্য ১.৫%, ব্যাংক ট্রান্সফারের জন্য ০.৫%, এবং ক্রিপ্টোকারেন্সি উত্তোলনের জন্য ১% ফি রয়েছে। সঠিক ফি এবং চার্জ জানতে আমাদের পেমেন্ট পৃষ্ঠা দেখুন।
+                  ন্যূনতম এবং সর্বোচ্চ পরিমাণ পেমেন্ট পদ্ধতির উপর নির্ভর করে। সাধারণত ন্যূনতম ডিপোজিট ৫০০ টাকা 
+                  এবং উত্তোলন ৫০০ টাকা থেকে শুরু হয়। সর্বোচ্চ পরিমাণের জন্য, দয়া করে পেমেন্ট পদ্ধতির বিবরণ দেখুন।
                 </p>
               </CardContent>
             </Card>
             
-            <Card className="bg-card border-accent/20">
+            <Card className="bg-card">
               <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-lg">
+                <CardTitle className="flex items-center gap-2">
                   <BadgeHelp className="h-5 w-5 text-accent" />
-                  <span>কেন আমার উত্তোলন অনুরোধ বাতিল হয়েছে?</span>
+                  <span>ডিপোজিট বা উত্তোলনে কি কোন ফি লাগে?</span>
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-sm text-muted-foreground">
-                  উত্তোলন অনুরোধ বাতিল হওয়ার কারণগুলি হতে পারে: অনুরোধে ভুল তথ্য দেওয়া, অপর্যাপ্ত অ্যাকাউন্ট যাচাইকরণ (KYC), ওয়েজারিং প্রয়োজনীয়তা পূরণ না করা, বা অপর্যাপ্ত ব্যালেন্স। বিস্তারিত জানতে অনুগ্রহ করে আমাদের কাস্টমার সাপোর্টের সাথে যোগাযোগ করুন।
+                  ডিপোজিটের ক্ষেত্রে বেশিরভাগ পেমেন্ট পদ্ধতিতে কোন ফি নেই (কার্ড পেমেন্ট ব্যতীত)।
+                  উত্তোলনের ক্ষেত্রে পেমেন্ট পদ্ধতি অনুযায়ী ০.৫% থেকে ১.৫% পর্যন্ত ফি লাগতে পারে।
                 </p>
               </CardContent>
             </Card>
             
-            <Card className="bg-card border-accent/20">
+            <Card className="bg-card">
               <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-lg">
+                <CardTitle className="flex items-center gap-2">
                   <BadgeHelp className="h-5 w-5 text-accent" />
-                  <span>কেন আমাকে KYC দিতে হবে?</span>
+                  <span>আমার ডিপোজিট বা উত্তোলন সফল না হলে কী করব?</span>
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-sm text-muted-foreground">
-                  KYC (Know Your Customer) যাচাইকরণ আপনার অ্যাকাউন্টের সুরক্ষা নিশ্চিত করতে এবং জালিয়াতি ও অর্থ পাচার প্রতিরোধের জন্য প্রয়োজন। নিয়ন্ত্রক প্রয়োজনীয়তা অনুসারে, আমাদের অবশ্যই আমাদের ব্যবহারকারীদের পরিচয় যাচাই করতে হবে। KYC সম্পূর্ণ করা উচ্চ মূল্যের উত্তোলনের জন্য বিশেষভাবে প্রয়োজনীয়।
+                  যদি আপনার ডিপোজিট বা উত্তোলন সফল না হয়, তাহলে অনুগ্রহ করে আমাদের কাস্টমার সাপোর্টের সাথে যোগাযোগ করুন।
+                  আমাদের হেল্পডেস্ক ২৪/৭ আপনাকে সাহায্য করার জন্য উপলব্ধ। আপনার ট্রানজেকশন বিবরণ এবং ট্রানজেকশন আইডি প্রদান করুন।
                 </p>
+              </CardContent>
+            </Card>
+            
+            <Card className="bg-card">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <BadgeHelp className="h-5 w-5 text-accent" />
+                  <span>আমার পেমেন্ট পদ্ধতি নিরাপদ কি?</span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm text-muted-foreground">
+                  হ্যাঁ, আমরা সর্বোচ্চ সুরক্ষা মান ব্যবহার করি। সমস্ত পেমেন্ট ডেটা এনক্রিপ্টেড এবং নিরাপদ।
+                  আমরা SSL সার্টিফিকেট ব্যবহার করি এবং নিয়মিত সিকিউরিটি অডিট করি।
+                </p>
+                <div className="flex items-center gap-2 mt-2">
+                  <ShieldCheck className="h-4 w-4 text-accent" />
+                  <span className="text-xs text-accent">১০০% নিরাপদ পেমেন্ট</span>
+                </div>
               </CardContent>
             </Card>
           </div>
         </div>
         
-        {/* সিকিউরিটি ও প্রাইভেসি */}
-        <div>
-          <Card className="bg-card border-accent/20">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <ShieldCheck className="h-5 w-5 text-accent" />
-                <span>আপনার পেমেন্ট সিকিউরিটি</span>
-              </CardTitle>
-              <CardDescription>TK999 এ আমরা আপনার অর্থ এবং ব্যক্তিগত তথ্যের সুরক্ষাকে সর্বোচ্চ গুরুত্ব দেই</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="bg-muted/30 p-4 rounded-lg">
-                <h3 className="font-semibold mb-2">SSL এনক্রিপশন</h3>
-                <p className="text-sm text-muted-foreground">
-                  আমরা আপনার সমস্ত লেনদেন সুরক্ষিত রাখতে 256-বিট SSL এনক্রিপশন ব্যবহার করি।
-                </p>
-              </div>
-              
-              <div className="bg-muted/30 p-4 rounded-lg">
-                <h3 className="font-semibold mb-2">PCI DSS সম্মতি</h3>
-                <p className="text-sm text-muted-foreground">
-                  আমরা পেমেন্ট কার্ড ইন্ডাস্ট্রি ডেটা সিকিউরিটি স্ট্যান্ডার্ড (PCI DSS) অনুসরণ করি যাতে আপনার কার্ড ডেটা সুরক্ষিত থাকে।
-                </p>
-              </div>
-              
-              <div className="bg-muted/30 p-4 rounded-lg">
-                <h3 className="font-semibold mb-2">ফ্রড মনিটরিং</h3>
-                <p className="text-sm text-muted-foreground">
-                  আমাদের সিস্টেম 24/7 সন্দেহজনক লেনদেনের জন্য আপনার অ্যাকাউন্ট পর্যবেক্ষণ করে।
-                </p>
-              </div>
-              
-              <div className="flex justify-center mt-4">
-                <Button variant="outline" className="gap-2">
-                  আরও জানুন
-                  <ArrowUpRight className="h-4 w-4" />
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
+        <div className="bg-card rounded-lg p-6 border border-accent/20">
+          <div className="flex gap-4 items-center">
+            <div className="bg-accent/10 rounded-full p-4">
+              <ArrowUpRight className="h-6 w-6 text-accent" />
+            </div>
+            <div>
+              <h3 className="text-xl font-semibold mb-2">আরও প্রশ্ন আছে?</h3>
+              <p className="text-muted-foreground mb-4">
+                আপনার যদি আরও কোন প্রশ্ন থাকে, তাহলে আমাদের সাপোর্ট টিমের সাথে যোগাযোগ করুন।
+              </p>
+              <Button variant="outline" className="border-accent text-accent">
+                সাপোর্টে যোগাযোগ করুন
+              </Button>
+            </div>
+          </div>
         </div>
       </main>
       
