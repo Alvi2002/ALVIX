@@ -487,6 +487,16 @@ export default function SportsPage() {
       
       <main className="flex-grow">
         <div className="container mx-auto px-4 py-6">
+          <div className="flex justify-between items-center mb-4">
+            <h1 className="text-2xl font-bold">স্পোর্টস বেটিং</h1>
+            <Button 
+              variant="outline" 
+              className="bg-accent text-white hover:bg-accent/90"
+              onClick={() => window.location.href = "/games/betslip"}
+            >
+              উন্নত বেটিং সিস্টেম ব্যবহার করুন
+            </Button>
+          </div>
           {/* স্পোর্টস বার */}
           <div className="overflow-x-auto pb-4 custom-scrollbar">
             <div className="flex space-x-4 mb-6">
