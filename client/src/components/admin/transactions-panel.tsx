@@ -1,8 +1,9 @@
 import { useState } from "react";
-import { useQuery, useMutation } from "@tanstack/react-query";
-import { Transaction } from "@shared/schema";
-import { apiRequest, queryClient } from "@/lib/queryClient";
-import { useToast } from "@/hooks/use-toast";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { Loader2, RefreshCcw, Filter, Check, X, CalendarIcon } from "lucide-react";
+import { apiRequest } from "@/lib/queryClient";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 import {
   Table,
   TableBody,
@@ -12,12 +13,19 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
+import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
@@ -25,399 +33,456 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Search, Check, X, ArrowUpRight, ArrowDownLeft, Gift, Eye } from "lucide-react";
-import { format, parseISO } from "date-fns";
+import { toast } from "@/hooks/use-toast";
+import { format } from "date-fns";
+
+type Transaction = {
+  id: number;
+  userId: number;
+  type: string;
+  amount: string;
+  status: string;
+  date: string;
+  method: string | null;
+  details: string | null;
+};
+
+type User = {
+  id: number;
+  username: string;
+};
 
 export default function TransactionsPanel() {
-  const { toast } = useToast();
-  const [searchQuery, setSearchQuery] = useState("");
-  const [statusFilter, setStatusFilter] = useState<string | null>(null);
-  const [typeFilter, setTypeFilter] = useState<string | null>(null);
-  const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>(null);
-  const [isDetailsDialogOpen, setIsDetailsDialogOpen] = useState(false);
+  const [statusDialogOpen, setStatusDialogOpen] = useState(false);
+  const [selectedTx, setSelectedTx] = useState<Transaction | null>(null);
+  const [newStatus, setNewStatus] = useState<string>("");
+  const [filters, setFilters] = useState({
+    type: "",
+    status: "",
+    userId: "",
+    startDate: null as Date | null,
+    endDate: null as Date | null,
+  });
+  const queryClient = useQueryClient();
 
-  // ট্রানজেকশন লোড করা
-  const { data: transactions = [], isLoading } = useQuery<Transaction[]>({
-    queryKey: ["/api/admin/transactions"],
-    queryFn: async () => {
-      try {
-        const res = await apiRequest("GET", "/api/admin/transactions");
-        return await res.json();
-      } catch (error) {
-        console.error("ট্রানজেকশন লোড করতে সমস্যা হয়েছে:", error);
-        // ডেমো ডাটা দিয়ে এড়িয়ে যাওয়া
-        return [
-          {
-            id: 1,
-            userId: 1,
-            amount: "500.00",
-            type: "deposit",
-            date: new Date().toISOString(),
-            status: "success",
-            method: "bKash",
-            details: "01712345678"
-          },
-          {
-            id: 2,
-            userId: 2,
-            amount: "200.00",
-            type: "withdraw",
-            date: new Date(Date.now() - 86400000).toISOString(), // 1 day ago
-            status: "pending",
-            method: "Nagad",
-            details: "01812345678"
-          },
-          {
-            id: 3,
-            userId: 1,
-            amount: "100.00",
-            type: "bonus",
-            date: new Date(Date.now() - 172800000).toISOString(), // 2 days ago
-            status: "success",
-            method: null,
-            details: "Welcome bonus"
-          },
-          {
-            id: 4,
-            userId: 3,
-            amount: "300.00",
-            type: "deposit",
-            date: new Date(Date.now() - 259200000).toISOString(), // 3 days ago
-            status: "failed",
-            method: "Bank Transfer",
-            details: "Payment failed"
-          },
-          {
-            id: 5,
-            userId: 2,
-            amount: "150.00",
-            type: "win",
-            date: new Date(Date.now() - 345600000).toISOString(), // 4 days ago
-            status: "success",
-            method: null,
-            details: "Slot game win"
-          }
-        ];
-      }
-    },
+  // ট্রানজেকশন লিস্ট লোড করা
+  const { data: transactions, isLoading, error } = useQuery<Transaction[]>({
+    queryKey: ['/api/admin/transactions'],
   });
 
-  // ট্রানজেকশন স্ট্যাটাস আপডেট মিউটেশন
-  const updateTransactionStatusMutation = useMutation({
-    mutationFn: async ({ id, status }: { id: number; status: string }) => {
-      const res = await apiRequest("PATCH", `/api/admin/transactions/${id}/status`, { status });
-      return await res.json();
+  // ইউজার লিস্ট লোড করা (দ্রুত রেফারেন্সের জন্য)
+  const { data: users } = useQuery<User[]>({
+    queryKey: ['/api/admin/users'],
+  });
+
+  // ট্রানজেকশন স্ট্যাটাস আপডেট করা
+  const statusMutation = useMutation({
+    mutationFn: async ({ id, status }: { id: number, status: string }) => {
+      return apiRequest(`/api/admin/transactions/${id}/status`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status }),
+      });
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/admin/transactions"] });
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/transactions'] });
       toast({
-        title: "স্ট্যাটাস আপডেট সফল",
-        description: "ট্রানজেকশন স্ট্যাটাস সফলভাবে আপডেট করা হয়েছে।",
+        title: "সফল!",
+        description: "ট্রানজেকশন স্ট্যাটাস আপডেট করা হয়েছে।",
       });
-      setIsDetailsDialogOpen(false);
+      setStatusDialogOpen(false);
     },
     onError: (error: Error) => {
       toast({
-        title: "আপডেট ব্যর্থ",
+        title: "সমস্যা হয়েছে",
         description: error.message,
         variant: "destructive",
       });
     },
   });
 
-  // ট্রানজেকশনের বিস্তারিত দেখা
-  function viewTransactionDetails(transaction: Transaction) {
-    setSelectedTransaction(transaction);
-    setIsDetailsDialogOpen(true);
-  }
+  // ট্রানজেকশন স্ট্যাটাস পরিবর্তন করা
+  const openStatusDialog = (tx: Transaction) => {
+    setSelectedTx(tx);
+    setNewStatus(tx.status);
+    setStatusDialogOpen(true);
+  };
 
-  // ট্রানজেকশন স্ট্যাটাস আপডেট করা
-  function updateTransactionStatus(id: number, status: string) {
-    if (window.confirm(`আপনি কি নিশ্চিতভাবে ট্রানজেকশন স্ট্যাটাস "${status}" করতে চান?`)) {
-      updateTransactionStatusMutation.mutate({ id, status });
+  // স্ট্যাটাস আপডেট সাবমিট করা
+  const handleStatusUpdate = () => {
+    if (!selectedTx || !newStatus) return;
+    statusMutation.mutate({ id: selectedTx.id, status: newStatus });
+  };
+
+  // ফিল্টার পরিবর্তন করা
+  const handleFilterChange = (field: string, value: any) => {
+    setFilters(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
+  // ফিল্টার রিসেট করা
+  const resetFilters = () => {
+    setFilters({
+      type: "",
+      status: "",
+      userId: "",
+      startDate: null,
+      endDate: null,
+    });
+  };
+
+  // ট্রানজেকশন ফিল্টার করা
+  const filteredTransactions = transactions?.filter(tx => {
+    // টাইপ ফিল্টার
+    if (filters.type && tx.type !== filters.type) {
+      return false;
     }
-  }
-
-  // ট্রানজেকশন টাইপ অনুযায়ী আইকন
-  function getTransactionTypeIcon(type: string) {
-    switch (type) {
-      case "deposit":
-        return <ArrowUpRight className="h-4 w-4 text-green-500" />;
-      case "withdraw":
-        return <ArrowDownLeft className="h-4 w-4 text-red-500" />;
-      case "bonus":
-        return <Gift className="h-4 w-4 text-purple-500" />;
-      case "win":
-        return <ArrowUpRight className="h-4 w-4 text-green-500" />;
-      case "lose":
-        return <ArrowDownLeft className="h-4 w-4 text-red-500" />;
-      default:
-        return null;
-    }
-  }
-
-  // ট্রানজেকশন টাইপ বাংলা নাম
-  function getTransactionTypeText(type: string) {
-    switch (type) {
-      case "deposit":
-        return "ডিপোজিট";
-      case "withdraw":
-        return "উইথড্র";
-      case "bonus":
-        return "বোনাস";
-      case "win":
-        return "জিতেছেন";
-      case "lose":
-        return "হেরেছেন";
-      default:
-        return type;
-    }
-  }
-
-  // ট্রানজেকশন স্ট্যাটাস বাংলা নাম
-  function getStatusText(status: string) {
-    switch (status) {
-      case "success":
-        return "সফল";
-      case "pending":
-        return "পেন্ডিং";
-      case "failed":
-        return "ব্যর্থ";
-      default:
-        return status;
-    }
-  }
-
-  // ট্রানজেকশন স্ট্যাটাস ব্যাজ ভেরিয়েন্ট
-  function getStatusBadgeVariant(status: string) {
-    switch (status) {
-      case "success":
-        return "success";
-      case "pending":
-        return "warning";
-      case "failed":
-        return "destructive";
-      default:
-        return "default";
-    }
-  }
-
-  // ডেট ফরম্যাট করা
-  function formatDate(dateString: string) {
-    try {
-      return format(parseISO(dateString), "dd/MM/yyyy HH:mm");
-    } catch (error) {
-      return dateString;
-    }
-  }
-
-  // সার্চ ও ফিল্টার করা ট্রানজেকশন
-  const filteredTransactions = transactions.filter(tx => {
-    // সার্চ ফিল্টার
-    const matchesSearch = 
-      searchQuery === "" || 
-      tx.id.toString().includes(searchQuery) ||
-      tx.userId.toString().includes(searchQuery) ||
-      (tx.details && tx.details.toLowerCase().includes(searchQuery.toLowerCase())) ||
-      (tx.method && tx.method.toLowerCase().includes(searchQuery.toLowerCase()));
     
     // স্ট্যাটাস ফিল্টার
-    const matchesStatus = statusFilter === null || tx.status === statusFilter;
+    if (filters.status && tx.status !== filters.status) {
+      return false;
+    }
     
-    // টাইপ ফিল্টার
-    const matchesType = typeFilter === null || tx.type === typeFilter;
+    // ইউজার আইডি ফিল্টার
+    if (filters.userId && tx.userId !== parseInt(filters.userId)) {
+      return false;
+    }
     
-    return matchesSearch && matchesStatus && matchesType;
+    // ডেট রেঞ্জ ফিল্টার
+    const txDate = new Date(tx.date);
+    if (filters.startDate && txDate < filters.startDate) {
+      return false;
+    }
+    if (filters.endDate) {
+      // আজকের তারিখে 23:59:59 সেট করি যাতে সম্পুর্ণ দিন অন্তর্ভুক্ত হয়
+      const endOfDay = new Date(filters.endDate);
+      endOfDay.setHours(23, 59, 59, 999);
+      if (txDate > endOfDay) {
+        return false;
+      }
+    }
+    
+    return true;
   });
+
+  // ইউজারনেম পাওয়া
+  const getUsernameById = (userId: number) => {
+    const user = users?.find(u => u.id === userId);
+    return user ? user.username : `ইউজার #${userId}`;
+  };
+
+  // স্ট্যাটাস ব্যাজ রেন্ডার করা
+  const renderStatusBadge = (status: string) => {
+    switch (status) {
+      case "success":
+        return <Badge className="bg-green-500">{status}</Badge>;
+      case "pending":
+        return <Badge className="bg-yellow-500">{status}</Badge>;
+      case "failed":
+        return <Badge className="bg-red-500">{status}</Badge>;
+      default:
+        return <Badge>{status}</Badge>;
+    }
+  };
+
+  // টাইপ ব্যাজ রেন্ডার করা
+  const renderTypeBadge = (type: string) => {
+    switch (type) {
+      case "deposit":
+        return <Badge className="bg-blue-500">জমা</Badge>;
+      case "withdraw":
+        return <Badge className="bg-orange-500">উত্তোলন</Badge>;
+      case "bonus":
+        return <Badge className="bg-purple-500">বোনাস</Badge>;
+      case "win":
+        return <Badge className="bg-green-500">উইন</Badge>;
+      case "lose":
+        return <Badge className="bg-red-500">লস</Badge>;
+      default:
+        return <Badge>{type}</Badge>;
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <div className="w-full h-48 flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="text-destructive p-4 bg-destructive/10 rounded-lg">
+        ডাটা লোড করতে সমস্যা হয়েছে। পরে আবার চেষ্টা করুন।
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
+      <div className="flex items-center justify-between">
         <h2 className="text-2xl font-bold">ট্রানজেকশন ম্যানেজমেন্ট</h2>
-        <div className="relative w-64">
-          <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input
-            placeholder="সার্চ করুন..."
-            className="pl-8"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
-        </div>
+        <Button 
+          size="sm" 
+          onClick={() => queryClient.invalidateQueries({ queryKey: ['/api/admin/transactions'] })}
+          variant="outline"
+        >
+          <RefreshCcw className="h-4 w-4 mr-2" /> রিফ্রেশ
+        </Button>
       </div>
-
-      <div className="flex space-x-4 mb-6">
-        <div className="w-1/4">
-          <Select value={statusFilter || ""} onValueChange={(value) => setStatusFilter(value || null)}>
-            <SelectTrigger>
-              <SelectValue placeholder="স্ট্যাটাস ফিল্টার" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="">সব স্ট্যাটাস</SelectItem>
-              <SelectItem value="success">সফল</SelectItem>
-              <SelectItem value="pending">পেন্ডিং</SelectItem>
-              <SelectItem value="failed">ব্যর্থ</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-        <div className="w-1/4">
-          <Select value={typeFilter || ""} onValueChange={(value) => setTypeFilter(value || null)}>
-            <SelectTrigger>
-              <SelectValue placeholder="ট্রানজেকশন টাইপ" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="">সব টাইপ</SelectItem>
-              <SelectItem value="deposit">ডিপোজিট</SelectItem>
-              <SelectItem value="withdraw">উইথড্র</SelectItem>
-              <SelectItem value="bonus">বোনাস</SelectItem>
-              <SelectItem value="win">জিতেছেন</SelectItem>
-              <SelectItem value="lose">হেরেছেন</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-      </div>
-
+      
+      {/* ফিল্টার সেকশন */}
       <Card>
-        <CardHeader>
-          <CardTitle>সমস্ত ট্রানজেকশন</CardTitle>
-          <CardDescription>
-            সাইটের সমস্ত লেনদেনের তালিকা ({filteredTransactions.length})
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>আইডি</TableHead>
-                <TableHead>ইউজার আইডি</TableHead>
-                <TableHead>পরিমাণ</TableHead>
-                <TableHead>টাইপ</TableHead>
-                <TableHead>পদ্ধতি</TableHead>
-                <TableHead>তারিখ</TableHead>
-                <TableHead>স্ট্যাটাস</TableHead>
-                <TableHead>অ্যাকশন</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filteredTransactions.map((tx) => (
-                <TableRow key={tx.id}>
-                  <TableCell>{tx.id}</TableCell>
-                  <TableCell>{tx.userId}</TableCell>
-                  <TableCell>
-                    <div className="flex items-center space-x-1">
-                      {getTransactionTypeIcon(tx.type)}
-                      <span className={tx.type === "deposit" || tx.type === "win" || tx.type === "bonus" ? "text-green-600" : "text-red-600"}>
-                        ৳{parseFloat(tx.amount).toLocaleString()}
-                      </span>
-                    </div>
-                  </TableCell>
-                  <TableCell>{getTransactionTypeText(tx.type)}</TableCell>
-                  <TableCell>{tx.method || "-"}</TableCell>
-                  <TableCell>{formatDate(tx.date.toString())}</TableCell>
-                  <TableCell>
-                    <Badge
-                      variant={getStatusBadgeVariant(tx.status) as any}
+        <CardContent className="p-4">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div>
+              <label className="text-sm font-medium mb-1 block">টাইপ</label>
+              <Select value={filters.type} onValueChange={(value) => handleFilterChange('type', value)}>
+                <SelectTrigger>
+                  <SelectValue placeholder="সবগুলো টাইপ" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="">সবগুলো</SelectItem>
+                  <SelectItem value="deposit">জমা</SelectItem>
+                  <SelectItem value="withdraw">উত্তোলন</SelectItem>
+                  <SelectItem value="bonus">বোনাস</SelectItem>
+                  <SelectItem value="win">উইন</SelectItem>
+                  <SelectItem value="lose">লস</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            
+            <div>
+              <label className="text-sm font-medium mb-1 block">স্ট্যাটাস</label>
+              <Select value={filters.status} onValueChange={(value) => handleFilterChange('status', value)}>
+                <SelectTrigger>
+                  <SelectValue placeholder="সবগুলো স্ট্যাটাস" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="">সবগুলো</SelectItem>
+                  <SelectItem value="success">সফল</SelectItem>
+                  <SelectItem value="pending">পেন্ডিং</SelectItem>
+                  <SelectItem value="failed">ব্যর্থ</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            
+            <div>
+              <label className="text-sm font-medium mb-1 block">ইউজার</label>
+              <Select value={filters.userId.toString()} onValueChange={(value) => handleFilterChange('userId', parseInt(value) || "")}>
+                <SelectTrigger>
+                  <SelectValue placeholder="সব ইউজার" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="">সব ইউজার</SelectItem>
+                  {users?.map(user => (
+                    <SelectItem key={user.id} value={user.id.toString()}>
+                      {user.username}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            
+            <div className="flex space-x-2">
+              <div className="flex-1">
+                <label className="text-sm font-medium mb-1 block">শুরুর তারিখ</label>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className="w-full justify-start text-left font-normal"
                     >
-                      {getStatusText(tx.status)}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>
-                    <Button variant="ghost" size="sm" onClick={() => viewTransactionDetails(tx)}>
-                      <Eye className="h-4 w-4" />
+                      <CalendarIcon className="mr-2 h-4 w-4" />
+                      {filters.startDate ? (
+                        format(filters.startDate, "PPP")
+                      ) : (
+                        <span>তারিখ বাছাই করুন</span>
+                      )}
                     </Button>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0">
+                    <Calendar
+                      mode="single"
+                      selected={filters.startDate || undefined}
+                      onSelect={(date) => handleFilterChange('startDate', date)}
+                      initialFocus
+                    />
+                  </PopoverContent>
+                </Popover>
+              </div>
+              
+              <div className="flex-1">
+                <label className="text-sm font-medium mb-1 block">শেষ তারিখ</label>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className="w-full justify-start text-left font-normal"
+                    >
+                      <CalendarIcon className="mr-2 h-4 w-4" />
+                      {filters.endDate ? (
+                        format(filters.endDate, "PPP")
+                      ) : (
+                        <span>তারিখ বাছাই করুন</span>
+                      )}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0">
+                    <Calendar
+                      mode="single"
+                      selected={filters.endDate || undefined}
+                      onSelect={(date) => handleFilterChange('endDate', date)}
+                      initialFocus
+                    />
+                  </PopoverContent>
+                </Popover>
+              </div>
+            </div>
+            
+            <div className="flex items-end md:col-span-4 space-x-2">
+              <Button onClick={resetFilters} variant="outline" size="sm" className="w-24">
+                রিসেট
+              </Button>
+            </div>
+          </div>
         </CardContent>
       </Card>
-
-      {/* ট্রানজেকশন বিস্তারিত ডায়ালগ */}
-      <Dialog open={isDetailsDialogOpen} onOpenChange={setIsDetailsDialogOpen}>
-        <DialogContent className="sm:max-w-[500px]">
+      
+      {/* ট্রানজেকশন টেবিল */}
+      <Card>
+        <CardContent className="p-0">
+          <div className="overflow-x-auto">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>আইডি</TableHead>
+                  <TableHead>ইউজার</TableHead>
+                  <TableHead>টাইপ</TableHead>
+                  <TableHead>স্ট্যাটাস</TableHead>
+                  <TableHead className="text-right">পরিমাণ (৳)</TableHead>
+                  <TableHead>পদ্ধতি</TableHead>
+                  <TableHead>তারিখ</TableHead>
+                  <TableHead>বিবরণ</TableHead>
+                  <TableHead className="text-right">অ্যাকশন</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {filteredTransactions?.map((tx) => (
+                  <TableRow key={tx.id}>
+                    <TableCell className="font-medium">{tx.id}</TableCell>
+                    <TableCell>{getUsernameById(tx.userId)}</TableCell>
+                    <TableCell>{renderTypeBadge(tx.type)}</TableCell>
+                    <TableCell>{renderStatusBadge(tx.status)}</TableCell>
+                    <TableCell className="text-right">{parseFloat(tx.amount).toLocaleString('bn-BD')}</TableCell>
+                    <TableCell>{tx.method || "-"}</TableCell>
+                    <TableCell>{new Date(tx.date).toLocaleString()}</TableCell>
+                    <TableCell className="max-w-xs truncate">{tx.details || "-"}</TableCell>
+                    <TableCell className="text-right">
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        onClick={() => openStatusDialog(tx)}
+                      >
+                        স্ট্যাটাস
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))}
+                
+                {filteredTransactions?.length === 0 && (
+                  <TableRow>
+                    <TableCell colSpan={9} className="text-center py-6 text-muted-foreground">
+                      কোন ট্রানজেকশন পাওয়া যায়নি
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </div>
+        </CardContent>
+      </Card>
+      
+      {/* স্ট্যাটাস আপডেট ডায়ালগ */}
+      <Dialog open={statusDialogOpen} onOpenChange={setStatusDialogOpen}>
+        <DialogContent>
           <DialogHeader>
-            <DialogTitle>ট্রানজেকশন বিস্তারিত</DialogTitle>
-            <DialogDescription>
-              ট্রানজেকশন #{selectedTransaction?.id} এর বিস্তারিত তথ্য
-            </DialogDescription>
+            <DialogTitle>ট্রানজেকশন স্ট্যাটাস আপডেট করুন</DialogTitle>
           </DialogHeader>
           
-          {selectedTransaction && (
-            <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <p className="text-sm text-muted-foreground">ট্রানজেকশন আইডি</p>
-                  <p className="font-medium">{selectedTransaction.id}</p>
+          {selectedTx && (
+            <div className="space-y-4 py-4">
+              <div className="grid gap-4">
+                <div className="space-y-1">
+                  <p className="text-sm font-medium">ট্রানজেকশন আইডি</p>
+                  <p>{selectedTx.id}</p>
                 </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">ইউজার আইডি</p>
-                  <p className="font-medium">{selectedTransaction.userId}</p>
+                
+                <div className="space-y-1">
+                  <p className="text-sm font-medium">ইউজার</p>
+                  <p>{getUsernameById(selectedTx.userId)}</p>
                 </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">টাইপ</p>
-                  <p className="font-medium flex items-center space-x-1">
-                    {getTransactionTypeIcon(selectedTransaction.type)}
-                    <span>{getTransactionTypeText(selectedTransaction.type)}</span>
-                  </p>
+                
+                <div className="space-y-1">
+                  <p className="text-sm font-medium">টাইপ</p>
+                  <p>{selectedTx.type}</p>
                 </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">পরিমাণ</p>
-                  <p className={`font-medium ${selectedTransaction.type === "deposit" || selectedTransaction.type === "win" || selectedTransaction.type === "bonus" ? "text-green-600" : "text-red-600"}`}>
-                    ৳{parseFloat(selectedTransaction.amount).toLocaleString()}
-                  </p>
+                
+                <div className="space-y-1">
+                  <p className="text-sm font-medium">পরিমাণ</p>
+                  <p>{parseFloat(selectedTx.amount).toLocaleString('bn-BD')} ৳</p>
                 </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">পদ্ধতি</p>
-                  <p className="font-medium">{selectedTransaction.method || "-"}</p>
+                
+                <div className="space-y-1">
+                  <p className="text-sm font-medium">বর্তমান স্ট্যাটাস</p>
+                  <p>{renderStatusBadge(selectedTx.status)}</p>
                 </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">তারিখ</p>
-                  <p className="font-medium">{formatDate(selectedTransaction.date.toString())}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">স্ট্যাটাস</p>
-                  <Badge variant={getStatusBadgeVariant(selectedTransaction.status) as any}>
-                    {getStatusText(selectedTransaction.status)}
-                  </Badge>
-                </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">বিস্তারিত</p>
-                  <p className="font-medium">{selectedTransaction.details || "-"}</p>
+                
+                <div className="space-y-1">
+                  <p className="text-sm font-medium">নতুন স্ট্যাটাস</p>
+                  <Select value={newStatus} onValueChange={setNewStatus}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="স্ট্যাটাস বাছাই করুন" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="success">সফল</SelectItem>
+                      <SelectItem value="pending">পেন্ডিং</SelectItem>
+                      <SelectItem value="failed">ব্যর্থ</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  
+                  <div className="pt-4 text-sm text-muted-foreground">
+                    <p className="font-medium text-foreground">নোট:</p>
+                    <p>
+                      "সফল" স্ট্যাটাসে পরিবর্তন করলে ইউজারের ব্যালেন্স অটোমেটিক আপডেট হবে।
+                      সতর্কতার সাথে স্ট্যাটাস পরিবর্তন করুন।
+                    </p>
+                  </div>
                 </div>
               </div>
-
-              {/* স্ট্যাটাস আপডেট করার বাটন */}
-              {selectedTransaction.status === "pending" && (
-                <div className="flex space-x-2 mt-4 pt-4 border-t">
-                  <Button
-                    className="flex-1"
-                    onClick={() => updateTransactionStatus(selectedTransaction.id, "success")}
-                  >
-                    <Check className="mr-2 h-4 w-4" />
-                    অনুমোদন করুন
-                  </Button>
-                  <Button
-                    className="flex-1"
-                    variant="destructive"
-                    onClick={() => updateTransactionStatus(selectedTransaction.id, "failed")}
-                  >
-                    <X className="mr-2 h-4 w-4" />
-                    বাতিল করুন
-                  </Button>
-                </div>
-              )}
+              
+              <DialogFooter>
+                <Button 
+                  type="button" 
+                  variant="outline" 
+                  onClick={() => setStatusDialogOpen(false)}
+                >
+                  বাতিল
+                </Button>
+                <Button 
+                  onClick={handleStatusUpdate}
+                  disabled={statusMutation.isPending || newStatus === selectedTx.status}
+                >
+                  {statusMutation.isPending && (
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  )}
+                  আপডেট করুন
+                </Button>
+              </DialogFooter>
             </div>
           )}
         </DialogContent>
