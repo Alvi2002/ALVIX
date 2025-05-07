@@ -74,10 +74,20 @@ type BetSlip = {
 
 export default function SportsPage() {
   const { user, logoutMutation } = useAuth();
+  const { toast } = useToast();
   const [matches, setMatches] = useState<Match[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeSport, setActiveSport] = useState("ফুটবল");
   const [activeTab, setActiveTab] = useState("upcoming");
+  const [isBetSlipOpen, setIsBetSlipOpen] = useState(false);
+  const [isPlaceBetDialogOpen, setIsPlaceBetDialogOpen] = useState(false);
+  
+  // বেট স্লিপ এবং বেট স্টেট
+  const [betSlip, setBetSlip] = useState<BetSlip>({
+    selections: [],
+    stake: 100, // ডিফল্ট স্টেক
+    potentialWin: 0
+  });
 
   // স্পোর্টস ম্যাচ ডেটা লোড করার জন্য TanStack Query ব্যবহার
   const { data: apiMatches, isLoading } = useQuery({
@@ -142,6 +152,186 @@ export default function SportsPage() {
       }
     };
   }, [apiMatches, isLoading]);
+
+  // বেট সিলেকশন জোগ করার ফাংশন
+  const addBetSelection = (match: Match, betType: string) => {
+    if (!user) {
+      toast({
+        title: "বেট করতে লগইন করুন",
+        description: "বেট করার জন্য আপনাকে অবশ্যই লগইন করতে হবে।",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const matchName = `${match.homeTeam} vs ${match.awayTeam}`;
+    let betName = "";
+    let odds = 0;
+
+    // বেট এর টাইপ অনুযায়ী নাম এবং অডস সেট করা
+    if (betType === "home") {
+      betName = `${match.homeTeam} জিতবে`;
+      odds = match.odds.home;
+    } else if (betType === "draw") {
+      betName = "ড্র হবে";
+      odds = match.odds.draw;
+    } else if (betType === "away") {
+      betName = `${match.awayTeam} জিতবে`;
+      odds = match.odds.away;
+    }
+
+    const betId = `${match.id}-${betType}`;
+    
+    // চেক করা যে আগে থেকে এই বেট সিলেক্ট করা আছে কিনা
+    const existingBetIndex = betSlip.selections.findIndex(
+      (bet) => bet.id === betId
+    );
+
+    if (existingBetIndex !== -1) {
+      // আগে থেকে সিলেক্ট করা থাকলে বাদ দেওয়া
+      const newSelections = [...betSlip.selections];
+      newSelections.splice(existingBetIndex, 1);
+      
+      const newBetSlip = {
+        ...betSlip,
+        selections: newSelections
+      };
+      
+      // পোটেনশিয়াল উইন ক্যালকুলেট করা
+      const potentialWin = calculatePotentialWin(newBetSlip.selections, betSlip.stake);
+      
+      setBetSlip({
+        ...newBetSlip,
+        potentialWin
+      });
+      
+      toast({
+        title: "বেট বাদ দেওয়া হয়েছে",
+        description: `${betName} বেট বাদ দেওয়া হয়েছে।`,
+      });
+    } else {
+      // নতুন বেট যোগ করা
+      const newSelection: BetSelection = {
+        id: betId,
+        matchId: match.id,
+        match: matchName,
+        betType,
+        betName,
+        odds
+      };
+      
+      const newSelections = [...betSlip.selections, newSelection];
+      
+      // পোটেনশিয়াল উইন ক্যালকুলেট করা
+      const potentialWin = calculatePotentialWin(newSelections, betSlip.stake);
+      
+      setBetSlip({
+        ...betSlip,
+        selections: newSelections,
+        potentialWin
+      });
+      
+      setIsBetSlipOpen(true);
+      
+      toast({
+        title: "বেট যোগ করা হয়েছে",
+        description: `${betName} (${odds}) বেট স্লিপে যোগ করা হয়েছে।`,
+      });
+    }
+  };
+  
+  // বেট স্লিপ থেকে একটি নির্দিষ্ট বেট বাদ দেওয়ার ফাংশন
+  const removeBetSelection = (betId: string) => {
+    const newSelections = betSlip.selections.filter(bet => bet.id !== betId);
+    const potentialWin = calculatePotentialWin(newSelections, betSlip.stake);
+    
+    setBetSlip({
+      ...betSlip,
+      selections: newSelections,
+      potentialWin
+    });
+    
+    toast({
+      title: "বেট সরানো হয়েছে",
+      description: "বেট স্লিপ থেকে বেট সরানো হয়েছে",
+    });
+  };
+  
+  // স্টেক পরিবর্তন করার ফাংশন
+  const handleStakeChange = (newStake: number) => {
+    const potentialWin = calculatePotentialWin(betSlip.selections, newStake);
+    
+    setBetSlip({
+      ...betSlip,
+      stake: newStake,
+      potentialWin
+    });
+  };
+  
+  // পোটেনশিয়াল উইন ক্যালকুলেট করার ফাংশন
+  const calculatePotentialWin = (selections: BetSelection[], stake: number): number => {
+    if (selections.length === 0) return 0;
+    
+    // সব অডস গুণ করে টোটাল অডস বের করা
+    const totalOdds = selections.reduce((acc, bet) => acc * bet.odds, 1);
+    
+    // বাজি (স্টেক) দিয়ে গুণ করে পোটেনশিয়াল উইন বের করা
+    return parseFloat((totalOdds * stake).toFixed(2));
+  };
+  
+  // বেট করার ফাংশন
+  const placeBet = () => {
+    if (!user) {
+      toast({
+        title: "বেট করতে লগইন করুন",
+        description: "বেট করার জন্য আপনাকে অবশ্যই লগইন করতে হবে।",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    if (betSlip.selections.length === 0) {
+      toast({
+        title: "বেট সিলেকশন খালি",
+        description: "অন্তত একটি বেট সিলেকশন করুন।",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    // স্টেক চেক করা
+    if (betSlip.stake <= 0) {
+      toast({
+        title: "অবৈধ স্টেক",
+        description: "স্টেক পরিমাণ ইতিবাচক হতে হবে।",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    // Place Bet ডায়ালগ দেখানো
+    setIsPlaceBetDialogOpen(true);
+  };
+  
+  // বেট নিশ্চিত করার ফাংশন 
+  const confirmBet = () => {
+    // এখানে API কল করে বেট প্লেস করার কোড যোগ করা হবে
+    toast({
+      title: "বেট সফলভাবে করা হয়েছে",
+      description: `${betSlip.selections.length}টি বেট সফলভাবে করা হয়েছে। সম্ভাব্য জিতের পরিমাণ: ৳${betSlip.potentialWin}`,
+    });
+    
+    // বেট স্লিপ রিসেট করা
+    setBetSlip({
+      selections: [],
+      stake: 100,
+      potentialWin: 0
+    });
+    
+    // ডায়ালগ বন্ধ করা
+    setIsPlaceBetDialogOpen(false);
+    setIsBetSlipOpen(false);
+  };
 
   const handleLogout = () => {
     logoutMutation.mutate();
