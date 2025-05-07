@@ -10,6 +10,9 @@ import LiveCasino from "@/components/home/live-casino";
 import Promotions from "@/components/home/promotions";
 import GameCategories from "@/components/home/game-categories";
 import PaymentMethods from "@/components/home/payment-methods";
+import { Link } from "wouter";
+import { MakeAdmin } from "@/components/make-admin";
+import { Button } from "@/components/ui/button";
 
 export default function HomePage() {
   const { user, logoutMutation } = useAuth();
@@ -28,6 +31,23 @@ export default function HomePage() {
         <Categories />
         
         <div className="container mx-auto px-4 py-6">
+          {user && (
+            <div className="mb-6">
+              {user.isAdmin ? (
+                <div className="p-4 bg-muted/30 border rounded-md">
+                  <h2 className="text-lg font-medium mb-2">অ্যাডমিন প্যানেল</h2>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    আপনি একজন অ্যাডমিন। অ্যাডমিন প্যানেল অ্যাক্সেস করতে নিচের বাটনে ক্লিক করুন।
+                  </p>
+                  <Link href="/admin">
+                    <Button>অ্যাডমিন প্যানেল দেখুন</Button>
+                  </Link>
+                </div>
+              ) : (
+                <MakeAdmin />
+              )}
+            </div>
+          )}
           <TopGames />
           <LiveCasino />
           <Promotions />

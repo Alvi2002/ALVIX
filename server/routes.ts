@@ -49,6 +49,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Sets up /api/register, /api/login, /api/logout, /api/user
   setupAuth(app);
   
+  // অ্যাডমিন একসেস এন্ডপয়েন্ট
+  app.post("/api/make-admin", asyncHandler(async (req, res) => {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ message: "লগইন করা প্রয়োজন" });
+    }
+    
+    const { secretKey } = req.body;
+    const adminKey = process.env.ADMIN_SECRET_KEY || "tk999-admin-secret-key";
+    
+    if (secretKey !== adminKey) {
+      return res.status(403).json({ message: "অবৈধ গোপন কোড" });
+    }
+    
+    const updatedUser = await storage.updateUser(req.user.id, { isAdmin: true });
+    if (!updatedUser) {
+      return res.status(500).json({ message: "ইউজার আপডেট করতে সমস্যা হয়েছে" });
+    }
+    
+    res.json({ message: "অ্যাডমিন অ্যাক্সেস দেওয়া হয়েছে", user: updatedUser });
+  }));
+  
   // এডমিন মিডলওয়্যার - এডমিন পাথ যাচাই
   const adminMiddleware = (req: Request, res: Response, next: NextFunction) => {
     if (!req.isAuthenticated()) {
@@ -476,6 +497,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
     
     res.status(200).json({ message: "পাসওয়ার্ড সফলভাবে পরিবর্তন করা হয়েছে" });
+  }));
+  
+  // --------------------------------
+  // এডমিন বানানোর জন্য টেম্পোরারি এন্ডপয়েন্ট (ডেভেলপমেন্ট পারপাসে)
+  app.post("/api/make-admin", asyncHandler(async (req, res) => {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ error: "অনুমতি নেই" });
+    }
+    
+    const userId = req.user!.id;
+    
+    // ইউজারকে এডমিন বানানো
+    const updatedUser = await storage.updateUser(userId, { isAdmin: true });
+    
+    if (!updatedUser) {
+      return res.status(500).json({ error: "এডমিন বানাতে সমস্যা হয়েছে" });
+    }
+    
+    res.json({ success: true, message: "আপনি এখন এডমিন" });
   }));
   
   // --------------------------------
