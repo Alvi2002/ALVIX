@@ -14,6 +14,7 @@ export const users = pgTable("users", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
   isVip: boolean("is_vip").default(false),
   avatarUrl: text("avatar_url"),
+  isAdmin: boolean("is_admin").default(false),
 });
 
 // স্লটস গেম টেবিল
