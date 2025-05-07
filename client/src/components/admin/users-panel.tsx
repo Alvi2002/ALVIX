@@ -610,6 +610,181 @@ export default function UsersPanel() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      
+      {/* ইউজার আনব্যান ডায়ালগ */}
+      <Dialog open={isUnbanDialogOpen} onOpenChange={setIsUnbanDialogOpen}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>ইউজার আনব্যান করুন</DialogTitle>
+            <DialogDescription>
+              আপনি কি নিশ্চিত যে আপনি এই ইউজারকে আনব্যান করতে চান? এই অ্যাকশনের পরে ইউজার আবার সাইটে লগইন করতে পারবে।
+            </DialogDescription>
+          </DialogHeader>
+          
+          {selectedUser && (
+            <div className="py-4">
+              <div className="flex items-center gap-2 mb-2">
+                <div className="h-10 w-10 rounded-full overflow-hidden bg-muted">
+                  {selectedUser.avatarUrl ? (
+                    <img 
+                      src={selectedUser.avatarUrl} 
+                      alt={selectedUser.username} 
+                      className="h-full w-full object-cover"
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).src = "https://i.ibb.co/6RJbFkN/default-avatar.png";
+                      }}
+                    />
+                  ) : (
+                    <div className="h-full w-full flex items-center justify-center">
+                      <span className="text-lg font-medium text-muted-foreground">
+                        {selectedUser.username.charAt(0).toUpperCase()}
+                      </span>
+                    </div>
+                  )}
+                </div>
+                <div>
+                  <p className="font-medium">{selectedUser.username}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {selectedUser.email || selectedUser.fullName || `আইডি: ${selectedUser.id}`}
+                  </p>
+                </div>
+              </div>
+              
+              <div className="rounded-md bg-green-500/10 p-3 mt-4">
+                <div className="flex items-start">
+                  <ShieldCheck className="h-5 w-5 text-green-500 mr-2 mt-0.5" />
+                  <p className="text-sm text-green-600">
+                    এই ইউজারকে আনব্যান করলে ইউজার আবার সাইটে লগইন করতে পারবে এবং সাইটের সকল ফিচার ব্যবহার করতে পারবে।
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+          
+          <DialogFooter>
+            <Button 
+              variant="outline" 
+              onClick={() => setIsUnbanDialogOpen(false)}
+            >
+              বাতিল
+            </Button>
+            <Button 
+              onClick={handleUnbanUser}
+              disabled={unbanUserMutation.isPending}
+              className="bg-green-500 hover:bg-green-600 text-white"
+            >
+              {unbanUserMutation.isPending ? "আনব্যান করা হচ্ছে..." : "আনব্যান করুন"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      
+      {/* ইউজার এডিট ডায়ালগ */}
+      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle>ইউজার এডিট করুন</DialogTitle>
+            <DialogDescription>
+              ইউজারের তথ্য পরিবর্তন করুন। সকল ফিল্ড ঐচ্ছিক।
+            </DialogDescription>
+          </DialogHeader>
+          
+          {selectedUser && (
+            <div className="py-4">
+              <div className="flex items-center gap-2 mb-4">
+                <div className="h-10 w-10 rounded-full overflow-hidden bg-muted">
+                  {selectedUser.avatarUrl ? (
+                    <img 
+                      src={selectedUser.avatarUrl} 
+                      alt={selectedUser.username} 
+                      className="h-full w-full object-cover"
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).src = "https://i.ibb.co/6RJbFkN/default-avatar.png";
+                      }}
+                    />
+                  ) : (
+                    <div className="h-full w-full flex items-center justify-center">
+                      <span className="text-lg font-medium text-muted-foreground">
+                        {selectedUser.username.charAt(0).toUpperCase()}
+                      </span>
+                    </div>
+                  )}
+                </div>
+                <div>
+                  <p className="font-medium">{selectedUser.username}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {`আইডি: ${selectedUser.id}`}
+                  </p>
+                </div>
+              </div>
+              
+              <div className="grid gap-4 py-4">
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <label htmlFor="fullName" className="text-right">
+                    পুরো নাম
+                  </label>
+                  <Input
+                    id="fullName"
+                    value={editFormData.fullName}
+                    onChange={(e) => setEditFormData({...editFormData, fullName: e.target.value})}
+                    className="col-span-3"
+                  />
+                </div>
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <label htmlFor="email" className="text-right">
+                    ইমেইল
+                  </label>
+                  <Input
+                    id="email"
+                    type="email"
+                    value={editFormData.email}
+                    onChange={(e) => setEditFormData({...editFormData, email: e.target.value})}
+                    className="col-span-3"
+                  />
+                </div>
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <label htmlFor="phone" className="text-right">
+                    ফোন
+                  </label>
+                  <Input
+                    id="phone"
+                    value={editFormData.phone}
+                    onChange={(e) => setEditFormData({...editFormData, phone: e.target.value})}
+                    className="col-span-3"
+                  />
+                </div>
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <label htmlFor="balance" className="text-right">
+                    ব্যালেন্স
+                  </label>
+                  <Input
+                    id="balance"
+                    type="number"
+                    value={editFormData.balance}
+                    onChange={(e) => setEditFormData({...editFormData, balance: e.target.value})}
+                    className="col-span-3"
+                  />
+                </div>
+              </div>
+            </div>
+          )}
+          
+          <DialogFooter>
+            <Button 
+              variant="outline" 
+              onClick={() => setIsEditDialogOpen(false)}
+            >
+              বাতিল
+            </Button>
+            <Button 
+              onClick={handleEditUser}
+              disabled={editUserMutation.isPending}
+            >
+              {editUserMutation.isPending ? "আপডেট হচ্ছে..." : "আপডেট করুন"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
