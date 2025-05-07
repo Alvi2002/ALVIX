@@ -234,7 +234,18 @@ export class MemStorage implements IStorage {
   
   async createSportMatch(match: InsertSportMatch): Promise<SportMatch> {
     const id = this.sportMatchIdCounter++;
-    const sportMatch: SportMatch = { ...match, id };
+    const sportMatch: SportMatch = { 
+      id,
+      homeTeam: match.homeTeam,
+      awayTeam: match.awayTeam,
+      league: match.league,
+      time: match.time,
+      date: match.date,
+      isLive: match.isLive ?? null,
+      odds: match.odds,
+      statistics: match.statistics ?? null,
+      score: match.score ?? null
+    };
     this.sportMatches.set(id, sportMatch);
     return sportMatch;
   }
@@ -261,7 +272,16 @@ export class MemStorage implements IStorage {
   async createTransaction(transaction: InsertTransaction): Promise<Transaction> {
     const id = this.transactionIdCounter++;
     const now = new Date();
-    const tx: Transaction = { ...transaction, id, date: now };
+    const tx: Transaction = { 
+      id,
+      userId: transaction.userId,
+      amount: transaction.amount,
+      type: transaction.type,
+      status: transaction.status,
+      date: now,
+      method: transaction.method ?? null,
+      details: transaction.details ?? null
+    };
     this.transactions.set(id, tx);
     
     // Balance update
@@ -335,7 +355,15 @@ export class MemStorage implements IStorage {
   
   async createPromotion(promotion: InsertPromotion): Promise<Promotion> {
     const id = this.promotionIdCounter++;
-    const promo: Promotion = { ...promotion, id };
+    const promo: Promotion = { 
+      id,
+      title: promotion.title,
+      description: promotion.description,
+      image: promotion.image,
+      startDate: promotion.startDate,
+      endDate: promotion.endDate ?? null,
+      isActive: promotion.isActive ?? null
+    };
     this.promotions.set(id, promo);
     return promo;
   }
@@ -353,8 +381,12 @@ export class MemStorage implements IStorage {
     const id = this.depositPhoneIdCounter++;
     const now = new Date();
     const depositPhone: DepositPhone = { 
-      ...phone, 
       id,
+      phoneNumber: phone.phoneNumber,
+      operator: phone.operator,
+      accountName: phone.accountName,
+      accountType: phone.accountType,
+      notes: phone.notes ?? null,
       createdAt: now,
       isActive: phone.isActive ?? true
     };
