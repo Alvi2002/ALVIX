@@ -33,6 +33,7 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
+import { queryClient } from "@/lib/queryClient";
 import { 
   Avatar, 
   AvatarFallback, 
@@ -106,28 +107,76 @@ export default function ProfilePage() {
   const handleUpdateProfile = async (data: ProfileFormValues) => {
     setIsUpdating(true);
     
-    // এখানে অসল API কল হবে
-    setTimeout(() => {
+    try {
+      const response = await fetch('/api/profile', {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'প্রোফাইল আপডেট করতে সমস্যা হয়েছে');
+      }
+      
+      const updatedUser = await response.json();
+      queryClient.invalidateQueries({ queryKey: ['/api/user'] });
+      
       toast({
         title: "প্রোফাইল আপডেট হয়েছে",
         description: "আপনার তথ্য সফলভাবে আপডেট করা হয়েছে"
       });
+    } catch (error) {
+      toast({
+        title: "আপডেট ব্যর্থ হয়েছে",
+        description: error instanceof Error ? error.message : 'একটি ত্রুটি ঘটেছে',
+        variant: "destructive"
+      });
+    } finally {
       setIsUpdating(false);
-    }, 1500);
+    }
   };
 
   const handleUpdatePassword = async (data: PasswordFormValues) => {
     setIsUpdating(true);
     
-    // এখানে অসল API কল হবে
-    setTimeout(() => {
+    try {
+      if (data.newPassword !== data.confirmPassword) {
+        throw new Error("নতুন পাসওয়ার্ড এবং কনফার্ম পাসওয়ার্ড মিলছে না");
+      }
+      
+      const response = await fetch('/api/password', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          currentPassword: data.currentPassword,
+          newPassword: data.newPassword
+        }),
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'পাসওয়ার্ড আপডেট করতে সমস্যা হয়েছে');
+      }
+      
       toast({
         title: "পাসওয়ার্ড আপডেট হয়েছে",
         description: "আপনার পাসওয়ার্ড সফলভাবে পরিবর্তন করা হয়েছে"
       });
       passwordForm.reset();
+    } catch (error) {
+      toast({
+        title: "আপডেট ব্যর্থ হয়েছে",
+        description: error instanceof Error ? error.message : 'একটি ত্রুটি ঘটেছে',
+        variant: "destructive"
+      });
+    } finally {
       setIsUpdating(false);
-    }, 1500);
+    }
   };
 
   const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {

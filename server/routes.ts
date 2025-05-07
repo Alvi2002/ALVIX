@@ -6,6 +6,24 @@ import { InsertSlotGame, InsertLiveCasinoGame, InsertSportMatch, InsertTransacti
 import { ZodError } from "zod";
 import { createId } from "@paralleldrive/cuid2";
 import { WebSocketServer, WebSocket } from "ws";
+import { scrypt, randomBytes, timingSafeEqual } from "crypto";
+import { promisify } from "util";
+
+// Auth-related functions
+const scryptAsync = promisify(scrypt);
+
+async function hashPassword(password: string) {
+  const salt = randomBytes(16).toString("hex");
+  const buf = (await scryptAsync(password, salt, 64)) as Buffer;
+  return `${buf.toString("hex")}.${salt}`;
+}
+
+async function comparePasswords(supplied: string, stored: string) {
+  const [hashed, salt] = stored.split(".");
+  const hashedBuf = Buffer.from(hashed, "hex");
+  const suppliedBuf = (await scryptAsync(supplied, salt, 64)) as Buffer;
+  return timingSafeEqual(hashedBuf, suppliedBuf);
+}
 
 // ফাংশান যেটি Zod ভ্যালিডেশন ব্যবহার করে
 function validateBody<T>(schema: any, body: any): T {
@@ -305,6 +323,47 @@ export async function registerRoutes(app: Express): Promise<Server> {
     // পাসওয়ার্ড রিটার্ন করব না
     const { password, ...userWithoutPassword } = updatedUser;
     res.json(userWithoutPassword);
+  }));
+  
+  // পাসওয়ার্ড পরিবর্তন
+  app.post("/api/password", asyncHandler(async (req, res) => {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ error: "অনুমতি নেই" });
+    }
+    
+    const { currentPassword, newPassword } = req.body;
+    
+    if (!currentPassword || !newPassword) {
+      return res.status(400).json({ error: "বর্তমান এবং নতুন পাসওয়ার্ড উভয়ই প্রয়োজন" });
+    }
+    
+    // বর্তমান পাসওয়ার্ড যাচাই
+    const user = await storage.getUser(req.user!.id);
+    
+    if (!user) {
+      return res.status(404).json({ error: "ইউজার পাওয়া যায়নি" });
+    }
+    
+    // পাসওয়ার্ড মিলিয়ে দেখি
+    const isMatch = await comparePasswords(currentPassword, user.password);
+    
+    if (!isMatch) {
+      return res.status(400).json({ error: "বর্তমান পাসওয়ার্ড সঠিক নয়" });
+    }
+    
+    // নতুন পাসওয়ার্ড হ্যাশ করি
+    const hashedPassword = await hashPassword(newPassword);
+    
+    // পাসওয়ার্ড আপডেট করি
+    const updatedUser = await storage.updateUser(user.id, {
+      password: hashedPassword
+    });
+    
+    if (!updatedUser) {
+      return res.status(500).json({ error: "পাসওয়ার্ড আপডেট করতে সমস্যা হয়েছে" });
+    }
+    
+    res.status(200).json({ message: "পাসওয়ার্ড সফলভাবে পরিবর্তন করা হয়েছে" });
   }));
   
   // --------------------------------
