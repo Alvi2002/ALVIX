@@ -229,9 +229,9 @@ export default function DepositPhonesPanel() {
     setIsEditDialogOpen(true);
   };
   
-  // গেট প্রোভাইডার কালার
-  const getProviderColor = (provider: string) => {
-    switch (provider.toLowerCase()) {
+  // গেট অপারেটর কালার
+  const getProviderColor = (operator: string) => {
+    switch (operator.toLowerCase()) {
       case 'bkash':
         return 'bg-pink-100 text-pink-700 border-pink-200';
       case 'nagad':
@@ -464,7 +464,7 @@ export default function DepositPhonesPanel() {
                 value={formData.operator}
                 onValueChange={(value) => setFormData({...formData, operator: value})}
               >
-                <SelectTrigger className="col-span-3" id="edit-provider">
+                <SelectTrigger className="col-span-3" id="edit-operator">
                   <SelectValue placeholder="প্রোভাইডার নির্বাচন করুন" />
                 </SelectTrigger>
                 <SelectContent>
