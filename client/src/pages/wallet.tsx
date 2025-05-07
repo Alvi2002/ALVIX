@@ -436,6 +436,18 @@ export default function WalletPage() {
                       </SelectContent>
                     </Select>
                   </div>
+                  
+                  <div className="space-y-2">
+                    <label htmlFor="transaction-id" className="text-sm font-medium">ট্রানজেকশন আইডি</label>
+                    <Input
+                      id="transaction-id"
+                      type="text"
+                      placeholder="আপনার ট্রানজেকশন আইডি লিখুন"
+                      className="bg-secondary border-secondary"
+                      value={depositTransactionId}
+                      onChange={(e) => setDepositTransactionId(e.target.value)}
+                    />
+                  </div>
 
                   <div className="p-4 bg-secondary/30 rounded-lg mt-4">
                     <h4 className="font-medium mb-2 flex items-center">
