@@ -4,7 +4,18 @@ import Footer from "@/components/layout/footer";
 import MobileMenu from "@/components/layout/mobile-menu";
 import MobileNav from "@/components/layout/mobile-nav";
 import { useQuery } from "@tanstack/react-query";
-import { CalendarDays, Clock, Globe, Tag, Trophy, Users } from "lucide-react";
+import { 
+  CalendarDays, 
+  Clock, 
+  Copy, 
+  Gift, 
+  Globe, 
+  Share2, 
+  Shield, 
+  Tag, 
+  Trophy, 
+  Users 
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
@@ -17,6 +28,9 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import { Input } from "@/components/ui/input";
+import { toast } from "@/hooks/use-toast";
+import { useState } from "react";
 
 type Promotion = {
   id: number;
@@ -38,6 +52,8 @@ type Promotion = {
 
 export default function PromotionsPage() {
   const { user, logoutMutation } = useAuth();
+  const [referralCode, setReferralCode] = useState("TK999REF" + (user?.id || "123456"));
+  const [showCopiedMessage, setShowCopiedMessage] = useState(false);
 
   // প্রমোশন ডেটা লোড করা
   const { data: promotions = [], isLoading } = useQuery({
@@ -47,6 +63,22 @@ export default function PromotionsPage() {
 
   const handleLogout = () => {
     logoutMutation.mutate();
+  };
+  
+  // রেফারেল লিংক কপি করার জন্য ফাংশন
+  const copyReferralLink = () => {
+    const referralLink = `https://tk999.org/register?ref=${referralCode}`;
+    navigator.clipboard.writeText(referralLink);
+    setShowCopiedMessage(true);
+    
+    toast({
+      title: "কপি করা হয়েছে!",
+      description: "রেফারেল লিংক কপি করা হয়েছে। আপনি এখন এটি শেয়ার করতে পারেন।",
+    });
+    
+    setTimeout(() => {
+      setShowCopiedMessage(false);
+    }, 3000);
   };
 
   // প্রমোশন ক্যাটাগরি অনুযায়ী ফিল্টার করা
@@ -275,6 +307,170 @@ export default function PromotionsPage() {
           </CardContent>
         </Card>
         
+        {/* রেফারেল সেকশন */}
+        <Card className="mb-8 border-accent/30">
+          <CardHeader className="pb-4">
+            <CardTitle className="flex items-center gap-2">
+              <Gift className="h-5 w-5 text-accent" />
+              রেফারেল প্রোগ্রাম
+            </CardTitle>
+            <CardDescription>
+              বন্ধুদের রেফার করুন এবং উভয়ে বোনাস উপভোগ করুন
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold">কিভাবে কাজ করে</h3>
+                <div className="space-y-4">
+                  <div className="flex items-start gap-3">
+                    <div className="bg-accent/10 text-accent p-2 rounded-full h-8 w-8 flex items-center justify-center flex-shrink-0">1</div>
+                    <div>
+                      <p className="font-medium">আপনার অনন্য রেফারেল লিংক শেয়ার করুন</p>
+                      <p className="text-sm text-muted-foreground">সোশ্যাল মিডিয়া, মেসেজিং অ্যাপ বা ইমেইলের মাধ্যমে বন্ধুদের সাথে শেয়ার করুন</p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-start gap-3">
+                    <div className="bg-accent/10 text-accent p-2 rounded-full h-8 w-8 flex items-center justify-center flex-shrink-0">2</div>
+                    <div>
+                      <p className="font-medium">বন্ধুরা যখন সাইন আপ করে</p>
+                      <p className="text-sm text-muted-foreground">আপনার রেফারেল কোড ব্যবহার করে তারা একটি ৳৫০০ স্বাগতম বোনাস পাবে</p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-start gap-3">
+                    <div className="bg-accent/10 text-accent p-2 rounded-full h-8 w-8 flex items-center justify-center flex-shrink-0">3</div>
+                    <div>
+                      <p className="font-medium">আপনি পুরস্কার পান</p>
+                      <p className="text-sm text-muted-foreground">প্রতি সক্রিয় রেফারেলের জন্য আপনি ৳৫০০ বোনাস + তাদের প্রথম ডিপোজিটের ১০% পাবেন</p>
+                    </div>
+                  </div>
+                </div>
+                
+                {user ? (
+                  <div className="mt-6 space-y-3">
+                    <h4 className="font-medium">আপনার রেফারেল প্রোগ্রেস</h4>
+                    <div className="grid grid-cols-3 gap-4 text-center">
+                      <div className="p-3 bg-card rounded-lg">
+                        <p className="text-2xl font-bold text-accent">০</p>
+                        <p className="text-xs text-muted-foreground">মোট রেফারেল</p>
+                      </div>
+                      <div className="p-3 bg-card rounded-lg">
+                        <p className="text-2xl font-bold text-accent">৳০</p>
+                        <p className="text-xs text-muted-foreground">অর্জিত বোনাস</p>
+                      </div>
+                      <div className="p-3 bg-card rounded-lg">
+                        <p className="text-2xl font-bold text-accent">০</p>
+                        <p className="text-xs text-muted-foreground">সক্রিয় রেফারেল</p>
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="mt-6">
+                    <Button className="w-full">
+                      শুরু করতে লগইন করুন
+                    </Button>
+                  </div>
+                )}
+              </div>
+              
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold">আপনার রেফারেল লিংক</h3>
+                <div className="border p-4 rounded-lg bg-card space-y-4">
+                  {user ? (
+                    <>
+                      <p className="text-sm text-muted-foreground">
+                        নীচের লিংক বা কোড কপি করে আপনার বন্ধুদের সাথে শেয়ার করুন
+                      </p>
+                      
+                      <div className="relative">
+                        <Input
+                          value={`https://tk999.org/register?ref=${referralCode}`}
+                          readOnly
+                          className="pr-12"
+                        />
+                        <Button 
+                          className="absolute right-1 top-1 h-7 w-8 p-0"
+                          onClick={copyReferralLink}
+                          variant="secondary"
+                        >
+                          {showCopiedMessage ? (
+                            <span className="text-green-500 text-xs">✓</span>
+                          ) : (
+                            <Copy className="h-3.5 w-3.5" />
+                          )}
+                        </Button>
+                      </div>
+                      
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm">আপনার রেফারেল কোড:</span>
+                        <Badge variant="secondary" className="font-mono">
+                          {referralCode}
+                        </Badge>
+                      </div>
+                      
+                      <div className="pt-2 space-y-2">
+                        <h4 className="text-sm font-medium">শেয়ার করুন</h4>
+                        <div className="flex items-center gap-3">
+                          <Button variant="outline" size="sm" className="rounded-full h-9 w-9 p-0">
+                            <Share2 className="h-4 w-4" />
+                            <span className="sr-only">জেনারেল শেয়ার</span>
+                          </Button>
+                          
+                          <Button variant="outline" size="sm" className="rounded-full h-9 w-9 p-0 bg-[#25D366]/10 border-[#25D366]/20 text-[#25D366]">
+                            <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
+                              <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.57-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/>
+                              <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm0 22c-5.523 0-10-4.477-10-10S6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"/>
+                            </svg>
+                            <span className="sr-only">ওয়াটসঅ্যাপ শেয়ার</span>
+                          </Button>
+                          
+                          <Button variant="outline" size="sm" className="rounded-full h-9 w-9 p-0 bg-[#1877F2]/10 border-[#1877F2]/20 text-[#1877F2]">
+                            <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
+                              <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                            </svg>
+                            <span className="sr-only">ফেসবুক শেয়ার</span>
+                          </Button>
+                          
+                          <Button variant="outline" size="sm" className="rounded-full h-9 w-9 p-0 bg-[#1DA1F2]/10 border-[#1DA1F2]/20 text-[#1DA1F2]">
+                            <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
+                              <path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z"/>
+                            </svg>
+                            <span className="sr-only">টুইটার শেয়ার</span>
+                          </Button>
+                        </div>
+                      </div>
+                    </>
+                  ) : (
+                    <div className="py-6 text-center space-y-3">
+                      <Shield className="h-12 w-12 mx-auto text-muted-foreground opacity-50" />
+                      <h3 className="font-medium">রেফারেল লিংক পেতে লগইন করুন</h3>
+                      <p className="text-sm text-muted-foreground">আপনার অনন্য রেফারেল লিংক পেতে আপনাকে অবশ্যই একটি অ্যাকাউন্ট তৈরি করতে হবে বা লগইন করতে হবে</p>
+                      <Button className="mt-2">
+                        লগইন / রেজিস্টার
+                      </Button>
+                    </div>
+                  )}
+                </div>
+                
+                <div className="bg-accent/10 p-4 rounded-lg">
+                  <h4 className="font-medium flex items-center gap-2 mb-2">
+                    <Gift className="h-4 w-4 text-accent" />
+                    বোনাস শর্তাবলী
+                  </h4>
+                  <ul className="space-y-1 text-sm text-muted-foreground list-disc pl-5">
+                    <li>রেফারেল বোনাস পেতে আপনার বন্ধুকে অবশ্যই নতুন ব্যবহারকারী হতে হবে</li>
+                    <li>রেফারেল বোনাস 1x ওয়েজারিং প্রয়োজন সাপেক্ষে ক্যাশ হিসেবে গণ্য হবে</li>
+                    <li>প্রতি ব্যবহারকারীর জন্য সর্বোচ্চ ১০টি সফল রেফারেল বোনাস প্রযোজ্য</li>
+                    <li>ডিপোজিট বোনাস পেতে রেফারেল করা ব্যবহারকারীকে অবশ্যই ন্যূনতম ৳১০০০ জমা করতে হবে</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
         {/* নিয়ম ও শর্তাবলী */}
         <Card>
           <CardHeader>
