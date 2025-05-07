@@ -157,8 +157,12 @@ export default function WalletPage() {
   // ইউজার ডেটা এবং ট্রানজেকশন ডেটা আপডেট
   useEffect(() => {
     // ইউজার ডেটা থেকে ব্যালেন্স আপডেট
-    if (userData && userData.balance !== undefined) {
-      setBalance(parseFloat(userData.balance.toString()));
+    if (userData && typeof userData === 'object' && 'balance' in userData) {
+      const balanceValue = userData.balance;
+      if (balanceValue !== undefined && balanceValue !== null) {
+        setBalance(typeof balanceValue === 'string' ? parseFloat(balanceValue) : 
+                 typeof balanceValue === 'number' ? balanceValue : 0);
+      }
     }
     
     // ট্রানজেকশন ডেটা আপডেট

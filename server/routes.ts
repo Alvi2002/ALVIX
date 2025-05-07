@@ -428,16 +428,33 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.json(transactions);
   }));
   
-  // ট্রানজেকশন স্ট্যাটাস পরিবর্তন (এডমিন)
-  app.patch("/api/admin/transactions/:id/status", adminMiddleware, asyncHandler(async (req, res) => {
+  // ট্রানজেকশন অ্যাপ্রুভ করা (এডমিন)
+  app.post("/api/admin/transactions/:id/approve", adminMiddleware, asyncHandler(async (req, res) => {
     const id = parseInt(req.params.id);
-    const { status } = req.body;
     
-    if (!status || !["success", "pending", "failed"].includes(status)) {
-      return res.status(400).json({ error: "অবৈধ স্ট্যাটাস" });
+    const updatedTransaction = await storage.updateTransactionStatus(id, "success");
+    
+    if (!updatedTransaction) {
+      return res.status(404).json({ error: "ট্রানজেকশন পাওয়া যায়নি" });
     }
     
-    const updatedTransaction = await storage.updateTransactionStatus(id, status);
+    // ডিপোজিট হলে ইউজারের ব্যালেন্স আপডেট করা
+    if (updatedTransaction.type === "deposit") {
+      const user = await storage.getUser(updatedTransaction.userId);
+      if (user) {
+        const newBalance = (parseFloat(user.balance || "0") + parseFloat(updatedTransaction.amount)).toString();
+        await storage.updateUser(user.id, { balance: newBalance });
+      }
+    }
+    
+    res.json(updatedTransaction);
+  }));
+  
+  // ট্রানজেকশন রিজেক্ট করা (এডমিন)
+  app.post("/api/admin/transactions/:id/reject", adminMiddleware, asyncHandler(async (req, res) => {
+    const id = parseInt(req.params.id);
+    
+    const updatedTransaction = await storage.updateTransactionStatus(id, "failed");
     
     if (!updatedTransaction) {
       return res.status(404).json({ error: "ট্রানজেকশন পাওয়া যায়নি" });
