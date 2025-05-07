@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useLocation } from "wouter";
+import { useLocation, Link } from "wouter";
 import { useAuth } from "@/hooks/use-auth";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -135,9 +135,9 @@ export default function AuthPage() {
                           আমাকে মনে রাখুন
                         </label>
                       </div>
-                      <a href="#" className="text-accent text-sm hover:underline">
+                      <Link href="/password-reset" className="text-accent text-sm hover:underline">
                         পাসওয়ার্ড ভুলে গেছেন?
-                      </a>
+                      </Link>
                     </div>
                     
                     <Button type="submit" className="w-full" disabled={loginMutation.isPending}>
@@ -205,8 +205,8 @@ export default function AuthPage() {
                           </FormControl>
                           <div className="space-y-1 leading-none">
                             <FormLabel className="text-sm">
-                              আমি <a href="#" className="text-accent hover:underline">নিয়ম ও শর্তাবলী</a> এবং{" "}
-                              <a href="#" className="text-accent hover:underline">গোপনীয়তা নীতি</a> পড়েছি এবং সম্মত
+                              আমি <Link href="/terms" className="text-accent hover:underline">নিয়ম ও শর্তাবলী</Link> এবং{" "}
+                              <Link href="/privacy" className="text-accent hover:underline">গোপনীয়তা নীতি</Link> পড়েছি এবং সম্মত
                             </FormLabel>
                             <FormMessage />
                           </div>
