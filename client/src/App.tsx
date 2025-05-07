@@ -17,6 +17,7 @@ import PromotionsPage from "@/pages/promotions";
 import GamesPage from "@/pages/games";
 import AboutPage from "@/pages/about";
 import ResponsibleGamingPage from "@/pages/responsible-gaming";
+import AffiliatePage from "@/pages/affiliate";
 // গেম ক্যাটাগরি পেজগুলো ইমপোর্ট করছি
 import CardGamesPage from "@/pages/games/card";
 import ArcadeGamesPage from "@/pages/games/arcade";
@@ -49,7 +50,7 @@ function Router() {
       <Route path="/terms" component={AboutPage} /> {/* অস্থায়ীভাবে AboutPage দিয়েই দেখাচ্ছি */}
       <Route path="/privacy" component={AboutPage} /> {/* অস্থায়ীভাবে AboutPage দিয়েই দেখাচ্ছি */}
       <Route path="/faq" component={AboutPage} /> {/* অস্থায়ীভাবে AboutPage দিয়েই দেখাচ্ছি */}
-      <Route path="/affiliate" component={AboutPage} /> {/* অস্থায়ীভাবে AboutPage দিয়েই দেখাচ্ছি */}
+      <Route path="/affiliate" component={AffiliatePage} />
       <Route path="/payments" component={AboutPage} /> {/* অস্থায়ীভাবে AboutPage দিয়েই দেখাচ্ছি */}
       <Route path="/tournament-rules" component={AboutPage} /> {/* অস্থায়ীভাবে AboutPage দিয়েই দেখাচ্ছি */}
       <Route path="/helpdesk" component={ContactPage} /> {/* অস্থায়ীভাবে ContactPage দিয়েই দেখাচ্ছি */}
