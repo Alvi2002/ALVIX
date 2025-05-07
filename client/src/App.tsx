@@ -36,25 +36,20 @@ import { AuthProvider } from "./hooks/use-auth";
 function Router() {
   return (
     <Switch>
+      {/* পাবলিক রাউট */}
+      <Route path="/" component={HomePage} />
       <Route path="/auth" component={AuthPage} />
-      <ProtectedRoute path="/" component={HomePage} />
-      <ProtectedRoute path="/slots" component={SlotsPage} />
-      <ProtectedRoute path="/live-casino" component={LiveCasinoPage} />
-      <ProtectedRoute path="/sports" component={SportsPage} />
-      <ProtectedRoute path="/profile" component={ProfilePage} />
-      <ProtectedRoute path="/wallet" component={WalletPage} />
-      <ProtectedRoute path="/transactions" component={TransactionsPage} />
-      <ProtectedRoute path="/admin" component={AdminPage} />
-      <ProtectedRoute path="/make-admin" component={MakeAdminPage} />
       <Route path="/promotions" component={PromotionsPage} />
       <Route path="/games" component={GamesPage} />
-      <ProtectedRoute path="/games/card" component={CardGamesPage} />
-      <ProtectedRoute path="/games/arcade" component={ArcadeGamesPage} />
-      <ProtectedRoute path="/games/tournaments" component={TournamentsPage} />
-      <ProtectedRoute path="/games/slots" component={SlotsPage} />
-      <ProtectedRoute path="/games/live-casino" component={LiveCasinoPage} />
-      <ProtectedRoute path="/games/sports" component={SportsPage} />
-      <ProtectedRoute path="/games/betslip" component={BetSlipSystem} />
+      <Route path="/slots" component={SlotsPage} />
+      <Route path="/live-casino" component={LiveCasinoPage} />
+      <Route path="/sports" component={SportsPage} />
+      <Route path="/games/card" component={CardGamesPage} />
+      <Route path="/games/arcade" component={ArcadeGamesPage} />
+      <Route path="/games/tournaments" component={TournamentsPage} />
+      <Route path="/games/slots" component={SlotsPage} />
+      <Route path="/games/live-casino" component={LiveCasinoPage} />
+      <Route path="/games/sports" component={SportsPage} />
       <Route path="/contact" component={ContactPage} />
       <Route path="/about" component={AboutPage} />
       <Route path="/responsible-gaming" component={ResponsibleGamingPage} />
@@ -66,6 +61,15 @@ function Router() {
       <Route path="/payments" component={PaymentsFixedPage} />
       <Route path="/tournament-rules" component={AboutPage} /> {/* অস্থায়ীভাবে AboutPage দিয়েই দেখাচ্ছি */}
       <Route path="/helpdesk" component={ContactPage} /> {/* অস্থায়ীভাবে ContactPage দিয়েই দেখাচ্ছি */}
+      
+      {/* প্রাইভেট রাউট - লগইন আবশ্যক */}
+      <ProtectedRoute path="/profile" component={ProfilePage} />
+      <ProtectedRoute path="/wallet" component={WalletPage} />
+      <ProtectedRoute path="/transactions" component={TransactionsPage} />
+      <ProtectedRoute path="/admin" component={AdminPage} />
+      <ProtectedRoute path="/make-admin" component={MakeAdminPage} />
+      <ProtectedRoute path="/games/betslip" component={BetSlipSystem} />
+      
       <Route component={NotFound} />
     </Switch>
   );
