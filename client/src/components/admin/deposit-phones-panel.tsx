@@ -35,9 +35,11 @@ export default function DepositPhonesPanel() {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [formData, setFormData] = useState({
-    number: "",
-    provider: "bkash",
-    name: "",
+    phoneNumber: "",
+    operator: "bkash",
+    accountName: "",
+    accountType: "personal",
+    notes: "",
     isActive: true
   });
   
@@ -72,9 +74,11 @@ export default function DepositPhonesPanel() {
       });
       setIsAddDialogOpen(false);
       setFormData({
-        number: "",
-        provider: "bkash",
-        name: "",
+        phoneNumber: "",
+        operator: "bkash",
+        accountName: "",
+        accountType: "personal",
+        notes: "",
         isActive: true
       });
       queryClient.invalidateQueries({ queryKey: ["/api/admin/deposit-phones"] });
@@ -215,9 +219,11 @@ export default function DepositPhonesPanel() {
   const handleOpenEditDialog = (phone: DepositPhone) => {
     setSelectedPhone(phone);
     setFormData({
-      number: phone.number,
-      provider: phone.provider,
-      name: phone.name,
+      phoneNumber: phone.phoneNumber,
+      operator: phone.operator,
+      accountName: phone.accountName,
+      accountType: phone.accountType || "personal",
+      notes: phone.notes || "",
       isActive: phone.isActive || false
     });
     setIsEditDialogOpen(true);
@@ -297,15 +303,15 @@ export default function DepositPhonesPanel() {
                         <div className="h-8 w-8 rounded-full bg-muted flex items-center justify-center">
                           <Phone className="h-4 w-4 text-muted-foreground" />
                         </div>
-                        <span className="font-medium">{phone.number}</span>
+                        <span className="font-medium">{phone.phoneNumber}</span>
                       </div>
                     </TableCell>
                     <TableCell>
-                      <Badge className={`${getProviderColor(phone.provider)} uppercase`}>
-                        {phone.provider}
+                      <Badge className={`${getProviderColor(phone.operator)} uppercase`}>
+                        {phone.operator}
                       </Badge>
                     </TableCell>
-                    <TableCell>{phone.name}</TableCell>
+                    <TableCell>{phone.accountName}</TableCell>
                     <TableCell>
                       <Badge className={phone.isActive ? "bg-green-100 text-green-700 border-green-200" : "bg-gray-100 text-gray-700"}>
                         {phone.isActive ? "অ্যাকটিভ" : "ইনঅ্যাকটিভ"}
@@ -366,24 +372,24 @@ export default function DepositPhonesPanel() {
           
           <div className="grid gap-4 py-4">
             <div className="grid grid-cols-4 items-center gap-4">
-              <label htmlFor="number" className="text-right">
+              <label htmlFor="phoneNumber" className="text-right">
                 নাম্বার
               </label>
               <Input
-                id="number"
-                value={formData.number}
-                onChange={(e) => setFormData({...formData, number: e.target.value})}
+                id="phoneNumber"
+                value={formData.phoneNumber}
+                onChange={(e) => setFormData({...formData, phoneNumber: e.target.value})}
                 className="col-span-3"
                 placeholder="01XXXXXXXXX"
               />
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
-              <label htmlFor="provider" className="text-right">
+              <label htmlFor="operator" className="text-right">
                 প্রোভাইডার
               </label>
               <Select
-                value={formData.provider}
-                onValueChange={(value) => setFormData({...formData, provider: value})}
+                value={formData.operator}
+                onValueChange={(value) => setFormData({...formData, operator: value})}
               >
                 <SelectTrigger className="col-span-3">
                   <SelectValue placeholder="প্রোভাইডার নির্বাচন করুন" />
@@ -397,13 +403,13 @@ export default function DepositPhonesPanel() {
               </Select>
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
-              <label htmlFor="name" className="text-right">
+              <label htmlFor="accountName" className="text-right">
                 নাম
               </label>
               <Input
-                id="name"
-                value={formData.name}
-                onChange={(e) => setFormData({...formData, name: e.target.value})}
+                id="accountName"
+                value={formData.accountName}
+                onChange={(e) => setFormData({...formData, accountName: e.target.value})}
                 className="col-span-3"
                 placeholder="এজেন্ট নাম"
               />
@@ -419,7 +425,7 @@ export default function DepositPhonesPanel() {
             </Button>
             <Button 
               onClick={handleAddPhone}
-              disabled={addPhoneMutation.isPending || !formData.number || !formData.name}
+              disabled={addPhoneMutation.isPending || !formData.phoneNumber || !formData.accountName}
             >
               {addPhoneMutation.isPending ? "প্রসেসিং..." : "যোগ করুন"}
             </Button>
@@ -439,24 +445,24 @@ export default function DepositPhonesPanel() {
           
           <div className="grid gap-4 py-4">
             <div className="grid grid-cols-4 items-center gap-4">
-              <label htmlFor="edit-number" className="text-right">
+              <label htmlFor="edit-phoneNumber" className="text-right">
                 নাম্বার
               </label>
               <Input
-                id="edit-number"
-                value={formData.number}
-                onChange={(e) => setFormData({...formData, number: e.target.value})}
+                id="edit-phoneNumber"
+                value={formData.phoneNumber}
+                onChange={(e) => setFormData({...formData, phoneNumber: e.target.value})}
                 className="col-span-3"
                 placeholder="01XXXXXXXXX"
               />
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
-              <label htmlFor="edit-provider" className="text-right">
+              <label htmlFor="edit-operator" className="text-right">
                 প্রোভাইডার
               </label>
               <Select
-                value={formData.provider}
-                onValueChange={(value) => setFormData({...formData, provider: value})}
+                value={formData.operator}
+                onValueChange={(value) => setFormData({...formData, operator: value})}
               >
                 <SelectTrigger className="col-span-3" id="edit-provider">
                   <SelectValue placeholder="প্রোভাইডার নির্বাচন করুন" />
