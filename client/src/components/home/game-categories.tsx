@@ -1,3 +1,4 @@
+import { Link } from "wouter";
 import { Dice5, UserIcon, Volleyball, Spade, Gamepad2, Trophy } from "lucide-react";
 
 const categories = [
@@ -53,7 +54,7 @@ export default function GameCategories() {
 
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-4">
         {categories.map((category) => (
-          <a
+          <Link
             key={category.id}
             href={category.link}
             className="bg-card rounded-lg p-4 text-center transition duration-200 hover:bg-accent group"
@@ -64,7 +65,7 @@ export default function GameCategories() {
             <h3 className="text-white font-medium text-sm group-hover:text-secondary">
               {category.title}
             </h3>
-          </a>
+          </Link>
         ))}
       </div>
     </section>

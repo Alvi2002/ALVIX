@@ -17,6 +17,10 @@ import PromotionsPage from "@/pages/promotions";
 import GamesPage from "@/pages/games";
 import AboutPage from "@/pages/about";
 import ResponsibleGamingPage from "@/pages/responsible-gaming";
+// গেম ক্যাটাগরি পেজগুলো ইমপোর্ট করছি
+import CardGamesPage from "@/pages/games/card";
+import ArcadeGamesPage from "@/pages/games/arcade";
+import TournamentsPage from "@/pages/games/tournaments";
 import { ProtectedRoute } from "./lib/protected-route";
 import { AuthProvider } from "./hooks/use-auth";
 
@@ -33,6 +37,12 @@ function Router() {
       <ProtectedRoute path="/transactions" component={TransactionsPage} />
       <Route path="/promotions" component={PromotionsPage} />
       <Route path="/games" component={GamesPage} />
+      <ProtectedRoute path="/games/card" component={CardGamesPage} />
+      <ProtectedRoute path="/games/arcade" component={ArcadeGamesPage} />
+      <ProtectedRoute path="/games/tournaments" component={TournamentsPage} />
+      <ProtectedRoute path="/games/slots" component={SlotsPage} />
+      <ProtectedRoute path="/games/live-casino" component={LiveCasinoPage} />
+      <ProtectedRoute path="/games/sports" component={SportsPage} />
       <Route path="/contact" component={ContactPage} />
       <Route path="/about" component={AboutPage} />
       <Route path="/responsible-gaming" component={ResponsibleGamingPage} />
